@@ -4,11 +4,12 @@ import 'package:provider/provider.dart';
 import '../providers/home_provider.dart';
 import '../theme/app_colors.dart';
 import '../widgets/home/home_assignment_stats_section.dart';
-import '../widgets/home/home_bottom_navigation.dart';
 import '../widgets/home/home_quick_actions.dart';
 import '../widgets/home/home_recent_activities_section.dart';
 import '../widgets/home/home_top_section.dart';
+import '../widgets/navigation/app_bottom_navigation.dart';
 import '../widgets/sidebar.dart';
+import 'cases_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -19,7 +20,10 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       drawer: const Sidebar(),
       backgroundColor: AppColors.brandDark,
-      bottomNavigationBar: const HomeBottomNavigation(),
+      bottomNavigationBar: AppBottomNavigation(
+        selectedIndex: 0,
+        onTap: (index) => _handleNavigation(context, index),
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -60,5 +64,20 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _handleNavigation(BuildContext context, int selectedIndex) {
+    if (selectedIndex == 1) {
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const CasesScreen()),
+      );
+      return;
+    }
+
+    if (selectedIndex != 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Coming soon')),
+      );
+    }
   }
 }

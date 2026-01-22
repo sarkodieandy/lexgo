@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../models/cases/case_item.dart';
 import '../models/home/activity_item.dart';
 import '../models/home/assignment_progress.dart';
 import '../models/notifications/notification_item.dart';
@@ -142,6 +143,30 @@ class HomeProvider extends ChangeNotifier {
       time: '06:00 AM',
       icon: Icons.book_outlined,
       iconBackground: Color(0xFFFCECBB),
+    ),
+  ];
+
+  List<CaseItem> get cases => const [
+    CaseItem(
+      title: 'The Republic v. John Smith',
+      subtitle: 'Supreme Court of Ghana',
+      code: '[2024] GHASC 15',
+      tag: 'Administrative Law',
+      tagColor: Color(0xFFD14234),
+    ),
+    CaseItem(
+      title: 'Case Title',
+      subtitle: 'Source of case',
+      code: 'case code',
+      tag: 'Constitutional Law',
+      tagColor: Color(0xFF8B5CF6),
+    ),
+    CaseItem(
+      title: 'Case Title',
+      subtitle: 'Source of case',
+      code: 'case code',
+      tag: 'Contract Law',
+      tagColor: Color(0xFF6366F1),
     ),
   ];
 
