@@ -51,9 +51,21 @@ class CaseCard extends StatelessWidget {
                     color: item.tagColor.withAlpha(30),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Text(
-                    item.tag,
-                    style: TextStyle(color: item.tagColor, fontWeight: FontWeight.w600),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Image.asset(
+                        'assets/Union.png',
+                        width: 18,
+                        height: 18,
+                        color: item.tagColor,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        item.tag,
+                        style: TextStyle(color: item.tagColor, fontWeight: FontWeight.w600),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -76,13 +88,13 @@ class CaseCard extends StatelessWidget {
             ),
           ),
           Positioned(
-            right: 16,
-            bottom: 10,
+            right: 12,
+            bottom: 8,
             child: Image.asset(
               'assets/Union.png',
-              width: 80,
-              height: 80,
-              color: AppColors.brandDark.withAlpha(60),
+              width: 120,
+              height: 120,
+              color: AppColors.brandDark.withAlpha(40),
             ),
           ),
         ],

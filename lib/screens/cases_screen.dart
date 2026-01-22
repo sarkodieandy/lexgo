@@ -40,30 +40,44 @@ class CasesScreen extends StatelessWidget {
               ),
             ),
             Expanded(
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(32),
-                    topRight: Radius.circular(32),
+              child: Stack(
+                children: [
+                  Positioned(
+                    right: -40,
+                    top: 20,
+                    child: Image.asset(
+                      'assets/Union.png',
+                      width: 220,
+                      height: 220,
+                      color: Colors.black12,
+                    ),
                   ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                  child: Column(
-                    children: [
-                      _SearchRow(),
-                      const SizedBox(height: 20),
-                      Expanded(
-                        child: ListView.builder(
-                          physics: const BouncingScrollPhysics(),
-                          itemCount: provider.cases.length,
-                          itemBuilder: (_, index) => CaseCard(item: provider.cases[index]),
-                        ),
+                  Container(
+                    decoration: const BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(32),
+                        topRight: Radius.circular(32),
                       ),
-                    ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                      child: Column(
+                        children: [
+                          _SearchRow(),
+                          const SizedBox(height: 20),
+                          Expanded(
+                            child: ListView.builder(
+                              physics: const BouncingScrollPhysics(),
+                              itemCount: provider.cases.length,
+                              itemBuilder: (_, index) => CaseCard(item: provider.cases[index]),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           ],
