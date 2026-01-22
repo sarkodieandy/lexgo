@@ -25,17 +25,33 @@ class _CasesScreenState extends State<CasesScreen> {
     final provider = context.read<HomeProvider>();
     final categories = provider.cases.map((item) => item.tag).toSet().toList()
       ..sort();
-    final result = await Navigator.of(context).push<FilterSelection>(
-      MaterialPageRoute(
-        builder: (_) => CasesFilterScreen(
+    final result = await showGeneralDialog<FilterSelection>(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Filter cases',
+      transitionDuration: const Duration(milliseconds: 320),
+      barrierColor: Colors.black54,
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return CasesFilterScreen(
           categories: categories,
           initialSelection: _activeFilter ??
               FilterSelection(
                 category: categories.isNotEmpty ? categories.first : '',
                 sort: FilterSort.alphabeticalAsc,
               ),
-        ),
-      ),
+        );
+      },
+      transitionBuilder: (context, animation, secondary, child) {
+        return FadeTransition(
+          opacity: animation,
+          child: ScaleTransition(
+            scale: Tween<double>(begin: 0.8, end: 1).animate(
+              CurvedAnimation(parent: animation, curve: Curves.easeOutBack),
+            ),
+            child: child,
+          ),
+        );
+      },
     );
     if (result != null) {
       setState(() => _activeFilter = result);
