@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/home_provider.dart';
-import '../widgets/notification_widgets.dart';
 import '../theme/app_colors.dart';
+import '../widgets/notification_widgets.dart';
 
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
@@ -11,22 +11,29 @@ class NotificationsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final notifications = context.watch<HomeProvider>().notifications;
     return Scaffold(
-      backgroundColor: AppColors.surface,
-      body: SafeArea(
-        child: Column(
-          children: [
-            const NotificationsHeader(),
-            Expanded(
-              child: ListView.separated(
-                padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+      backgroundColor: AppColors.brandDark,
+      body: Column(
+        children: [
+          const NotificationsHeader(),
+          Expanded(
+            child: Container(
+              decoration: const BoxDecoration(
+                color: AppColors.brandWhite,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(28),
+                  topRight: Radius.circular(28),
+                ),
+              ),
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+              child: ListView.builder(
+                physics: const BouncingScrollPhysics(),
                 itemCount: notifications.length,
-                separatorBuilder: (context, _) => const SizedBox(height: 16),
                 itemBuilder: (_, index) =>
-                    NotificationCard(item: notifications[index]),
+                    NotificationTile(item: notifications[index]),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

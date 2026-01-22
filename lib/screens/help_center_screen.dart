@@ -1,206 +1,92 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
+import '../widgets/help_action_card.dart';
 
 class HelpCenterScreen extends StatelessWidget {
   const HelpCenterScreen({super.key});
 
-  static const List<_HelpOption> _options = [
-    _HelpOption(
-      title: 'Chat with us',
-      detail:
-          'Live agents are available 24/7 to answer questions about courses, grading, and onboarding.',
-      action: 'Chat now',
+  static const List<HelpCenterOption> _options = [
+    HelpCenterOption(
       icon: Icons.chat_bubble_outline,
-      iconBackground: Color(0xFFFCECBB),
+      title: 'Get quick answers through our live chat.',
+      actionLabel: 'Chat with Us',
     ),
-    _HelpOption(
-      title: 'Send an email',
-      detail:
-          'Email us your request and we’ll respond within 2 hours with guidance.',
-      action: 'Send email',
+    HelpCenterOption(
       icon: Icons.mail_outline,
-      iconBackground: Color(0xFFE7F0FF),
+      title: 'If your issue requires more detail, you can email us directly.',
+      actionLabel: 'Send an Email',
     ),
-    _HelpOption(
-      title: 'Call support',
-      detail:
-          'Call our support line for urgent lecturer or technical help between 6am–10pm.',
-      action: 'Call us',
+    HelpCenterOption(
       icon: Icons.call_outlined,
-      iconBackground: Color(0xFFE9F5EF),
+      title: 'Need urgent help? Call our support line for direct assistance.',
+      actionLabel: 'Call us',
     ),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.surface,
-      appBar: AppBar(
-        backgroundColor: AppColors.brandDark,
-        elevation: 0,
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
+      backgroundColor: AppColors.brandDark,
+      body: Column(
+        children: [
+          const _HelpCenterHeader(),
+          Expanded(
+            child: Container(
+              decoration: const BoxDecoration(
                 color: AppColors.brandWhite,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(32),
+                  topRight: Radius.circular(32),
+                ),
               ),
-              child: const Icon(Icons.scale, color: AppColors.brandDark),
+              padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
+              child: ListView.separated(
+                physics: const BouncingScrollPhysics(),
+                itemCount: _options.length,
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 24),
+                itemBuilder: (context, index) =>
+                    HelpActionCard(option: _options[index]),
+              ),
             ),
-            const SizedBox(width: 12),
-            const Text('Help Center'),
-          ],
-        ),
-        actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
+          ),
         ],
-      ),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
-          children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: AppColors.brandDark,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0x40000000),
-                    blurRadius: 16,
-                    offset: Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Need help?',
-                    style: TextStyle(
-                      color: AppColors.brandWhite,
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    'Our support team is ready to assist with anything LexGo-related, from course setup to account questions.',
-                    style: TextStyle(
-                      color: AppColors.brandAccent,
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            ..._options.map(
-              (option) => Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: _HelpTile(option: option),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
 }
 
-class _HelpOption {
-  final String title;
-  final String detail;
-  final String action;
-  final IconData icon;
-  final Color iconBackground;
-
-  const _HelpOption({
-    required this.title,
-    required this.detail,
-    required this.action,
-    required this.icon,
-    required this.iconBackground,
-  });
-}
-
-class _HelpTile extends StatelessWidget {
-  const _HelpTile({required this.option});
-
-  final _HelpOption option;
+class _HelpCenterHeader extends StatelessWidget {
+  const _HelpCenterHeader();
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.brandWhite,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x11000000),
-            blurRadius: 12,
-            offset: Offset(0, 6),
-          ),
-        ],
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 28, 24, 24),
+      decoration: const BoxDecoration(
+        color: AppColors.brandDark,
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(24),
+          bottomRight: Radius.circular(24),
+        ),
       ),
-      child: Column(
+      child: Stack(
         children: [
-          Row(
-            children: [
-              Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: option.iconBackground,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Icon(option.icon, color: AppColors.brandDark),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      option.title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      option.detail,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: AppColors.mutedText,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
           Align(
-            alignment: Alignment.centerRight,
-            child: TextButton(
-              onPressed: () {},
-              style: TextButton.styleFrom(
-                backgroundColor: AppColors.brandDark,
-                foregroundColor: AppColors.brandWhite,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 22,
-                  vertical: 12,
-                ),
-                textStyle: const TextStyle(fontWeight: FontWeight.w600),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
+            alignment: Alignment.centerLeft,
+            child: IconButton(
+              onPressed: () => Navigator.maybePop(context),
+              icon: const Icon(Icons.arrow_back, color: AppColors.brandWhite),
+            ),
+          ),
+          Center(
+            child: Text(
+              'Help Center',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: AppColors.brandWhite,
+                fontWeight: FontWeight.w700,
               ),
-              child: Text(option.action),
             ),
           ),
         ],

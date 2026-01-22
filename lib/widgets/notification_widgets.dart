@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart';
 import '../providers/home_provider.dart';
+import '../theme/app_colors.dart';
 
 class NotificationsHeader extends StatelessWidget {
   const NotificationsHeader({super.key});
@@ -9,56 +9,29 @@ class NotificationsHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 28),
+      padding: const EdgeInsets.fromLTRB(16, 28, 24, 24),
       decoration: const BoxDecoration(
         color: AppColors.brandDark,
         borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(28),
-          bottomRight: Radius.circular(28),
+          bottomLeft: Radius.circular(24),
+          bottomRight: Radius.circular(24),
         ),
       ),
-      child: Row(
+      child: Stack(
         children: [
-          InkWell(
-            borderRadius: BorderRadius.circular(16),
-            onTap: () => Navigator.maybePop(context),
-            child: Container(
-              height: 40,
-              width: 40,
-              decoration: BoxDecoration(
-                color: AppColors.brandNavy,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(Icons.arrow_back, color: AppColors.brandWhite),
-            ),
+          IconButton(
+            onPressed: () => Navigator.maybePop(context),
+            icon: const Icon(Icons.arrow_back_ios, color: AppColors.brandWhite),
           ),
-          const SizedBox(width: 16),
-          const Expanded(
+          Align(
+            alignment: Alignment.center,
             child: Text(
               'Notifications',
-              style: TextStyle(
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 color: AppColors.brandWhite,
-                fontSize: 24,
                 fontWeight: FontWeight.w700,
               ),
             ),
-          ),
-          Stack(
-            clipBehavior: Clip.none,
-            children: const [
-              Icon(
-                Icons.circle_notifications_outlined,
-                color: AppColors.brandWhite,
-              ),
-              Positioned(
-                right: -2,
-                top: -4,
-                child: CircleAvatar(
-                  radius: 6,
-                  backgroundColor: AppColors.brandAccent,
-                ),
-              ),
-            ],
           ),
         ],
       ),
@@ -66,94 +39,54 @@ class NotificationsHeader extends StatelessWidget {
   }
 }
 
-class NotificationCard extends StatelessWidget {
-  const NotificationCard({super.key, required this.item});
+class NotificationTile extends StatelessWidget {
+  const NotificationTile({super.key, required this.item});
 
   final NotificationItem item;
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.brandWhite,
         borderRadius: BorderRadius.circular(18),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x11000000),
-            blurRadius: 12,
+            color: Color(0x0F000000),
+            blurRadius: 10,
             offset: Offset(0, 6),
           ),
         ],
       ),
-      child: Stack(
+      child: Row(
         children: [
-          Positioned(
-            right: 0,
-            top: 0,
-            bottom: 0,
-            width: 90,
-            child: Container(
-              decoration: const BoxDecoration(
-                color: AppColors.brandDark,
-                borderRadius: BorderRadius.only(
-                  topRight: Radius.circular(18),
-                  bottomRight: Radius.circular(18),
-                ),
-              ),
-              child: const Center(
-                child: RotatedBox(
-                  quarterTurns: 3,
-                  child: Text(
-                    'Delete',
-                    style: TextStyle(
-                      color: AppColors.brandWhite,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ),
+          Container(
+            width: 46,
+            height: 46,
+            decoration: BoxDecoration(
+              color: item.iconBackground,
+              borderRadius: BorderRadius.circular(14),
             ),
+            child: Icon(item.icon, color: AppColors.brandDark),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: item.iconBackground,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(item.icon, color: AppColors.brandDark),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
                         item.title,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(height: 5),
-                      Text(
-                        item.message,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: AppColors.mutedText,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
+                    ),
                     Text(
                       item.time,
                       style: const TextStyle(
@@ -161,25 +94,15 @@ class NotificationCard extends StatelessWidget {
                         color: AppColors.mutedText,
                       ),
                     ),
-                    const SizedBox(height: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.brandAccent,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Text(
-                        'New',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
                   ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  item.message,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.mutedText,
+                  ),
                 ),
               ],
             ),

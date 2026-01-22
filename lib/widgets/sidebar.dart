@@ -4,6 +4,7 @@ import '../providers/home_provider.dart';
 import '../screens/help_center_screen.dart';
 import '../screens/notifications_screen.dart';
 import '../theme/app_colors.dart';
+import 'footer.dart';
 
 class Sidebar extends StatelessWidget {
   const Sidebar({super.key});
@@ -20,9 +21,10 @@ class Sidebar extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 32, 24, 20),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Image.asset('assets/union.png', width: 32, height: 32),
-                  const SizedBox(width: 14),
+                  Image.asset('assets/Union.png', width: 32, height: 32),
+                  const SizedBox(width: 12),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: const [
@@ -71,44 +73,7 @@ class Sidebar extends StatelessWidget {
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
-              child: Row(
-                children: [
-                  Container(
-                    width: 54,
-                    height: 54,
-                    decoration: BoxDecoration(
-                      color: AppColors.brandBlue,
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: const Icon(
-                      Icons.person,
-                      color: AppColors.brandWhite,
-                      size: 28,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text(
-                        'Dr.Johnson Coffie',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        'Lecturer',
-                        style: TextStyle(color: AppColors.mutedText),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+            const Footer(),
           ],
         ),
       ),
@@ -155,8 +120,8 @@ class _SidebarItem extends StatelessWidget {
       ),
       trailing: badgeCount != null && badgeCount! > 0
           ? Container(
-              width: 22,
-              height: 22,
+              width: 20,
+              height: 20,
               decoration: const BoxDecoration(
                 color: Colors.red,
                 shape: BoxShape.circle,
@@ -174,7 +139,7 @@ class _SidebarItem extends StatelessWidget {
             )
           : null,
       onTap: onTap,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 24),
     );
   }
 }
