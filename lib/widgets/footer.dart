@@ -8,7 +8,6 @@ class Footer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       decoration: const ShapeDecoration(
         shape: RoundedRectangleBorder(
@@ -20,6 +19,7 @@ class Footer extends StatelessWidget {
         ),
       ),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
@@ -35,6 +35,7 @@ class Footer extends StatelessWidget {
           ),
           const SizedBox(width: 16),
           Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: const [
               Text(
