@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../models/help_center/help_center_option.dart';
 import '../theme/app_colors.dart';
 
 class HelpActionCard extends StatelessWidget {
@@ -9,15 +11,16 @@ class HelpActionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 28),
       decoration: BoxDecoration(
         color: AppColors.brandWhite,
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: BorderRadius.circular(28),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x0F000000),
-            blurRadius: 12,
-            offset: Offset(0, 6),
+            color: Color(0x10000000),
+            blurRadius: 14,
+            offset: Offset(0, 8),
           ),
         ],
       ),
@@ -32,7 +35,7 @@ class HelpActionCard extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           SizedBox(
-            width: double.infinity,
+            width: 160,
             height: 44,
             child: ElevatedButton(
               onPressed: () {},
@@ -51,16 +54,4 @@ class HelpActionCard extends StatelessWidget {
       ),
     );
   }
-}
-
-class HelpCenterOption {
-  final IconData icon;
-  final String title;
-  final String actionLabel;
-
-  const HelpCenterOption({
-    required this.icon,
-    required this.title,
-    required this.actionLabel,
-  });
 }

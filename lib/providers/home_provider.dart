@@ -1,85 +1,10 @@
 import 'package:flutter/material.dart';
 
-class QuickAction {
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final Color background;
-
-  const QuickAction({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.background,
-  });
-}
-
-class AssignmentProgress {
-  final String title;
-  final String description;
-  final int completed;
-  final int total;
-
-  const AssignmentProgress({
-    required this.title,
-    required this.description,
-    required this.completed,
-    required this.total,
-  });
-}
-
-class AssignedCategory {
-  final String subject;
-  final List<AssignmentProgress> assignments;
-
-  const AssignedCategory({required this.subject, required this.assignments});
-}
-
-class ActivityItem {
-  final String title;
-  final String detail;
-  final String time;
-  final IconData icon;
-  final Color iconBackground;
-
-  const ActivityItem({
-    required this.title,
-    required this.detail,
-    required this.time,
-    required this.icon,
-    required this.iconBackground,
-  });
-}
-
-class NotificationItem {
-  final String title;
-  final String message;
-  final String time;
-  final IconData icon;
-  final Color iconBackground;
-
-  const NotificationItem({
-    required this.title,
-    required this.message,
-    required this.time,
-    required this.icon,
-    required this.iconBackground,
-  });
-}
-
-class SidebarItem {
-  final String label;
-  final IconData icon;
-  final bool selected;
-  final bool hasBadge;
-
-  const SidebarItem({
-    required this.label,
-    required this.icon,
-    this.selected = false,
-    this.hasBadge = false,
-  });
-}
+import '../models/home/activity_item.dart';
+import '../models/home/assignment_progress.dart';
+import '../models/notifications/notification_item.dart';
+import '../models/home/quick_action.dart';
+import '../models/sidebar/sidebar_item.dart';
 
 class HomeProvider extends ChangeNotifier {
   final DateTime _today = DateTime.now();
@@ -91,7 +16,7 @@ class HomeProvider extends ChangeNotifier {
     return 'Good Evening';
   }
 
-  String get userName => 'Dr. Johnson';
+  String get userName => 'Dr.Johnson';
 
   String get formattedDate => '${_today.month}/${_today.day}/${_today.year}';
 

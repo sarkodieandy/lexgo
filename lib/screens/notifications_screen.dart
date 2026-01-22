@@ -14,7 +14,7 @@ class NotificationsScreen extends StatelessWidget {
       backgroundColor: AppColors.brandDark,
       body: Column(
         children: [
-          const NotificationsHeader(),
+          NotificationsHeader(onBack: () => Navigator.of(context).maybePop()),
           Expanded(
             child: Container(
               decoration: const BoxDecoration(
