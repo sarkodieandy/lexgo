@@ -19,7 +19,11 @@ class CasesScreen extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
         backgroundColor: AppColors.brandDark,
-        child: const Icon(Icons.add),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: const Text(
+          '+',
+          style: TextStyle(fontSize: 32, fontWeight: FontWeight.w600),
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: AppBottomNavigation(
@@ -96,29 +100,50 @@ class _CasesHeader extends StatelessWidget {
       decoration: const BoxDecoration(
         color: AppColors.brandDark,
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+      child: Stack(
         children: [
-          const Text(
-            'Cases',
-            style: TextStyle(
-              color: AppColors.brandWhite,
-              fontSize: 26,
-              fontWeight: FontWeight.w700,
+          Positioned(
+            right: 0,
+            top: 0,
+            child: Image.asset(
+              'assets/Union.png',
+              width: 100,
+              height: 100,
+              color: AppColors.brandWhite.withAlpha(40),
             ),
           ),
-          const Spacer(),
-          GestureDetector(
-            onTap: onMenuTap,
-            child: Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/Union.png',
+                width: 32,
+                height: 32,
                 color: AppColors.brandWhite,
-                borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.menu, color: AppColors.brandDark),
-            ),
+              const SizedBox(width: 12),
+              const Text(
+                'Cases',
+                style: TextStyle(
+                  color: AppColors.brandWhite,
+                  fontSize: 26,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const Spacer(),
+              GestureDetector(
+                onTap: onMenuTap,
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: AppColors.brandWhite,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.menu, color: AppColors.brandDark),
+                ),
+              ),
+            ],
           ),
         ],
       ),
