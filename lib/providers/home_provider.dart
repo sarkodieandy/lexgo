@@ -5,6 +5,7 @@ import '../models/home/activity_item.dart';
 import '../models/home/assignment_progress.dart';
 import '../models/notifications/notification_item.dart';
 import '../models/home/quick_action.dart';
+import '../models/quiz_item.dart';
 import '../models/sidebar/sidebar_item.dart';
 
 class HomeProvider extends ChangeNotifier {
@@ -145,6 +146,37 @@ class HomeProvider extends ChangeNotifier {
       iconBackground: Color(0xFFFCECBB),
     ),
   ];
+
+  List<QuizItem> get quizzes => [
+        QuizItem(
+          title: 'Quiz one',
+          subtitle: "Test Student's General Knowledge",
+          dueDate: DateTime(2025, 9, 17, 10, 10),
+          questions: 45,
+          duration: Duration(hours: 1, minutes: 50),
+        ),
+        QuizItem(
+          title: 'Quiz Two',
+          subtitle: 'Mid Sem 1',
+          dueDate: DateTime(2025, 9, 17, 10, 10),
+          questions: 45,
+          duration: Duration(hours: 1, minutes: 50),
+        ),
+        QuizItem(
+          title: 'Quiz Three',
+          subtitle: 'Mid Sem 2',
+          dueDate: DateTime(2025, 9, 17, 10, 10),
+          questions: 45,
+          duration: Duration(hours: 1, minutes: 50),
+        ),
+        QuizItem(
+          title: 'Quiz Four',
+          subtitle: 'Final Assessment',
+          dueDate: DateTime(2025, 9, 17, 10, 10),
+          questions: 45,
+          duration: Duration(hours: 1, minutes: 50),
+        ),
+      ];
 
   List<CaseItem> get cases => const [
     CaseItem(

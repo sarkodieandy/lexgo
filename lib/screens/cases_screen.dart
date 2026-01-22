@@ -9,6 +9,7 @@ import '../widgets/cases/case_card.dart';
 import '../widgets/navigation/app_bottom_navigation.dart';
 import '../widgets/sidebar.dart';
 import 'cases_filter_screen.dart';
+import 'quiz_screen.dart';
 import 'upload_new_case_screen.dart';
 
 class CasesScreen extends StatefulWidget {
@@ -73,6 +74,10 @@ class _CasesScreenState extends State<CasesScreen> {
   void _handleNavigation(int selectedIndex) {
     if (selectedIndex == 0) {
       Navigator.of(context).popUntil((route) => route.isFirst);
+    } else if (selectedIndex == 2) {
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const QuizScreen()),
+      );
     } else if (selectedIndex != 1) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Coming soon')),

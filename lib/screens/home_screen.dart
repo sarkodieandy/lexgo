@@ -10,6 +10,7 @@ import '../widgets/home/home_top_section.dart';
 import '../widgets/navigation/app_bottom_navigation.dart';
 import '../widgets/sidebar.dart';
 import 'cases_screen.dart';
+import 'quiz_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -70,6 +71,13 @@ class HomeScreen extends StatelessWidget {
     if (selectedIndex == 1) {
       Navigator.of(context).push(
         MaterialPageRoute(builder: (_) => const CasesScreen()),
+      );
+      return;
+    }
+
+    if (selectedIndex == 2) {
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const QuizScreen()),
       );
       return;
     }

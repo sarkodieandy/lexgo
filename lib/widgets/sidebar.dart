@@ -7,6 +7,7 @@ import '../screens/cases_screen.dart';
 import '../screens/help_center_screen.dart';
 import '../screens/logout_screen.dart';
 import '../screens/notifications_screen.dart';
+import '../screens/quiz_screen.dart';
 import '../theme/app_colors.dart';
 import 'footer.dart';
 
@@ -107,7 +108,15 @@ class Sidebar extends StatelessWidget {
 
   void _navigate(BuildContext context, SidebarItem item) {
     Navigator.of(context).pop();
-    if (item.label == 'Notifications') {
+    if (item.label == 'Cases') {
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => const CasesScreen(),
+      ));
+    } else if (item.label == 'Quiz') {
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => const QuizScreen(),
+      ));
+    } else if (item.label == 'Notifications') {
       Navigator.of(context).push(MaterialPageRoute(
         builder: (_) => const NotificationsScreen(),
       ));
