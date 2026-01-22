@@ -50,9 +50,9 @@ class _UploadNewCaseScreenState extends State<UploadNewCaseScreen> {
       );
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Case uploaded successfully')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Case uploaded successfully')));
     Navigator.of(context).pop();
   }
 
@@ -63,11 +63,7 @@ class _UploadNewCaseScreenState extends State<UploadNewCaseScreen> {
       body: SafeArea(
         child: Stack(
           children: [
-            Positioned.fill(
-              child: Container(
-                color: AppColors.brandDark,
-              ),
-            ),
+            Positioned.fill(child: Container(color: AppColors.brandDark)),
             Column(
               children: [
                 _buildHeader(),
@@ -88,11 +84,23 @@ class _UploadNewCaseScreenState extends State<UploadNewCaseScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildField('Case Title', 'eg. The Republic vs. John Smith', _titleController),
+                            _buildField(
+                              'Case Title',
+                              'eg. The Republic vs. John Smith',
+                              _titleController,
+                            ),
                             const SizedBox(height: 14),
-                            _buildField('Source of Case', 'eg. Supreme Court of Ghana', _sourceController),
+                            _buildField(
+                              'Source of Case',
+                              'eg. Supreme Court of Ghana',
+                              _sourceController,
+                            ),
                             const SizedBox(height: 14),
-                            _buildField('Case Code', 'eg. [YYYY] GHASC 15', _codeController),
+                            _buildField(
+                              'Case Code',
+                              'eg. [YYYY] GHASC 15',
+                              _codeController,
+                            ),
                             const SizedBox(height: 14),
                             _buildCategoryField(),
                             const SizedBox(height: 24),
@@ -104,14 +112,23 @@ class _UploadNewCaseScreenState extends State<UploadNewCaseScreen> {
                               child: ElevatedButton(
                                 onPressed: _submitCase,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.brandDark,
+                                  backgroundColor: AppColors.brandWhite,
+                                  side: const BorderSide(
+                                    color: AppColors.brandDark,
+                                    width: 1.5,
+                                  ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(16),
                                   ),
+                                  elevation: 0,
                                 ),
                                 child: const Text(
                                   'Upload Case',
-                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.brandDark,
+                                  ),
                                 ),
                               ),
                             ),
@@ -129,7 +146,11 @@ class _UploadNewCaseScreenState extends State<UploadNewCaseScreen> {
     );
   }
 
-  Widget _buildField(String label, String placeholder, TextEditingController controller) {
+  Widget _buildField(
+    String label,
+    String placeholder,
+    TextEditingController controller,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -153,9 +174,13 @@ class _UploadNewCaseScreenState extends State<UploadNewCaseScreen> {
               borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide.none,
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 18,
+            ),
           ),
-          validator: (value) => (value?.isEmpty ?? true) ? 'Please fill this field' : null,
+          validator: (value) =>
+              (value?.isEmpty ?? true) ? 'Please fill this field' : null,
         ),
       ],
     );
@@ -182,21 +207,23 @@ class _UploadNewCaseScreenState extends State<UploadNewCaseScreen> {
             borderRadius: BorderRadius.circular(16),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: DropdownButtonFormField<String>(
-          key: ValueKey(_category ?? 'category_selector'),
-          initialValue: _category,
-          decoration: const InputDecoration(border: InputBorder.none),
-          hint: const Text('Administrative Law'),
-          isExpanded: true,
-          items: categories
-              .map((category) => DropdownMenuItem<String>(
+          child: DropdownButtonFormField<String>(
+            key: ValueKey(_category ?? 'category_selector'),
+            initialValue: _category,
+            decoration: const InputDecoration(border: InputBorder.none),
+            hint: const Text('Administrative Law'),
+            isExpanded: true,
+            items: categories
+                .map(
+                  (category) => DropdownMenuItem<String>(
                     value: category,
                     child: Text(category),
-                  ))
-              .toList(),
-          onChanged: (value) => setState(() => _category = value),
-          validator: (value) => (value == null) ? 'Choose a category' : null,
-        ),
+                  ),
+                )
+                .toList(),
+            onChanged: (value) => setState(() => _category = value),
+            validator: (value) => (value == null) ? 'Choose a category' : null,
+          ),
         ),
       ],
     );
@@ -219,14 +246,21 @@ class _UploadNewCaseScreenState extends State<UploadNewCaseScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.cloud_upload_outlined, size: 36, color: Colors.black54),
+                const Icon(
+                  Icons.cloud_upload_outlined,
+                  size: 36,
+                  color: Colors.black54,
+                ),
                 const SizedBox(height: 8),
                 const Text.rich(
                   TextSpan(
                     text: 'Click to upload',
                     children: [
                       TextSpan(text: ' or '),
-                      TextSpan(text: 'drag and drop', style: TextStyle(fontWeight: FontWeight.w600)),
+                      TextSpan(
+                        text: 'drag and drop',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
                     ],
                   ),
                   textAlign: TextAlign.center,
@@ -262,7 +296,11 @@ class _UploadNewCaseScreenState extends State<UploadNewCaseScreen> {
         children: [
           const Text(
             'Upload New Case',
-            style: TextStyle(color: AppColors.brandWhite, fontSize: 26, fontWeight: FontWeight.w700),
+            style: TextStyle(
+              color: AppColors.brandWhite,
+              fontSize: 26,
+              fontWeight: FontWeight.w700,
+            ),
           ),
           const Spacer(),
           IconButton(

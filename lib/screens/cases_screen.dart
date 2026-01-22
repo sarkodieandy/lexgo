@@ -1,24 +1,88 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../models/filter_selection.dart';
 import '../providers/home_provider.dart';
+import '../models/cases/case_item.dart';
 import '../theme/app_colors.dart';
 import '../widgets/cases/case_card.dart';
 import '../widgets/navigation/app_bottom_navigation.dart';
-import '../screens/upload_new_case_screen.dart';
 import '../widgets/sidebar.dart';
+import 'cases_filter_screen.dart';
+import 'upload_new_case_screen.dart';
 
-class CasesScreen extends StatelessWidget {
+class CasesScreen extends StatefulWidget {
   const CasesScreen({super.key});
+
+  @override
+  State<CasesScreen> createState() => _CasesScreenState();
+}
+
+class _CasesScreenState extends State<CasesScreen> {
+  FilterSelection? _activeFilter;
+
+  Future<void> _openFilter() async {
+    final provider = context.read<HomeProvider>();
+    final categories = provider.cases.map((item) => item.tag).toSet().toList()
+      ..sort();
+    final result = await Navigator.of(context).push<FilterSelection>(
+      MaterialPageRoute(
+        builder: (_) => CasesFilterScreen(
+          categories: categories,
+          initialSelection: _activeFilter ??
+              FilterSelection(
+                category: categories.isNotEmpty ? categories.first : '',
+                sort: FilterSort.alphabeticalAsc,
+              ),
+        ),
+      ),
+    );
+    if (result != null) {
+      setState(() => _activeFilter = result);
+    }
+  }
+
+  void _openUploadCase() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const UploadNewCaseScreen()),
+    );
+  }
+
+  void _handleNavigation(int selectedIndex) {
+    if (selectedIndex == 0) {
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    } else if (selectedIndex != 1) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Coming soon')),
+      );
+    }
+  }
+
+  List<CaseItem> _prepareCases(List<CaseItem> base) {
+    var list = base.toList();
+    if (_activeFilter?.category != null && _activeFilter!.category.isNotEmpty) {
+      list = list.where((item) => item.tag == _activeFilter!.category).toList();
+    }
+    if (_activeFilter?.sort != null) {
+      list.sort((a, b) {
+        final comparison = a.title.compareTo(b.title);
+        return _activeFilter!.sort == FilterSort.alphabeticalDesc
+            ? -comparison
+            : comparison;
+      });
+    }
+    return list;
+  }
 
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<HomeProvider>();
+    final visibleCases = _prepareCases(provider.cases);
     return Scaffold(
       drawer: const Sidebar(),
       backgroundColor: AppColors.brandDark,
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _openUploadCase(context),
+        onPressed: _openUploadCase,
         backgroundColor: AppColors.brandDark,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: const Text(
@@ -29,7 +93,7 @@ class CasesScreen extends StatelessWidget {
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: AppBottomNavigation(
         selectedIndex: 1,
-        onTap: (index) => _handleNavigation(context, index),
+        onTap: _handleNavigation,
       ),
       body: SafeArea(
         child: Column(
@@ -64,13 +128,13 @@ class CasesScreen extends StatelessWidget {
                       padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
                       child: Column(
                         children: [
-                          _SearchRow(),
+                          _SearchRow(onFilterPressed: _openFilter),
                           const SizedBox(height: 20),
                           Expanded(
                             child: ListView.builder(
                               physics: const BouncingScrollPhysics(),
-                              itemCount: provider.cases.length,
-                              itemBuilder: (_, index) => CaseCard(item: provider.cases[index]),
+                              itemCount: visibleCases.length,
+                              itemBuilder: (_, index) => CaseCard(item: visibleCases[index]),
                             ),
                           ),
                         ],
@@ -84,25 +148,6 @@ class CasesScreen extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  void _openUploadCase(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const UploadNewCaseScreen()),
-    );
-  }
-
-  void _handleNavigation(BuildContext context, int selectedIndex) {
-    if (selectedIndex == 0) {
-      Navigator.of(context).popUntil((route) => route.isFirst);
-      return;
-    }
-
-    if (selectedIndex != 1) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Coming soon')),
-      );
-    }
   }
 }
 
@@ -173,28 +218,32 @@ class _CasesHeader extends StatelessWidget {
 }
 
 class _SearchRow extends StatelessWidget {
+  const _SearchRow({required this.onFilterPressed});
+
+  final VoidCallback onFilterPressed;
+
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFFF2F4F7),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFE1E3E7)),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: TextField(
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  hintText: 'Search Cases...',
-                  hintStyle: TextStyle(color: AppColors.mutedText),
-                  suffixIcon: const Icon(Icons.search, color: Colors.black54),
-                ),
+        Expanded(
+          child: Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFFF2F4F7),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFE1E3E7)),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: TextField(
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: 'Search Cases...',
+                hintStyle: TextStyle(color: AppColors.mutedText),
+                suffixIcon: const Icon(Icons.search, color: Colors.black54),
               ),
             ),
           ),
+        ),
         const SizedBox(width: 12),
         Container(
           width: 52,
@@ -204,7 +253,7 @@ class _SearchRow extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
           ),
           child: IconButton(
-            onPressed: () {},
+            onPressed: onFilterPressed,
             color: AppColors.brandWhite,
             icon: const Icon(Icons.tune),
           ),
