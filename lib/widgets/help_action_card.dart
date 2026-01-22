@@ -25,17 +25,22 @@ class HelpActionCard extends StatelessWidget {
         ],
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Icon(option.icon, size: 48, color: AppColors.brandDark),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
           Text(
             option.title,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 14, color: AppColors.brandDark),
+            style: const TextStyle(
+              fontSize: 15,
+              height: 1.4,
+              color: AppColors.brandDark,
+            ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
           SizedBox(
-            width: 160,
+            width: 170,
             height: 44,
             child: ElevatedButton(
               onPressed: () {},
@@ -45,7 +50,11 @@ class HelpActionCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 elevation: 0,
-                textStyle: const TextStyle(fontWeight: FontWeight.w600),
+                textStyle: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.4,
+                ),
+                padding: EdgeInsets.zero,
               ),
               child: Text(option.actionLabel),
             ),

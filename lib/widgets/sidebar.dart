@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/sidebar/sidebar_item.dart';
 import '../providers/home_provider.dart';
 import '../screens/help_center_screen.dart';
+import '../screens/logout_screen.dart';
 import '../screens/notifications_screen.dart';
 import '../theme/app_colors.dart';
 import 'footer.dart';
@@ -28,22 +29,22 @@ class Sidebar extends StatelessWidget {
               Expanded(
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-              ..._buildMenuItems(
-                provider.primaryMenu,
-                context,
-                provider.notificationCount,
-              ),
-                      const SizedBox(height: 32),
-              ..._buildMenuItems(
-                provider.secondaryMenu,
-                context,
-                provider.notificationCount,
-              ),
-                    ],
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ..._buildMenuItems(
+                      provider.primaryMenu,
+                      context,
+                      provider.notificationCount,
+                    ),
+                    const SizedBox(height: 32),
+                    ..._buildMenuItems(
+                      provider.secondaryMenu,
+                      context,
+                      provider.notificationCount,
+                    ),
+                  ],
+                ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -103,7 +104,7 @@ class Sidebar extends StatelessWidget {
     return widgets;
   }
 
-  void _navigate(BuildContext context, dynamic item) {
+  void _navigate(BuildContext context, SidebarItem item) {
     Navigator.of(context).pop();
     if (item.label == 'Notifications') {
       Navigator.of(context).push(MaterialPageRoute(
@@ -112,6 +113,10 @@ class Sidebar extends StatelessWidget {
     } else if (item.label == 'Help Center') {
       Navigator.of(context).push(MaterialPageRoute(
         builder: (_) => const HelpCenterScreen(),
+      ));
+    } else if (item.label == 'Log Out') {
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => const LogoutScreen(),
       ));
     }
   }

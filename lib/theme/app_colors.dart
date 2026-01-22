@@ -7,6 +7,7 @@ abstract class AppColors {
   static const Color brandWhite = Colors.white;
   static const Color brandAccent = Color(0xFFFCECBB);
   static const Color brandBlue = Color(0xFF0A58F2);
+  static const Color brandDanger = Color(0xFFEA4335);
   static const Color mutedText = Color(0xFF6D6565);
   static const Color border = Color(0xFFF2F4F7);
   static const Color surface = Color(0xFFF8F9FB);
