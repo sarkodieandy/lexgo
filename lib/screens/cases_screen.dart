@@ -5,6 +5,7 @@ import '../providers/home_provider.dart';
 import '../theme/app_colors.dart';
 import '../widgets/cases/case_card.dart';
 import '../widgets/navigation/app_bottom_navigation.dart';
+import '../screens/upload_new_case_screen.dart';
 import '../widgets/sidebar.dart';
 
 class CasesScreen extends StatelessWidget {
@@ -17,7 +18,7 @@ class CasesScreen extends StatelessWidget {
       drawer: const Sidebar(),
       backgroundColor: AppColors.brandDark,
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () => _openUploadCase(context),
         backgroundColor: AppColors.brandDark,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: const Text(
@@ -68,6 +69,12 @@ class CasesScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  void _openUploadCase(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const UploadNewCaseScreen()),
     );
   }
 
