@@ -25,6 +25,12 @@ class _CasesScreenState extends State<CasesScreen> {
     final provider = context.read<HomeProvider>();
     final categories = provider.cases.map((item) => item.tag).toSet().toList()
       ..sort();
+    if (!categories.contains('All Categories')) {
+      categories.insert(0, 'All Categories');
+    } else {
+      categories.remove('All Categories');
+      categories.insert(0, 'All Categories');
+    }
     final result = await showGeneralDialog<FilterSelection>(
       context: context,
       barrierDismissible: true,
@@ -75,17 +81,23 @@ class _CasesScreenState extends State<CasesScreen> {
   }
 
   List<CaseItem> _prepareCases(List<CaseItem> base) {
-    var list = base.toList();
-    if (_activeFilter?.category != null && _activeFilter!.category.isNotEmpty) {
-      list = list.where((item) => item.tag == _activeFilter!.category).toList();
+    final baseList = base.toList();
+    List<CaseItem> list = baseList;
+    final category = _activeFilter?.category;
+    if (category != null &&
+        category.isNotEmpty &&
+        category != 'All Categories') {
+      list = baseList.where((item) => item.tag == category).toList();
     }
-    if (_activeFilter?.sort != null) {
-      list.sort((a, b) {
-        final comparison = a.title.compareTo(b.title);
-        return _activeFilter!.sort == FilterSort.alphabeticalDesc
-            ? -comparison
-            : comparison;
-      });
+    final sort = _activeFilter?.sort;
+    if (sort == FilterSort.alphabeticalAsc) {
+      list.sort((a, b) => a.title.compareTo(b.title));
+    } else if (sort == FilterSort.alphabeticalDesc) {
+      list.sort((a, b) => b.title.compareTo(a.title));
+    } else if (sort == FilterSort.dateNewest) {
+      list = List.from(list.reversed);
+    } else if (sort == FilterSort.dateOldest) {
+      list = List.from(list);
     }
     return list;
   }

@@ -1,6 +1,8 @@
 enum FilterSort {
   alphabeticalAsc,
   alphabeticalDesc,
+  dateNewest,
+  dateOldest,
 }
 
 class FilterSelection {

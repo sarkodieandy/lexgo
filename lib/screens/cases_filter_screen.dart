@@ -104,9 +104,17 @@ class _CasesFilterScreenState extends State<CasesFilterScreen> {
                       return 'Alphabetically (A - Z)';
                     case FilterSort.alphabeticalDesc:
                       return 'Alphabetically (Z - A)';
+                    case FilterSort.dateNewest:
+                      return 'Date Created (Newest → Oldest)';
+                    case FilterSort.dateOldest:
+                      return 'Date Created (Oldest → Newest)';
                   }
                 },
-                onChanged: (value) => setState(() => _selectedSort = value!),
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() => _selectedSort = value);
+                  }
+                },
               ),
               const SizedBox(height: 24),
               SizedBox(
