@@ -31,22 +31,22 @@ class Sidebar extends StatelessWidget {
               Expanded(
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ..._buildMenuItems(
-                      provider.primaryMenu,
-                      context,
-                      provider.notificationCount,
-                    ),
-                    const SizedBox(height: 32),
-                    ..._buildMenuItems(
-                      provider.secondaryMenu,
-                      context,
-                      provider.notificationCount,
-                    ),
-                  ],
-                ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ..._buildMenuItems(
+                        provider.primaryMenu,
+                        context,
+                        provider.notificationCount,
+                      ),
+                      const SizedBox(height: 32),
+                      ..._buildMenuItems(
+                        provider.secondaryMenu,
+                        context,
+                        provider.notificationCount,
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -62,11 +62,7 @@ class Sidebar extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Image.asset(
-          'assets/Union.png',
-          width: 32,
-          height: 32,
-        ),
+        Image.asset('assets/Union.png', width: 32, height: 32),
         const SizedBox(width: 12),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,14 +86,20 @@ class Sidebar extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildMenuItems(List<SidebarItem> items, BuildContext context, int badgeCount) {
+  List<Widget> _buildMenuItems(
+    List<SidebarItem> items,
+    BuildContext context,
+    int badgeCount,
+  ) {
     final widgets = <Widget>[];
     for (var item in items) {
-      widgets.add(_SidebarEntry(
-        item: item,
-        badgeCount: item.hasBadge ? badgeCount : null,
-        onTap: () => _navigate(context, item),
-      ));
+      widgets.add(
+        _SidebarEntry(
+          item: item,
+          badgeCount: item.hasBadge ? badgeCount : null,
+          onTap: () => _navigate(context, item),
+        ),
+      );
       widgets.add(const SizedBox(height: 12));
     }
     if (widgets.isNotEmpty) {
@@ -109,29 +111,29 @@ class Sidebar extends StatelessWidget {
   void _navigate(BuildContext context, SidebarItem item) {
     Navigator.of(context).pop();
     if (item.label == 'Cases') {
-      Navigator.of(context).push(MaterialPageRoute(
-        builder: (_) => const CasesScreen(),
-      ));
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const CasesScreen()));
     } else if (item.label == 'Quiz') {
-      Navigator.of(context).push(MaterialPageRoute(
-        builder: (_) => const QuizScreen(),
-      ));
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const QuizScreen()));
     } else if (item.label == 'Notifications') {
-      Navigator.of(context).push(MaterialPageRoute(
-        builder: (_) => const NotificationsScreen(),
-      ));
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const NotificationsScreen()));
     } else if (item.label == 'Help Center') {
-      Navigator.of(context).push(MaterialPageRoute(
-        builder: (_) => const HelpCenterScreen(),
-      ));
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const HelpCenterScreen()));
     } else if (item.label == 'Cases') {
-      Navigator.of(context).push(MaterialPageRoute(
-        builder: (_) => const CasesScreen(),
-      ));
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const CasesScreen()));
     } else if (item.label == 'Log Out') {
-      Navigator.of(context).push(MaterialPageRoute(
-        builder: (_) => const LogoutScreen(),
-      ));
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const LogoutScreen()));
     }
   }
 }

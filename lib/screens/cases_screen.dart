@@ -41,7 +41,8 @@ class _CasesScreenState extends State<CasesScreen> {
       pageBuilder: (context, animation, secondaryAnimation) {
         return CasesFilterScreen(
           categories: categories,
-          initialSelection: _activeFilter ??
+          initialSelection:
+              _activeFilter ??
               FilterSelection(
                 category: categories.isNotEmpty ? categories.first : '',
                 sort: FilterSort.alphabeticalAsc,
@@ -66,22 +67,22 @@ class _CasesScreenState extends State<CasesScreen> {
   }
 
   void _openUploadCase() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const UploadNewCaseScreen()),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const UploadNewCaseScreen()));
   }
 
   void _handleNavigation(int selectedIndex) {
     if (selectedIndex == 0) {
       Navigator.of(context).popUntil((route) => route.isFirst);
     } else if (selectedIndex == 2) {
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const QuizScreen()),
-      );
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const QuizScreen()));
     } else if (selectedIndex != 1) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Coming soon')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Coming soon')));
     }
   }
 
@@ -116,11 +117,15 @@ class _CasesScreenState extends State<CasesScreen> {
       backgroundColor: AppColors.brandDark,
       floatingActionButton: FloatingActionButton(
         onPressed: _openUploadCase,
-        backgroundColor: AppColors.brandDark,
+        backgroundColor: Colors.black,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: const Text(
           '+',
-          style: TextStyle(fontSize: 32, fontWeight: FontWeight.w600),
+          style: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
@@ -167,7 +172,8 @@ class _CasesScreenState extends State<CasesScreen> {
                             child: ListView.builder(
                               physics: const BouncingScrollPhysics(),
                               itemCount: visibleCases.length,
-                              itemBuilder: (_, index) => CaseCard(item: visibleCases[index]),
+                              itemBuilder: (_, index) =>
+                                  CaseCard(item: visibleCases[index]),
                             ),
                           ),
                         ],
@@ -185,9 +191,7 @@ class _CasesScreenState extends State<CasesScreen> {
 }
 
 class _CasesHeader extends StatelessWidget {
-  const _CasesHeader({
-    required this.onMenuTap,
-  });
+  const _CasesHeader({required this.onMenuTap});
 
   final VoidCallback onMenuTap;
 
@@ -196,9 +200,7 @@ class _CasesHeader extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-      decoration: const BoxDecoration(
-        color: AppColors.brandDark,
-      ),
+      decoration: const BoxDecoration(color: AppColors.brandDark),
       child: Stack(
         children: [
           Positioned(

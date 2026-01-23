@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lexgo/screens/quize_1.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/home_provider.dart';
@@ -7,6 +8,7 @@ import '../widgets/navigation/app_bottom_navigation.dart';
 import '../widgets/quiz/quiz_card.dart';
 import '../widgets/sidebar.dart';
 import 'cases_screen.dart';
+// ← import the new screen
 
 class QuizScreen extends StatelessWidget {
   const QuizScreen({super.key});
@@ -18,12 +20,20 @@ class QuizScreen extends StatelessWidget {
       drawer: const Sidebar(),
       backgroundColor: AppColors.brandDark,
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        backgroundColor: AppColors.brandDark,
+        onPressed: () {
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const Quiz1()));
+        },
+        backgroundColor: Colors.black,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: const Text(
           '+',
-          style: TextStyle(fontSize: 32, fontWeight: FontWeight.w600),
+          style: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
@@ -33,9 +43,9 @@ class QuizScreen extends StatelessWidget {
           if (index == 0) {
             Navigator.of(context).popUntil((route) => route.isFirst);
           } else if (index == 1) {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const CasesScreen()),
-            );
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const CasesScreen()));
           }
         },
       ),
@@ -56,7 +66,14 @@ class QuizScreen extends StatelessWidget {
                 child: ListView.builder(
                   physics: const BouncingScrollPhysics(),
                   itemCount: quizzes.length,
-                  itemBuilder: (_, index) => QuizCard(item: quizzes[index]),
+                  itemBuilder: (_, index) => QuizCard(
+                    item: quizzes[index],
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => Quiz1(title: quizzes[index].title),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -77,9 +94,7 @@ class _Header extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-      decoration: const BoxDecoration(
-        color: AppColors.brandDark,
-      ),
+      decoration: const BoxDecoration(color: AppColors.brandDark),
       child: Row(
         children: [
           const Text(
