@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+
 import 'app_colors.dart';
 
 class AppTheme {
@@ -15,9 +17,33 @@ class AppTheme {
         borderRadius: BorderRadius.all(Radius.circular(16)),
       ),
     ),
-    textTheme: ThemeData.light().textTheme.apply(
-      bodyColor: AppColors.brandDark,
-      displayColor: AppColors.brandDark,
-    ),
+    textTheme: GoogleFonts.poppinsTextTheme()
+        .apply(
+          bodyColor: AppColors.brandDark,
+          displayColor: AppColors.brandDark,
+        )
+        .copyWith(
+          displayLarge: GoogleFonts.playfairDisplay(
+            textStyle: GoogleFonts.poppins().copyWith(
+              color: AppColors.brandDark,
+              fontSize: 36,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          displayMedium: GoogleFonts.playfairDisplay(
+            textStyle: GoogleFonts.poppins().copyWith(
+              color: AppColors.brandDark,
+              fontSize: 28,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          headlineSmall: GoogleFonts.playfairDisplay(
+            textStyle: GoogleFonts.poppins().copyWith(
+              color: AppColors.brandDark,
+              fontSize: 24,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
   );
 }

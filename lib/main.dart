@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'providers/analysis_provider.dart';
 import 'providers/home_provider.dart';
 import 'screens/home_screen.dart';
 import 'theme/app_theme.dart';
@@ -14,7 +15,10 @@ class LexGoApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => HomeProvider())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => HomeProvider()),
+        ChangeNotifierProvider(create: (_) => AnalysisProvider()),
+      ],
       child: MaterialApp(
         title: 'LexGo',
         debugShowCheckedModeBanner: false,

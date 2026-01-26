@@ -11,6 +11,7 @@ import '../widgets/navigation/app_bottom_navigation.dart';
 import '../widgets/sidebar.dart';
 import 'cases_screen.dart';
 import 'quiz_screen.dart';
+import 'courses.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -78,6 +79,13 @@ class HomeScreen extends StatelessWidget {
     if (selectedIndex == 2) {
       Navigator.of(context).push(
         MaterialPageRoute(builder: (_) => const QuizScreen()),
+      );
+      return;
+    }
+
+    if (selectedIndex == 3) {
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => Courses()),
       );
       return;
     }

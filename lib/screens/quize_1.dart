@@ -3,8 +3,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../models/quiz/submission_record.dart';
-import '../screens/review_screen.dart';
+import '../screens/review_quiz_screen.dart';
 import '../theme/app_colors.dart';
+import '../widgets/quiz/analysis/analysis_tab.dart';
 import '../widgets/quiz/submissions/submissions_tab.dart';
 
 class Quiz1 extends StatefulWidget {
@@ -57,7 +58,7 @@ class _Quiz1State extends State<Quiz1> with SingleTickerProviderStateMixin {
     ),
   ];
 
-final List<SubmissionRecord> submissions = [
+  final List<SubmissionRecord> submissions = [
     SubmissionRecord(
       name: 'Mike Adjatey',
       id: '22189872',
@@ -154,7 +155,7 @@ final List<SubmissionRecord> submissions = [
   bool showScoresImmediately = true;
 
   final TextEditingController _quizTitleController = TextEditingController(
-    text: 'Quiz one',
+    text: 'Create quiz',
   );
   final TextEditingController _instructionController = TextEditingController(
     text: 'Brief description of what the quiz covers...',
@@ -169,7 +170,7 @@ final List<SubmissionRecord> submissions = [
   DateTime? documentUploadTime;
   bool _isGenerating = false;
   bool _hasGenerated = false;
-  bool _isCreatingQuiz = false;
+  final bool _isCreatingQuiz = true;
   late final AnimationController _shimmerController;
   late final Animation<double> _shimmerAnimation;
 
@@ -270,57 +271,6 @@ final List<SubmissionRecord> submissions = [
             ),
           ),
           if (_isGenerating) _buildLoadingOverlay(),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              _isCreatingQuiz ? 'Create Quiz' : widget.title,
-              style: const TextStyle(
-                color: AppColors.brandWhite,
-                fontSize: 24,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          Row(
-            children: [
-              GestureDetector(
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const ReviewScreen()),
-                ),
-                child: Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: AppColors.brandWhite,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(Icons.send, color: AppColors.brandDark),
-                ),
-              ),
-              const SizedBox(width: 8),
-              PopupMenuButton<String>(
-                onSelected: (value) {
-                  if (value == 'unpublish') _showUnpublishDialog();
-                },
-                color: AppColors.brandWhite,
-                itemBuilder: (_) => const [
-                  PopupMenuItem<String>(
-                    value: 'unpublish',
-                    child: Text('Unpublish Quiz'),
-                  ),
-                ],
-                child: Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: AppColors.brandNavy,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(Icons.more_vert, color: AppColors.brandWhite),
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );
@@ -362,6 +312,21 @@ final List<SubmissionRecord> submissions = [
                 fontSize: 24,
                 fontWeight: FontWeight.w600,
               ),
+            ),
+          ),
+          GestureDetector(
+            onTap: () => Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const ReviewQuizScreen())),
+            child: Container(
+              width: 44,
+              height: 44,
+              margin: const EdgeInsets.only(right: 12),
+              decoration: BoxDecoration(
+                color: AppColors.brandWhite,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(Icons.send, color: AppColors.brandDark),
             ),
           ),
           PopupMenuButton<String>(
@@ -449,21 +414,7 @@ final List<SubmissionRecord> submissions = [
     if (activeTab == 2) {
       return SubmissionsTab(submissions: submissions);
     }
-    return _buildAnalysisPlaceholder();
-  }
-
-  Widget _buildAnalysisPlaceholder() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
-        Text(
-          'Analysis',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-        ),
-        SizedBox(height: 16),
-        Text('Detailed insights are coming soon.'),
-      ],
-    );
+    return const AnalysisTab();
   }
 
   Widget _buildQuestionsTab() {
@@ -736,15 +687,15 @@ final List<SubmissionRecord> submissions = [
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-            child: Text(
-              _hasGenerated ? 'Regenerate Questions' : 'Generate Questions',
-              style: const TextStyle(
-                color: AppColors.brandWhite,
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
+                child: Text(
+                  _hasGenerated ? 'Regenerate Questions' : 'Generate Questions',
+                  style: const TextStyle(
+                    color: AppColors.brandWhite,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
+                ),
               ),
-            ),
-          ),
             ),
           ],
         ],
@@ -830,7 +781,6 @@ final List<SubmissionRecord> submissions = [
               selectedDocument = null;
               documentUploadTime = null;
               _hasGenerated = false;
-              _isCreatingQuiz = false;
             }),
             icon: const Icon(
               Icons.close,
@@ -865,12 +815,14 @@ final List<SubmissionRecord> submissions = [
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.brandDark),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.brandDark,
+            ),
             onPressed: () {
               Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Quiz unpublished')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Quiz unpublished')));
             },
             child: const Text('Unpublish'),
           ),
@@ -1123,7 +1075,6 @@ final List<SubmissionRecord> submissions = [
         selectedDocument = null;
         documentUploadTime = null;
         _hasGenerated = false;
-        _isCreatingQuiz = false;
       }
     });
     if (value == 'Upload Document') {
@@ -1152,7 +1103,6 @@ final List<SubmissionRecord> submissions = [
         selectedDocument = picked;
         documentUploadTime = DateTime.now();
         _hasGenerated = false;
-        _isCreatingQuiz = true;
       });
     }
   }
