@@ -6,10 +6,8 @@ import '../providers/home_provider.dart';
 import '../models/cases/case_item.dart';
 import '../theme/app_colors.dart';
 import '../widgets/cases/case_card.dart';
-import '../widgets/navigation/app_bottom_navigation.dart';
 import '../widgets/sidebar.dart';
 import 'cases_filter_screen.dart';
-import 'quiz_screen.dart';
 import 'upload_new_case_screen.dart';
 
 class CasesScreen extends StatefulWidget {
@@ -72,20 +70,6 @@ class _CasesScreenState extends State<CasesScreen> {
     ).push(MaterialPageRoute(builder: (_) => const UploadNewCaseScreen()));
   }
 
-  void _handleNavigation(int selectedIndex) {
-    if (selectedIndex == 0) {
-      Navigator.of(context).popUntil((route) => route.isFirst);
-    } else if (selectedIndex == 2) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const QuizScreen()));
-    } else if (selectedIndex != 1) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Coming soon')));
-    }
-  }
-
   List<CaseItem> _prepareCases(List<CaseItem> base) {
     final baseList = base.toList();
     List<CaseItem> list = baseList;
@@ -129,18 +113,10 @@ class _CasesScreenState extends State<CasesScreen> {
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      bottomNavigationBar: AppBottomNavigation(
-        selectedIndex: 1,
-        onTap: _handleNavigation,
-      ),
       body: SafeArea(
         child: Column(
           children: [
-            Builder(
-              builder: (headerContext) => _CasesHeader(
-                onMenuTap: () => Scaffold.of(headerContext).openDrawer(),
-              ),
-            ),
+            const _CasesHeader(),
             Expanded(
               child: Stack(
                 children: [
@@ -191,9 +167,7 @@ class _CasesScreenState extends State<CasesScreen> {
 }
 
 class _CasesHeader extends StatelessWidget {
-  const _CasesHeader({required this.onMenuTap});
-
-  final VoidCallback onMenuTap;
+  const _CasesHeader();
 
   @override
   Widget build(BuildContext context) {
@@ -229,19 +203,6 @@ class _CasesHeader extends StatelessWidget {
                   color: AppColors.brandWhite,
                   fontSize: 26,
                   fontWeight: FontWeight.w700,
-                ),
-              ),
-              const Spacer(),
-              GestureDetector(
-                onTap: onMenuTap,
-                child: Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: AppColors.brandWhite,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(Icons.menu, color: AppColors.brandDark),
                 ),
               ),
             ],

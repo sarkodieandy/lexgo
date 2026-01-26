@@ -4,11 +4,8 @@ import 'package:provider/provider.dart';
 
 import '../providers/home_provider.dart';
 import '../theme/app_colors.dart';
-import '../widgets/navigation/app_bottom_navigation.dart';
 import '../widgets/quiz/quiz_card.dart';
 import '../widgets/sidebar.dart';
-import 'cases_screen.dart';
-// ← import the new screen
 
 class QuizScreen extends StatelessWidget {
   const QuizScreen({super.key});
@@ -37,22 +34,10 @@ class QuizScreen extends StatelessWidget {
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      bottomNavigationBar: AppBottomNavigation(
-        selectedIndex: 2,
-        onTap: (index) {
-          if (index == 0) {
-            Navigator.of(context).popUntil((route) => route.isFirst);
-          } else if (index == 1) {
-            Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (_) => const CasesScreen()));
-          }
-        },
-      ),
       body: SafeArea(
         child: Column(
           children: [
-            _Header(onMenuTap: () => Scaffold.of(context).openDrawer()),
+            _Header(onBack: () => Navigator.of(context).maybePop()),
             Expanded(
               child: Container(
                 decoration: const BoxDecoration(
@@ -85,9 +70,9 @@ class QuizScreen extends StatelessWidget {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.onMenuTap});
+  const _Header({required this.onBack});
 
-  final VoidCallback onMenuTap;
+  final VoidCallback onBack;
 
   @override
   Widget build(BuildContext context) {
@@ -97,6 +82,22 @@ class _Header extends StatelessWidget {
       decoration: const BoxDecoration(color: AppColors.brandDark),
       child: Row(
         children: [
+          GestureDetector(
+            onTap: onBack,
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: AppColors.brandWhite,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.arrow_back_ios_new,
+                color: AppColors.brandDark,
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
           const Text(
             'Quiz',
             style: TextStyle(
@@ -106,17 +107,15 @@ class _Header extends StatelessWidget {
             ),
           ),
           const Spacer(),
-          GestureDetector(
-            onTap: onMenuTap,
-            child: Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: AppColors.brandWhite,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(Icons.menu, color: AppColors.brandDark),
+          Container(
+            width: 48,
+            height: 48,
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppColors.brandWhite,
+              borderRadius: BorderRadius.circular(12),
             ),
+            child: Image.asset('assets/Union.png', fit: BoxFit.contain),
           ),
         ],
       ),

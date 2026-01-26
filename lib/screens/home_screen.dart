@@ -55,7 +55,9 @@ class HomeScreen extends StatelessWidget {
                       const SizedBox(height: 18),
                       HomeAssignmentStats(categories: provider.assignmentStats),
                       const SizedBox(height: 18),
-                      HomeRecentActivities(activities: provider.recentActivities),
+                      HomeRecentActivities(
+                        activities: provider.recentActivities,
+                      ),
                       const SizedBox(height: 40),
                     ],
                   ),
@@ -70,30 +72,28 @@ class HomeScreen extends StatelessWidget {
 
   void _handleNavigation(BuildContext context, int selectedIndex) {
     if (selectedIndex == 1) {
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const CasesScreen()),
-      );
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const CasesScreen()));
       return;
     }
 
     if (selectedIndex == 2) {
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const QuizScreen()),
-      );
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const QuizScreen()));
       return;
     }
 
     if (selectedIndex == 3) {
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => Courses()),
-      );
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => Courses()));
       return;
     }
 
     if (selectedIndex != 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Coming soon')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Coming soon')));
     }
   }
 }

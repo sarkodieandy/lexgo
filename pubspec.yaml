@@ -64,6 +64,8 @@ flutter:
   assets:
     - assets/Union.png
     - assets/Vector.png
+    - assets/course_card1.png
+    - assets/Course Card2.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

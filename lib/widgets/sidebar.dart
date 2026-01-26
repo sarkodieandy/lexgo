@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/sidebar/sidebar_item.dart';
 import '../providers/home_provider.dart';
 import '../screens/cases_screen.dart';
+import '../screens/courses.dart';
 import '../screens/help_center_screen.dart';
 import '../screens/logout_screen.dart';
 import '../screens/notifications_screen.dart';
@@ -126,14 +127,14 @@ class Sidebar extends StatelessWidget {
       Navigator.of(
         context,
       ).push(MaterialPageRoute(builder: (_) => const HelpCenterScreen()));
-    } else if (item.label == 'Cases') {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const CasesScreen()));
     } else if (item.label == 'Log Out') {
       Navigator.of(
         context,
       ).push(MaterialPageRoute(builder: (_) => const LogoutScreen()));
+    } else if (item.label == 'Courses') {
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const Courses()));
     }
   }
 }
