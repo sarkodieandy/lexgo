@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/course.dart';
 import '../theme/app_colors.dart';
+import '../widgets/courses/add_topic_sheet.dart';
 
 class CourseDetailScreen extends StatelessWidget {
   const CourseDetailScreen({super.key, required this.course});
@@ -26,97 +27,122 @@ class CourseDetailScreen extends StatelessWidget {
       'Freedom of speech',
       'African Religion',
     ];
-    return Scaffold(
-      backgroundColor: AppColors.brandDark,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              color: AppColors.brandDark,
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () => Navigator.of(context).maybePop(),
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: AppColors.brandNavy,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.arrow_back_ios_new,
-                        color: AppColors.brandWhite,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Text(
-                      course.title,
-                      style: const TextStyle(
-                        color: AppColors.brandWhite,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    width: 48,
-                    height: 48,
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppColors.brandWhite,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Image.asset('assets/Union.png', fit: BoxFit.contain),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              color: AppColors.brandDark,
-              child: const TabBar(
-                indicatorColor: AppColors.brandWhite,
-                tabs: [
-                  Tab(text: 'Topics'),
-                  Tab(text: 'Assignments'),
-                  Tab(text: 'Resources'),
-                  Tab(text: 'Q&A'),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Container(
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: AppColors.brandWhite,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(32),
-                    topRight: Radius.circular(32),
-                  ),
-                ),
-                padding: const EdgeInsets.fromLTRB(24, 24, 24, 80),
-                child: TabBarView(
+    return DefaultTabController(
+      length: 4,
+      child: Scaffold(
+        backgroundColor: AppColors.brandDark,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              builder: (_) => const AddTopicSheet(),
+            );
+          },
+          backgroundColor: AppColors.brandDark,
+          child: const Icon(Icons.add, color: AppColors.brandWhite),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                color: AppColors.brandDark,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    ListView.separated(
-                      itemCount: topics.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 12),
-                      itemBuilder: (context, index) => _TopicTile(
-                        number: index + 1,
-                        title: topics[index],
-                        subtitle: subtitles[index],
-                      ),
+                    Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () => Navigator.of(context).maybePop(),
+                          child: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: AppColors.brandNavy,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(
+                              Icons.arrow_back_ios_new,
+                              color: AppColors.brandWhite,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Text(
+                            course.title,
+                            style: const TextStyle(
+                              color: AppColors.brandWhite,
+                              fontSize: 24,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: 48,
+                          height: 48,
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppColors.brandWhite,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Image.asset('assets/Union.png', fit: BoxFit.contain),
+                        ),
+                      ],
                     ),
-                    const Center(child: Text('Assignments content')),
-                    const Center(child: Text('Resources content')),
-                    const Center(child: Text('Q&A content')),
+                    const SizedBox(height: 20),
+                    const TabBar(
+                      isScrollable: true,
+                      indicatorColor: AppColors.brandWhite,
+                      indicatorWeight: 3,
+                      tabs: [
+                        Tab(text: 'Topics'),
+                        Tab(text: 'Assignments'),
+                        Tab(text: 'Resources'),
+                        Tab(text: 'Q&A'),
+                      ],
+                    ),
                   ],
                 ),
               ),
-            ),
-          ],
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    color: AppColors.brandWhite,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(32),
+                      topRight: Radius.circular(32),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 24, left: 24, right: 24, bottom: 80),
+                    child: TabBarView(
+                      children: [
+                        ListView.separated(
+                          itemCount: topics.length,
+                          physics: const BouncingScrollPhysics(),
+                        separatorBuilder: (context, _) => const SizedBox(height: 14),
+                          itemBuilder: (context, index) => _TopicTile(
+                            number: index + 1,
+                            title: topics[index],
+                            subtitle: subtitles[index],
+                          ),
+                        ),
+                        const Center(child: Text('Assignments content')),
+                        const Center(child: Text('Resources content')),
+                        const Center(child: Text('Q&A content')),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

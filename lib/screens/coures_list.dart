@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class Courses extends StatelessWidget {
+  const Courses({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -251,7 +253,7 @@ class Courses extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 spacing: 10,
                                 children: [
-                                  Container(
+                                  SizedBox(
                                     width: double.infinity,
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
@@ -304,7 +306,7 @@ class Courses extends StatelessWidget {
                                                 ],
                                               ),
                                             ),
-                                            Container(
+                                            SizedBox(
                                               width: 172,
                                               child: Column(
                                                 mainAxisSize: MainAxisSize.min,
@@ -396,7 +398,7 @@ class Courses extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 spacing: 10,
                                 children: [
-                                  Container(
+                                  SizedBox(
                                     width: double.infinity,
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
@@ -449,7 +451,7 @@ class Courses extends StatelessWidget {
                                                 ],
                                               ),
                                             ),
-                                            Container(
+                                            SizedBox(
                                               width: 172,
                                               child: Column(
                                                 mainAxisSize: MainAxisSize.min,
@@ -541,7 +543,7 @@ class Courses extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 spacing: 10,
                                 children: [
-                                  Container(
+                                  SizedBox(
                                     width: double.infinity,
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
@@ -594,7 +596,7 @@ class Courses extends StatelessWidget {
                                                 ],
                                               ),
                                             ),
-                                            Container(
+                                            SizedBox(
                                               width: 172,
                                               child: Column(
                                                 mainAxisSize: MainAxisSize.min,
@@ -683,7 +685,7 @@ class Courses extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 spacing: 10,
                                 children: [
-                                  Container(
+                                  SizedBox(
                                     width: double.infinity,
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
@@ -736,7 +738,7 @@ class Courses extends StatelessWidget {
                                                 ],
                                               ),
                                             ),
-                                            Container(
+                                            SizedBox(
                                               width: 172,
                                               child: Column(
                                                 mainAxisSize: MainAxisSize.min,
@@ -825,7 +827,7 @@ class Courses extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 spacing: 10,
                                 children: [
-                                  Container(
+                                  SizedBox(
                                     width: double.infinity,
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
@@ -878,7 +880,7 @@ class Courses extends StatelessWidget {
                                                 ],
                                               ),
                                             ),
-                                            Container(
+                                            SizedBox(
                                               width: 172,
                                               child: Column(
                                                 mainAxisSize: MainAxisSize.min,
@@ -967,7 +969,7 @@ class Courses extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 spacing: 10,
                                 children: [
-                                  Container(
+                                  SizedBox(
                                     width: double.infinity,
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
@@ -1020,7 +1022,7 @@ class Courses extends StatelessWidget {
                                                 ],
                                               ),
                                             ),
-                                            Container(
+                                            SizedBox(
                                               width: 172,
                                               child: Column(
                                                 mainAxisSize: MainAxisSize.min,
@@ -1113,7 +1115,7 @@ class Courses extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   spacing: 10,
                                   children: [
-                                    Container(
+                                    SizedBox(
                                       width: 32,
                                       height: 32,
                                       child: Stack(
@@ -1178,7 +1180,7 @@ class Courses extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           spacing: 16,
                           children: [
-                            Container(
+                            SizedBox(
                               width: 24,
                               height: 24,
                               child: Stack(
@@ -1230,7 +1232,7 @@ class Courses extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           spacing: 10,
                           children: [
-                            Container(
+                            SizedBox(
                               width: 20,
                               height: 20,
                               child: Stack(

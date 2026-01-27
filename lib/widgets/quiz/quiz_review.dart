@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class ReviewQuiz extends StatelessWidget {
+  const ReviewQuiz({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -31,7 +33,7 @@ class ReviewQuiz extends StatelessWidget {
                   height: 1.11,
                 ),
               ),
-              Container(
+              SizedBox(
                 width: double.infinity,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -102,7 +104,7 @@ class ReviewQuiz extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               spacing: 10,
                               children: [
-                                Container(
+                                SizedBox(
                                   width: double.infinity,
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
@@ -223,7 +225,7 @@ class ReviewQuiz extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               spacing: 10,
                               children: [
-                                Container(
+                                SizedBox(
                                   width: double.infinity,
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
@@ -255,7 +257,7 @@ class ReviewQuiz extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-                                Container(
+                                SizedBox(
                                   width: double.infinity,
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
@@ -445,7 +447,7 @@ class ReviewQuiz extends StatelessWidget {
                   ],
                 ),
               ),
-              Container(
+              SizedBox(
                 width: double.infinity,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,

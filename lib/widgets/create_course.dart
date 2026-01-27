@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class CreateNewCourse extends StatelessWidget {
+  const CreateNewCourse({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -62,7 +64,7 @@ class CreateNewCourse extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         spacing: 10,
                         children: [
-                          Container(
+                          SizedBox(
                             width: 24,
                             height: 24,
                             child: Stack(
@@ -141,7 +143,7 @@ class CreateNewCourse extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         spacing: 10,
                         children: [
-                          Container(
+                          SizedBox(
                             width: double.infinity,
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
@@ -181,7 +183,7 @@ class CreateNewCourse extends StatelessWidget {
                                               CrossAxisAlignment.center,
                                           spacing: 10,
                                           children: [
-                                            Container(
+                                            SizedBox(
                                               width: 24,
                                               height: 24,
                                               child: Stack(
@@ -208,7 +210,7 @@ class CreateNewCourse extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-                                Container(
+                                SizedBox(
                                   width: double.infinity,
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
@@ -266,7 +268,7 @@ class CreateNewCourse extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   spacing: 12,
                   children: [
-                    Container(
+                    SizedBox(
                       width: double.infinity,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -300,7 +302,7 @@ class CreateNewCourse extends StatelessWidget {
                               ],
                             ),
                           ),
-                          Container(
+                          SizedBox(
                             width: double.infinity,
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
@@ -359,7 +361,7 @@ class CreateNewCourse extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Container(
+                    SizedBox(
                       width: double.infinity,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -393,7 +395,7 @@ class CreateNewCourse extends StatelessWidget {
                               ],
                             ),
                           ),
-                          Container(
+                          SizedBox(
                             width: double.infinity,
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
@@ -452,7 +454,7 @@ class CreateNewCourse extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Container(
+                    SizedBox(
                       width: double.infinity,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -486,7 +488,7 @@ class CreateNewCourse extends StatelessWidget {
                               ],
                             ),
                           ),
-                          Container(
+                          SizedBox(
                             width: double.infinity,
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
@@ -537,7 +539,7 @@ class CreateNewCourse extends StatelessWidget {
                                           ),
                                         ],
                                       ),
-                                      Container(
+                                      SizedBox(
                                         width: 24,
                                         height: 24,
                                         child: Stack(
@@ -565,7 +567,7 @@ class CreateNewCourse extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Container(
+                    SizedBox(
                       width: double.infinity,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -599,7 +601,7 @@ class CreateNewCourse extends StatelessWidget {
                               ],
                             ),
                           ),
-                          Container(
+                          SizedBox(
                             width: double.infinity,
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
@@ -650,7 +652,7 @@ class CreateNewCourse extends StatelessWidget {
                                           ],
                                         ),
                                       ),
-                                      Container(
+                                      SizedBox(
                                         width: 24,
                                         height: 24,
                                         child: Stack(
@@ -678,7 +680,7 @@ class CreateNewCourse extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Container(
+                    SizedBox(
                       width: double.infinity,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -696,7 +698,7 @@ class CreateNewCourse extends StatelessWidget {
                               height: 1.14,
                             ),
                           ),
-                          Container(
+                          SizedBox(
                             width: double.infinity,
                             height: 64,
                             child: Column(
