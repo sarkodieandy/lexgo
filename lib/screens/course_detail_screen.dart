@@ -4,6 +4,7 @@ import '../models/course.dart';
 import '../models/course_assignment.dart';
 import '../theme/app_colors.dart';
 import '../widgets/courses/add_topic_sheet.dart';
+import '../widgets/create_newassignmentfab.dart';
 import '../widgets/courses/course_assignments_section.dart';
 
 class CourseDetailScreen extends StatelessWidget {
@@ -77,7 +78,7 @@ class CourseDetailScreen extends StatelessWidget {
               context: context,
               isScrollControlled: true,
               backgroundColor: Colors.transparent,
-              builder: (_) => const AddTopicSheet(),
+              builder: (_) => const CreateNewAssignment(),
             );
           },
           backgroundColor: AppColors.brandDark,

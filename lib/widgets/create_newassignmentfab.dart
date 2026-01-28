@@ -26,7 +26,6 @@ class CreateNewAssignment extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
-            spacing: 32,
             children: [
               Container(
                 width: 350,
@@ -35,7 +34,6 @@ class CreateNewAssignment extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 16,
                   children: [
                     Container(
                       width: double.infinity,
@@ -43,7 +41,6 @@ class CreateNewAssignment extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
-                        spacing: 98,
                         children: [
                           Text(
                             'Create New Assignment',
@@ -84,7 +81,6 @@ class CreateNewAssignment extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: 8,
                         children: [
                           SizedBox(
                             width: 350,
@@ -126,13 +122,11 @@ class CreateNewAssignment extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.center,
-                              spacing: 8,
                               children: [
                                 Row(
                                   mainAxisSize: MainAxisSize.min,
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.center,
-                                  spacing: 8,
                                   children: [
                                     Opacity(
                                       opacity: 0.80,
@@ -161,7 +155,6 @@ class CreateNewAssignment extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: 8,
                         children: [
                           SizedBox(
                             width: 350,
@@ -204,13 +197,11 @@ class CreateNewAssignment extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              spacing: 8,
                               children: [
                                 Row(
                                   mainAxisSize: MainAxisSize.min,
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.center,
-                                  spacing: 8,
                                   children: [
                                     Opacity(
                                       opacity: 0.80,
@@ -239,7 +230,6 @@ class CreateNewAssignment extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: 8,
                         children: [
                           SizedBox(
                             width: 350,
@@ -281,13 +271,11 @@ class CreateNewAssignment extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               crossAxisAlignment: CrossAxisAlignment.center,
-                              spacing: 8,
                               children: [
                                 Row(
                                   mainAxisSize: MainAxisSize.min,
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.center,
-                                  spacing: 8,
                                   children: [
                                     Text(
                                       'DD/MM/YY',
@@ -332,7 +320,6 @@ class CreateNewAssignment extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: 8,
                         children: [
                           SizedBox(
                             width: 350,
@@ -358,13 +345,11 @@ class CreateNewAssignment extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.center,
-                              spacing: 8,
                               children: [
                                 Row(
                                   mainAxisSize: MainAxisSize.min,
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.center,
-                                  spacing: 8,
                                   children: [
                                     Opacity(
                                       opacity: 0.80,
@@ -393,7 +378,6 @@ class CreateNewAssignment extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: 8,
                         children: [
                           SizedBox(
                             width: 350,
@@ -435,13 +419,11 @@ class CreateNewAssignment extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               crossAxisAlignment: CrossAxisAlignment.center,
-                              spacing: 8,
                               children: [
                                 Row(
                                   mainAxisSize: MainAxisSize.min,
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.center,
-                                  spacing: 8,
                                   children: [
                                     Text(
                                       'File Upload',
@@ -486,7 +468,6 @@ class CreateNewAssignment extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: 8,
                         children: [
                           SizedBox(
                             width: 350,
@@ -512,13 +493,11 @@ class CreateNewAssignment extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.center,
-                              spacing: 8,
                               children: [
                                 Row(
                                   mainAxisSize: MainAxisSize.min,
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.center,
-                                  spacing: 8,
                                   children: [
                                     Opacity(
                                       opacity: 0.80,
@@ -552,14 +531,12 @@ class CreateNewAssignment extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
-                        spacing: 8,
                         children: [
                           Expanded(
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              spacing: 8,
                               children: [
                                 Container(
                                   width: 24,
@@ -573,7 +550,6 @@ class CreateNewAssignment extends StatelessWidget {
                                     mainAxisSize: MainAxisSize.min,
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     crossAxisAlignment: CrossAxisAlignment.center,
-                                    spacing: 10,
                                     children: [
                                       Container(
                                         width: 20,
@@ -601,7 +577,6 @@ class CreateNewAssignment extends StatelessWidget {
                                   mainAxisSize: MainAxisSize.min,
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                  spacing: 2,
                                   children: [
                                     Text(
                                       'Assignment Questions',
@@ -617,7 +592,6 @@ class CreateNewAssignment extends StatelessWidget {
                                       mainAxisSize: MainAxisSize.min,
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       crossAxisAlignment: CrossAxisAlignment.center,
-                                      spacing: 2,
                                       children: [
                                         Text(
                                           '5MB',
@@ -684,7 +658,6 @@ class CreateNewAssignment extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
-                              spacing: 10,
                               children: [
                                 Container(
                                   width: 20,
@@ -717,7 +690,6 @@ class CreateNewAssignment extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: 8,
                         children: [
                           SizedBox(
                             width: 350,
@@ -750,7 +722,6 @@ class CreateNewAssignment extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
-                              spacing: 8,
                               children: [
                                 Container(
                                   width: 56,
@@ -775,7 +746,6 @@ class CreateNewAssignment extends StatelessWidget {
                                   mainAxisSize: MainAxisSize.min,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.center,
-                                  spacing: 4,
                                   children: [
                                     Text(
                                       'Click to Upload or drag and drop',
@@ -818,7 +788,6 @@ class CreateNewAssignment extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
-                        spacing: 16,
                         children: [
                           Text(
                             'Create Assignment',
