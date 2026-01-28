@@ -179,28 +179,31 @@ class HomeProvider extends ChangeNotifier {
       ];
 
   List<CaseItem> get cases => const [
-    CaseItem(
-      title: 'The Republic v. John Smith',
-      subtitle: 'Supreme Court of Ghana',
-      code: '[2024] GHASC 15',
-      tag: 'Administrative Law',
-      tagColor: Color(0xFFD14234),
-    ),
-    CaseItem(
-      title: 'Case Title',
-      subtitle: 'Source of case',
-      code: 'case code',
-      tag: 'Constitutional Law',
-      tagColor: Color(0xFF8B5CF6),
-    ),
-    CaseItem(
-      title: 'Case Title',
-      subtitle: 'Source of case',
-      code: 'case code',
-      tag: 'Contract Law',
-      tagColor: Color(0xFF6366F1),
-    ),
-  ];
+        CaseItem(
+          id: 'case-1',
+          title: 'The Republic v. John Smith',
+          subtitle: 'Supreme Court of Ghana',
+          code: '[2024] GHASC 15',
+          tag: 'Administrative Law',
+          tagColor: Color(0xFFD14234),
+        ),
+        CaseItem(
+          id: 'case-2',
+          title: 'Case Title',
+          subtitle: 'Source of case',
+          code: 'case code',
+          tag: 'Constitutional Law',
+          tagColor: Color(0xFF8B5CF6),
+        ),
+        CaseItem(
+          id: 'case-3',
+          title: 'Case Title',
+          subtitle: 'Source of case',
+          code: 'case code',
+          tag: 'Contract Law',
+          tagColor: Color(0xFF6366F1),
+        ),
+      ];
 
   List<SidebarItem> get primaryMenu => const [
     SidebarItem(label: 'Home', icon: Icons.home, selected: true),

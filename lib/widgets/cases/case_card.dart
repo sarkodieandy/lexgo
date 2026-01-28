@@ -72,7 +72,20 @@ class CaseCard extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      final messenger = ScaffoldMessenger.of(context);
+                      final hasUrl = item.documentUrl?.isNotEmpty == true;
+                      messenger.showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            hasUrl
+                                ? 'Document ready at ${item.documentUrl}'
+                                : 'Document not available yet',
+                          ),
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                    },
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(

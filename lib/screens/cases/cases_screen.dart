@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/filter_selection.dart';
-import '../../providers/home_provider.dart';
 import '../../models/cases/case_item.dart';
+import '../../providers/cases_provider.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/cases/case_card.dart';
 import '../../widgets/sidebar.dart';
@@ -18,18 +18,31 @@ class CasesScreen extends StatefulWidget {
 }
 
 class _CasesScreenState extends State<CasesScreen> {
-  FilterSelection? _activeFilter;
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<CasesProvider>().loadCases();
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   Future<void> _openFilter() async {
-    final provider = context.read<HomeProvider>();
-    final categories = provider.cases.map((item) => item.tag).toSet().toList()
-      ..sort();
-    if (!categories.contains('All Categories')) {
-      categories.insert(0, 'All Categories');
-    } else {
-      categories.remove('All Categories');
-      categories.insert(0, 'All Categories');
-    }
+    final provider = context.read<CasesProvider>();
+    final categories = provider.availableCategories;
+    final initialSelection =
+        provider.activeFilter ??
+        FilterSelection(
+          category: categories.isNotEmpty ? categories.first : 'All Categories',
+          sort: FilterSort.alphabeticalAsc,
+        );
     final result = await showGeneralDialog<FilterSelection>(
       context: context,
       barrierDismissible: true,
@@ -39,12 +52,7 @@ class _CasesScreenState extends State<CasesScreen> {
       pageBuilder: (context, animation, secondaryAnimation) {
         return CasesFilterScreen(
           categories: categories,
-          initialSelection:
-              _activeFilter ??
-              FilterSelection(
-                category: categories.isNotEmpty ? categories.first : '',
-                sort: FilterSort.alphabeticalAsc,
-              ),
+          initialSelection: initialSelection,
         );
       },
       transitionBuilder: (context, animation, secondary, child) {
@@ -60,7 +68,7 @@ class _CasesScreenState extends State<CasesScreen> {
       },
     );
     if (result != null) {
-      setState(() => _activeFilter = result);
+      await provider.applyFilter(result);
     }
   }
 
@@ -70,32 +78,11 @@ class _CasesScreenState extends State<CasesScreen> {
     ).push(MaterialPageRoute(builder: (_) => const UploadNewCaseScreen()));
   }
 
-  List<CaseItem> _prepareCases(List<CaseItem> base) {
-    final baseList = base.toList();
-    List<CaseItem> list = baseList;
-    final category = _activeFilter?.category;
-    if (category != null &&
-        category.isNotEmpty &&
-        category != 'All Categories') {
-      list = baseList.where((item) => item.tag == category).toList();
-    }
-    final sort = _activeFilter?.sort;
-    if (sort == FilterSort.alphabeticalAsc) {
-      list.sort((a, b) => a.title.compareTo(b.title));
-    } else if (sort == FilterSort.alphabeticalDesc) {
-      list.sort((a, b) => b.title.compareTo(a.title));
-    } else if (sort == FilterSort.dateNewest) {
-      list = List.from(list.reversed);
-    } else if (sort == FilterSort.dateOldest) {
-      list = List.from(list);
-    }
-    return list;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<HomeProvider>();
-    final visibleCases = _prepareCases(provider.cases);
+    final casesProvider = context.watch<CasesProvider>();
+    final cases = casesProvider.cases;
+    final hasError = casesProvider.error != null;
     return Scaffold(
       drawer: const Sidebar(),
       backgroundColor: AppColors.brandDark,
@@ -142,16 +129,45 @@ class _CasesScreenState extends State<CasesScreen> {
                       padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
                       child: Column(
                         children: [
-                          _SearchRow(onFilterPressed: _openFilter),
-                          const SizedBox(height: 20),
-                          Expanded(
-                            child: ListView.builder(
-                              physics: const BouncingScrollPhysics(),
-                              itemCount: visibleCases.length,
-                              itemBuilder: (_, index) =>
-                                  CaseCard(item: visibleCases[index]),
-                            ),
+                          _SearchRow(
+                            controller: _searchController,
+                            onSubmitted: (value) => casesProvider.search(value),
+                            onFilterPressed: _openFilter,
                           ),
+                          const SizedBox(height: 20),
+                          if (casesProvider.isLoading)
+                            const Expanded(
+                              child: Center(child: CircularProgressIndicator()),
+                            )
+                          else if (hasError)
+                            Expanded(
+                              child: Center(
+                                child: Text(
+                                  casesProvider.error ?? 'Unable to load cases',
+                                  style: const TextStyle(
+                                    color: Colors.redAccent,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            )
+                          else if (cases.isEmpty)
+                            const Expanded(
+                              child: Center(child: Text('No cases found')),
+                            )
+                          else
+                            Expanded(
+                              child: RefreshIndicator(
+                                onRefresh: () => casesProvider.loadCases(),
+                                child: ListView.builder(
+                                  physics:
+                                      const AlwaysScrollableScrollPhysics(),
+                                  itemCount: cases.length,
+                                  itemBuilder: (_, index) =>
+                                      CaseCard(item: cases[index]),
+                                ),
+                              ),
+                            ),
                         ],
                       ),
                     ),
@@ -231,9 +247,15 @@ class _CasesHeader extends StatelessWidget {
 }
 
 class _SearchRow extends StatelessWidget {
-  const _SearchRow({required this.onFilterPressed});
+  const _SearchRow({
+    required this.controller,
+    required this.onFilterPressed,
+    this.onSubmitted,
+  });
 
+  final TextEditingController controller;
   final VoidCallback onFilterPressed;
+  final ValueChanged<String>? onSubmitted;
 
   @override
   Widget build(BuildContext context) {
@@ -248,6 +270,8 @@ class _SearchRow extends StatelessWidget {
             ),
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextField(
+              controller: controller,
+              onSubmitted: onSubmitted,
               decoration: InputDecoration(
                 border: InputBorder.none,
                 hintText: 'Search Cases...',

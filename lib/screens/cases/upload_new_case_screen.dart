@@ -1,6 +1,8 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../providers/cases_provider.dart';
 import '../../theme/app_colors.dart';
 
 class UploadNewCaseScreen extends StatefulWidget {
@@ -12,14 +14,17 @@ class UploadNewCaseScreen extends StatefulWidget {
 
 class _UploadNewCaseScreenState extends State<UploadNewCaseScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _courseController = TextEditingController();
   final _titleController = TextEditingController();
   final _sourceController = TextEditingController();
   final _codeController = TextEditingController();
   String? _category;
-  String? _pickedFileName;
+  PlatformFile? _selectedFile;
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
+    _courseController.dispose();
     _titleController.dispose();
     _sourceController.dispose();
     _codeController.dispose();
@@ -33,27 +38,49 @@ class _UploadNewCaseScreenState extends State<UploadNewCaseScreen> {
       withData: false,
     );
     if (result != null && result.files.isNotEmpty) {
-      final file = result.files.first;
       setState(() {
-        _pickedFileName = file.name;
+        _selectedFile = result.files.first;
       });
     }
   }
 
-  void _submitCase() {
-    if (!_formKey.currentState!.validate()) {
+  Future<void> _submitCase() async {
+    if (!_formKey.currentState!.validate()) return;
+    final courseId = _courseController.text.trim();
+    if (courseId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please provide the course ID')),
+      );
       return;
     }
-    if (_pickedFileName == null) {
+    final file = _selectedFile;
+    if (file?.path?.isEmpty ?? true) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please upload a document first')),
       );
       return;
     }
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Case uploaded successfully')));
-    Navigator.of(context).pop();
+    setState(() => _isSubmitting = true);
+    try {
+      await context.read<CasesProvider>().createCase(
+        courseId: courseId,
+        title: _titleController.text.trim(),
+        sourceOfCase: _sourceController.text.trim(),
+        caseCode: _codeController.text.trim(),
+        caseCategory: _category ?? 'General',
+        documentPath: file!.path!,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Case uploaded successfully')),
+      );
+      Navigator.of(context).pop();
+    } catch (err) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to upload case: ${err.toString()}')),
+      );
+    } finally {
+      setState(() => _isSubmitting = false);
+    }
   }
 
   @override
@@ -85,6 +112,12 @@ class _UploadNewCaseScreenState extends State<UploadNewCaseScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             _buildField(
+                              'Course ID',
+                              'eg. LAW-001',
+                              _courseController,
+                            ),
+                            const SizedBox(height: 14),
+                            _buildField(
                               'Case Title',
                               'eg. The Republic vs. John Smith',
                               _titleController,
@@ -110,7 +143,7 @@ class _UploadNewCaseScreenState extends State<UploadNewCaseScreen> {
                               width: double.infinity,
                               height: 52,
                               child: ElevatedButton(
-                                onPressed: _submitCase,
+                                onPressed: _isSubmitting ? null : _submitCase,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.brandWhite,
                                   side: const BorderSide(
@@ -122,9 +155,9 @@ class _UploadNewCaseScreenState extends State<UploadNewCaseScreen> {
                                   ),
                                   elevation: 0,
                                 ),
-                                child: const Text(
-                                  'Upload Case',
-                                  style: TextStyle(
+                                child: Text(
+                                  _isSubmitting ? 'Uploading…' : 'Upload Case',
+                                  style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
                                     color: AppColors.brandDark,
@@ -201,134 +234,97 @@ class _UploadNewCaseScreenState extends State<UploadNewCaseScreen> {
           style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 6),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
+        DropdownButtonFormField<String>(
+          value: _category,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide.none,
+            ),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: DropdownButtonFormField<String>(
-            key: ValueKey(_category ?? 'category_selector'),
-            initialValue: _category,
-            decoration: const InputDecoration(border: InputBorder.none),
-            hint: const Text('Administrative Law'),
-            isExpanded: true,
-            items: categories
-                .map(
-                  (category) => DropdownMenuItem<String>(
-                    value: category,
-                    child: Text(category),
-                  ),
-                )
-                .toList(),
-            onChanged: (value) => setState(() => _category = value),
-            validator: (value) => (value == null) ? 'Choose a category' : null,
-          ),
+          hint: const Text('Select category'),
+          items: categories
+              .map(
+                (category) =>
+                    DropdownMenuItem(value: category, child: Text(category)),
+              )
+              .toList(),
+          onChanged: (value) => setState(() => _category = value),
         ),
       ],
     );
   }
 
   Widget _buildDocumentUpload() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Upload Document',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+    return GestureDetector(
+      onTap: _pickDocument,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF8F9FB),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFBFC4D3), width: 1.5),
         ),
-        const SizedBox(height: 8),
-        const Text('Upload a document containing your questions'),
-        const SizedBox(height: 12),
-        GestureDetector(
-          onTap: _pickDocument,
-          child: DottedBorderBox(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.cloud_upload_outlined,
-                  size: 36,
-                  color: Colors.black54,
-                ),
-                const SizedBox(height: 8),
-                const Text.rich(
-                  TextSpan(
-                    text: 'Click to upload',
-                    children: [
-                      TextSpan(text: ' or '),
-                      TextSpan(
-                        text: 'drag and drop',
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                    ],
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'PDF or DOCX files up to 10MB',
-                  style: TextStyle(color: AppColors.mutedText),
-                ),
-                if (_pickedFileName != null) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    _pickedFileName!,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                ],
-              ],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Icon(Icons.upload_file, size: 32),
+            const SizedBox(height: 8),
+            Text(
+              _selectedFile?.name ?? 'Click to Upload or drag and drop',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: AppColors.brandDark,
+              ),
             ),
-          ),
+            const SizedBox(height: 4),
+            Text(
+              'PDF/Docx up to 100MB',
+              style: TextStyle(color: AppColors.mutedText),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
   Widget _buildHeader() {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-      decoration: const BoxDecoration(color: AppColors.brandDark),
+      padding: const EdgeInsets.fromLTRB(16, 24, 16, 20),
+      color: AppColors.brandDark,
       child: Row(
         children: [
+          GestureDetector(
+            onTap: () => Navigator.of(context).maybePop(),
+            child: Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: AppColors.brandNavy,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Center(
+                child: Icon(
+                  Icons.arrow_back_ios_new,
+                  color: AppColors.brandWhite,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
           const Text(
-            'Upload New Case',
+            'Upload Case',
             style: TextStyle(
               color: AppColors.brandWhite,
-              fontSize: 26,
+              fontSize: 24,
               fontWeight: FontWeight.w700,
             ),
           ),
-          const Spacer(),
-          IconButton(
-            onPressed: () => Navigator.of(context).pop(),
-            icon: const Icon(Icons.close, color: AppColors.brandWhite),
-          ),
         ],
       ),
-    );
-  }
-}
-
-class DottedBorderBox extends StatelessWidget {
-  const DottedBorderBox({super.key, required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 28),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFB8C3D7), width: 1.2),
-      ),
-      child: child,
     );
   }
 }
