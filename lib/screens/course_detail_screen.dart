@@ -1,53 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../models/course.dart';
-import '../models/course_assignment.dart';
+import '../providers/course_assignments_provider.dart';
 import '../theme/app_colors.dart';
-import '../widgets/courses/add_topic_sheet.dart';
-import '../widgets/create_newassignmentfab.dart';
 import '../widgets/courses/course_assignments_section.dart';
+import '../widgets/create_newassignmentfab.dart';
+import 'assignment_details_screen.dart';
 
 class CourseDetailScreen extends StatelessWidget {
   const CourseDetailScreen({super.key, required this.course});
 
   final Course course;
-
-  List<CourseAssignment> _buildAssignments() {
-    return [
-      CourseAssignment(
-        id: '${course.code}-1',
-        title: 'Assignment 1 : ${course.title}',
-        description: 'Test your knowledge',
-        dueDate: DateTime(2025, 10, 29),
-        dueTime: '11:59 PM',
-        points: 10,
-      ),
-      CourseAssignment(
-        id: '${course.code}-2',
-        title: 'Assignment 2 : ${course.title}',
-        description: 'Apply the main principles from the last module.',
-        dueDate: DateTime(2025, 11, 5),
-        dueTime: '5:00 PM',
-        points: 12,
-      ),
-      CourseAssignment(
-        id: '${course.code}-3',
-        title: 'Assignment 3 : ${course.title}',
-        description: 'Deep dive into real-world scenarios.',
-        dueDate: DateTime(2025, 11, 12),
-        dueTime: '11:59 PM',
-        points: 15,
-      ),
-      CourseAssignment(
-        id: '${course.code}-4',
-        title: 'Assignment 4 : ${course.title}',
-        description: 'Reflect on the key takeaways from the term.',
-        dueDate: DateTime(2025, 11, 20),
-        dueTime: '8:00 PM',
-        points: 8,
-      ),
-    ];
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,18 +31,27 @@ class CourseDetailScreen extends StatelessWidget {
       'Freedom of speech',
       'African Religion',
     ];
-    final assignments = _buildAssignments();
+    final assignments = context
+        .watch<CourseAssignmentsProvider>()
+        .assignmentsFor(course);
     return DefaultTabController(
       length: 4,
       child: Scaffold(
         backgroundColor: AppColors.brandDark,
         floatingActionButton: FloatingActionButton(
           onPressed: () {
+            final provider = context.read<CourseAssignmentsProvider>();
+            final nextNumber = provider.assignmentsFor(course).length + 1;
             showModalBottomSheet(
               context: context,
               isScrollControlled: true,
               backgroundColor: Colors.transparent,
-              builder: (_) => const CreateNewAssignment(),
+              builder: (_) => CreateNewAssignment(
+                course: course,
+                assignmentNumber: nextNumber,
+                onCreate: (assignment) =>
+                    provider.addAssignment(course, assignment),
+              ),
             );
           },
           backgroundColor: AppColors.brandDark,
@@ -186,7 +159,17 @@ class CourseDetailScreen extends StatelessWidget {
                             subtitle: subtitles[index],
                           ),
                         ),
-                        CourseAssignmentsSection(assignments: assignments),
+                        CourseAssignmentsSection(
+                          assignments: assignments,
+                          onAssignmentTap: (assignment) =>
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => AssignmentDetailsScreen(
+                                    assignment: assignment,
+                                  ),
+                                ),
+                              ),
+                        ),
                         const Center(child: Text('Resources content')),
                         const Center(child: Text('Q&A content')),
                       ],

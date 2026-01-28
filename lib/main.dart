@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/analysis_provider.dart';
+import 'providers/course_assignments_provider.dart';
 import 'providers/home_provider.dart';
 import 'screens/home_screen.dart';
 import 'theme/app_theme.dart';
@@ -16,6 +17,7 @@ class LexGoApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => CourseAssignmentsProvider()),
         ChangeNotifierProvider(create: (_) => HomeProvider()),
         ChangeNotifierProvider(create: (_) => AnalysisProvider()),
       ],

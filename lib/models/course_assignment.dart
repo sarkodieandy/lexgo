@@ -6,6 +6,8 @@ class CourseAssignment {
     required this.dueDate,
     required this.dueTime,
     required this.points,
+    this.gradeScale = '100 marks',
+    this.submissionType = 'file Upload',
   });
 
   final String id;
@@ -14,10 +16,17 @@ class CourseAssignment {
   final DateTime dueDate;
   final String dueTime;
   final int points;
+  final String gradeScale;
+  final String submissionType;
 
   String get dueDateLabel {
     final month = _monthNames[dueDate.month - 1];
     return 'Due $month ${dueDate.day}, ${dueDate.year}';
+  }
+
+  String get dueDateOnly {
+    final month = _monthNames[dueDate.month - 1];
+    return '$month ${dueDate.day}, ${dueDate.year}';
   }
 
   String get pointsLabel => '$points points';

@@ -1,5 +1,35 @@
 import 'package:flutter/material.dart';
+
+import '../models/course.dart';
+import '../models/course_assignment.dart';
+
 class CreateNewAssignment extends StatelessWidget {
+  const CreateNewAssignment({
+    super.key,
+    required this.course,
+    required this.assignmentNumber,
+    this.onCreate,
+  });
+
+  final Course course;
+  final int assignmentNumber;
+  final ValueChanged<CourseAssignment>? onCreate;
+
+  void _handleSubmit(BuildContext context) {
+    final assignment = CourseAssignment(
+      id: '${course.code}-${DateTime.now().millisecondsSinceEpoch}',
+      title: 'Assignment $assignmentNumber : ${course.title}',
+      description: 'Created via assignment sheet.',
+      dueDate: DateTime.now().add(const Duration(days: 7)),
+      dueTime: '11:59 PM',
+      points: 10,
+      gradeScale: '100 marks',
+      submissionType: 'file Upload',
+    );
+    onCreate?.call(assignment);
+    Navigator.of(context).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -19,7 +49,7 @@ class CreateNewAssignment extends StatelessWidget {
                 blurRadius: 12,
                 offset: Offset(0, 4),
                 spreadRadius: 4,
-              )
+              ),
             ],
           ),
           child: Column(
@@ -35,7 +65,7 @@ class CreateNewAssignment extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
+                    SizedBox(
                       width: double.infinity,
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -53,7 +83,7 @@ class CreateNewAssignment extends StatelessWidget {
                               height: 1.11,
                             ),
                           ),
-                          Container(
+                          SizedBox(
                             width: 32,
                             height: 32,
                             child: Stack(
@@ -75,7 +105,7 @@ class CreateNewAssignment extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Container(
+                    SizedBox(
                       width: double.infinity,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -113,10 +143,15 @@ class CreateNewAssignment extends StatelessWidget {
                           ),
                           Container(
                             width: double.infinity,
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
                             decoration: ShapeDecoration(
                               color: const Color(0xFFFFFBFB),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -149,7 +184,7 @@ class CreateNewAssignment extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Container(
+                    SizedBox(
                       width: double.infinity,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -188,10 +223,15 @@ class CreateNewAssignment extends StatelessWidget {
                           Container(
                             width: double.infinity,
                             height: 89,
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
                             decoration: ShapeDecoration(
                               color: const Color(0xFFFFFBFB),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -224,7 +264,7 @@ class CreateNewAssignment extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Container(
+                    SizedBox(
                       width: double.infinity,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -262,10 +302,15 @@ class CreateNewAssignment extends StatelessWidget {
                           ),
                           Container(
                             width: double.infinity,
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
                             decoration: ShapeDecoration(
                               color: const Color(0xFFFFFBFB),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -289,7 +334,7 @@ class CreateNewAssignment extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-                                Container(
+                                SizedBox(
                                   width: 24,
                                   height: 24,
                                   child: Stack(
@@ -314,7 +359,7 @@ class CreateNewAssignment extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Container(
+                    SizedBox(
                       width: double.infinity,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -336,10 +381,15 @@ class CreateNewAssignment extends StatelessWidget {
                           ),
                           Container(
                             width: double.infinity,
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
                             decoration: ShapeDecoration(
                               color: const Color(0xFFFFFBFB),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -372,7 +422,7 @@ class CreateNewAssignment extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Container(
+                    SizedBox(
                       width: double.infinity,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -410,10 +460,15 @@ class CreateNewAssignment extends StatelessWidget {
                           ),
                           Container(
                             width: double.infinity,
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
                             decoration: ShapeDecoration(
                               color: const Color(0xFFFFFBFB),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -437,7 +492,7 @@ class CreateNewAssignment extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-                                Container(
+                                SizedBox(
                                   width: 24,
                                   height: 24,
                                   child: Stack(
@@ -462,7 +517,7 @@ class CreateNewAssignment extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Container(
+                    SizedBox(
                       width: double.infinity,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -484,10 +539,15 @@ class CreateNewAssignment extends StatelessWidget {
                           ),
                           Container(
                             width: double.infinity,
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
                             decoration: ShapeDecoration(
                               color: const Color(0xFFFFFBFB),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -525,7 +585,9 @@ class CreateNewAssignment extends StatelessWidget {
                       padding: const EdgeInsets.all(12),
                       decoration: ShapeDecoration(
                         color: const Color(0xFFE3E3E3),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -544,14 +606,17 @@ class CreateNewAssignment extends StatelessWidget {
                                   padding: const EdgeInsets.all(8),
                                   decoration: ShapeDecoration(
                                     color: const Color(0xFFFFFBFB),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: [
-                                      Container(
+                                      SizedBox(
                                         width: 20,
                                         height: 20,
                                         child: Stack(
@@ -590,8 +655,10 @@ class CreateNewAssignment extends StatelessWidget {
                                     ),
                                     Row(
                                       mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
                                       children: [
                                         Text(
                                           '5MB',
@@ -652,14 +719,16 @@ class CreateNewAssignment extends StatelessWidget {
                             padding: const EdgeInsets.all(8),
                             decoration: ShapeDecoration(
                               color: const Color(0xFFFFFBFB),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Container(
+                                SizedBox(
                                   width: 20,
                                   height: 20,
                                   child: Stack(
@@ -684,7 +753,7 @@ class CreateNewAssignment extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Container(
+                    SizedBox(
                       width: 350,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -706,7 +775,10 @@ class CreateNewAssignment extends StatelessWidget {
                           ),
                           Container(
                             width: double.infinity,
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
                             decoration: ShapeDecoration(
                               color: const Color(0xFFFFFBFB),
                               shape: RoundedRectangleBorder(
@@ -723,7 +795,7 @@ class CreateNewAssignment extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Container(
+                                SizedBox(
                                   width: 56,
                                   height: 56,
                                   child: Stack(
@@ -776,30 +848,39 @@ class CreateNewAssignment extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Container(
-                      width: 350,
-                      height: 48,
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                      decoration: ShapeDecoration(
-                        color: const Color(0xFF020F20),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Create Assignment',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w600,
-                              height: 1.25,
-                            ),
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => _handleSubmit(context),
+                      child: Container(
+                        width: 350,
+                        height: 48,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 32,
+                          vertical: 16,
+                        ),
+                        decoration: ShapeDecoration(
+                          color: const Color(0xFF020F20),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                        ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Create Assignment',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w600,
+                                height: 1.25,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
