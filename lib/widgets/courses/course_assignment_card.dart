@@ -55,6 +55,8 @@ class CourseAssignmentCard extends StatelessWidget {
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
@@ -66,6 +68,8 @@ class CourseAssignmentCard extends StatelessWidget {
                   fontSize: 12,
                   color: AppColors.mutedText,
                 ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 12),
               Wrap(

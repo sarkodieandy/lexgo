@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../models/course.dart';
-import '../theme/app_colors.dart';
-import '../widgets/courses/create_course_sheet.dart';
+import '../../models/course.dart';
+import '../../theme/app_colors.dart';
+import '../../widgets/courses/create_course_sheet.dart';
 import 'course_detail_screen.dart';
 
 class Courses extends StatefulWidget {

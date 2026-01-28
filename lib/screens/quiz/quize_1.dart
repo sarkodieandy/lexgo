@@ -2,11 +2,11 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../models/quiz/submission_record.dart';
-import '../screens/review_quiz_screen.dart';
-import '../theme/app_colors.dart';
-import '../widgets/quiz/analysis/analysis_tab.dart';
-import '../widgets/quiz/submissions/submissions_tab.dart';
+import '../../models/quiz/submission_record.dart';
+import '../../theme/app_colors.dart';
+import '../../widgets/quiz/analysis/analysis_tab.dart';
+import '../../widgets/quiz/submissions/submissions_tab.dart';
+import 'review_quiz_screen.dart';
 
 class Quiz1 extends StatefulWidget {
   const Quiz1({super.key, this.title = 'Quiz one'});

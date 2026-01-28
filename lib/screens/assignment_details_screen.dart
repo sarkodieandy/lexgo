@@ -13,10 +13,24 @@ class AssignmentDetailsScreen extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
-          Text(value, style: const TextStyle(color: AppColors.brandDark)),
+          Expanded(
+            flex: 2,
+            child: Text(
+              label,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ),
+          const SizedBox(width: 6),
+          Flexible(
+            flex: 3,
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              style: const TextStyle(color: AppColors.brandDark),
+            ),
+          ),
         ],
       ),
     );
@@ -198,14 +212,18 @@ class AssignmentDetailsScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 8),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  assignment.title,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w500,
+                                Expanded(
+                                  child: Text(
+                                    assignment.title,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
+                                const SizedBox(width: 12),
                                 Text(
                                   assignment.pointsLabel,
                                   style: const TextStyle(
@@ -223,22 +241,30 @@ class AssignmentDetailsScreen extends StatelessWidget {
                               backgroundColor: const Color(0xFFF4F4F4),
                             ),
                             const SizedBox(height: 16),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF020F20),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 16,
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF020F20),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
                                 ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                                onPressed: () => Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => GradeAssignmentsScreen(
+                                      assignment: assignment,
+                                    ),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'Grade Assignments',
+                                  style: TextStyle(color: Colors.white),
                                 ),
                               ),
-                              onPressed: () => Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => const SubmissionsPage(),
-                                ),
-                              ),
-                              child: const Text('Grade Assignments'),
                             ),
                           ],
                         ),

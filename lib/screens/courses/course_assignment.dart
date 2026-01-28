@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../models/course_assignment.dart';
-import '../theme/app_colors.dart';
+import '../../models/course_assignment.dart';
+import '../../theme/app_colors.dart';
 
 class CourseAssignmentScreen extends StatelessWidget {
   const CourseAssignmentScreen({super.key});

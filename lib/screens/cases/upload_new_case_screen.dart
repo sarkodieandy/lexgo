@@ -1,7 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
-import '../theme/app_colors.dart';
+import '../../theme/app_colors.dart';
 
 class UploadNewCaseScreen extends StatefulWidget {
   const UploadNewCaseScreen({super.key});

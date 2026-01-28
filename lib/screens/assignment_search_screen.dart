@@ -131,34 +131,56 @@ class _AssignmentSearchScreenState extends State<AssignmentSearchScreen> {
                                   const SizedBox(height: 18),
                               itemBuilder: (context, index) {
                                 final term = history[index];
-                                return Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          context
-                                              .read<CourseAssignmentsProvider>()
-                                              .recordSearchTerm(term);
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: Text(
-                                          term,
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w500,
-                                            color: AppColors.brandDark,
+                                return Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 14,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(18),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color(
+                                          0xFF000000,
+                                        ).withOpacity(0.04),
+                                        blurRadius: 12,
+                                        offset: const Offset(0, 6),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            context
+                                                .read<
+                                                  CourseAssignmentsProvider
+                                                >()
+                                                .recordSearchTerm(term);
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Text(
+                                            term,
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                              color: AppColors.brandDark,
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                    GestureDetector(
-                                      onTap: () =>
-                                          provider.removeSearchTerm(term),
-                                      child: const Icon(Icons.close, size: 18),
-                                    ),
-                                  ],
+                                      GestureDetector(
+                                        onTap: () =>
+                                            provider.removeSearchTerm(term),
+                                        child: const Icon(
+                                          Icons.close,
+                                          size: 18,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 );
                               },
                             ),

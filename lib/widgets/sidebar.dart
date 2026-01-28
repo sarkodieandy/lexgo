@@ -3,12 +3,15 @@ import 'package:provider/provider.dart';
 
 import '../models/sidebar/sidebar_item.dart';
 import '../providers/home_provider.dart';
-import '../screens/cases_screen.dart';
-import '../screens/courses.dart';
+import '../screens/cases/cases_screen.dart';
+import '../screens/companion_screen.dart';
+import '../screens/courses/courses_list_screen.dart';
 import '../screens/help_center_screen.dart';
+import '../screens/home_screen.dart';
 import '../screens/logout_screen.dart';
 import '../screens/notifications_screen.dart';
-import '../screens/quiz_screen.dart';
+import '../screens/quiz/quiz_screen.dart';
+import '../screens/students_screen.dart';
 import '../theme/app_colors.dart';
 import 'footer.dart';
 
@@ -111,30 +114,52 @@ class Sidebar extends StatelessWidget {
 
   void _navigate(BuildContext context, SidebarItem item) {
     Navigator.of(context).pop();
+    if (item.label == 'Home') {
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const HomeScreen()));
+      return;
+    }
     if (item.label == 'Cases') {
       Navigator.of(
         context,
       ).push(MaterialPageRoute(builder: (_) => const CasesScreen()));
+      return;
     } else if (item.label == 'Quiz') {
       Navigator.of(
         context,
       ).push(MaterialPageRoute(builder: (_) => const QuizScreen()));
+      return;
     } else if (item.label == 'Notifications') {
       Navigator.of(
         context,
       ).push(MaterialPageRoute(builder: (_) => const NotificationsScreen()));
+      return;
     } else if (item.label == 'Help Center') {
       Navigator.of(
         context,
       ).push(MaterialPageRoute(builder: (_) => const HelpCenterScreen()));
+      return;
     } else if (item.label == 'Log Out') {
       Navigator.of(
         context,
       ).push(MaterialPageRoute(builder: (_) => const LogoutScreen()));
+      return;
     } else if (item.label == 'Courses') {
       Navigator.of(
         context,
       ).push(MaterialPageRoute(builder: (_) => const Courses()));
+      return;
+    } else if (item.label == 'Students') {
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const StudentsScreen()));
+      return;
+    } else if (item.label == 'Companion') {
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const CompanionScreen()));
+      return;
     }
   }
 }

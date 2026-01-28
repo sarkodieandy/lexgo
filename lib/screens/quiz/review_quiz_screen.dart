@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_colors.dart';
+import '../../theme/app_colors.dart';
 
 class ReviewQuizScreen extends StatelessWidget {
   const ReviewQuizScreen({super.key});
@@ -27,7 +27,11 @@ class ReviewQuizScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Center(
-                        child: Icon(Icons.arrow_back_ios_new, color: AppColors.brandWhite, size: 18),
+                        child: Icon(
+                          Icons.arrow_back_ios_new,
+                          color: AppColors.brandWhite,
+                          size: 18,
+                        ),
                       ),
                     ),
                   ),
@@ -78,15 +82,24 @@ class ReviewQuizScreen extends StatelessWidget {
                           title: 'Quiz Information',
                           children: const [
                             _KeyValuePair(label: 'Title', value: 'Quiz one'),
-                            _KeyValuePair(label: 'Description', value: 'First Quiz to test your knowledge'),
-                            _KeyValuePair(label: 'Instruction', value: 'Make sure to answer all questions'),
+                            _KeyValuePair(
+                              label: 'Description',
+                              value: 'First Quiz to test your knowledge',
+                            ),
+                            _KeyValuePair(
+                              label: 'Instruction',
+                              value: 'Make sure to answer all questions',
+                            ),
                           ],
                         ),
                         const SizedBox(height: 16),
                         _buildSection(
                           title: 'Quiz Information',
                           children: const [
-                            _KeyValuePair(label: 'Total Questions', value: '20'),
+                            _KeyValuePair(
+                              label: 'Total Questions',
+                              value: '20',
+                            ),
                             SizedBox(height: 4),
                             Text(
                               '18 Multiple choice, 2 Checkboxes, 1 Short answer',
@@ -102,13 +115,31 @@ class ReviewQuizScreen extends StatelessWidget {
                         _buildSection(
                           title: 'Settings',
                           children: const [
-                            _KeyValuePair(label: 'Duration', value: '45 minutes'),
+                            _KeyValuePair(
+                              label: 'Duration',
+                              value: '45 minutes',
+                            ),
                             _KeyValuePair(label: 'Max Attempts', value: '1'),
-                            _KeyValuePair(label: 'Shuffle Questions', value: 'Yes'),
-                            _KeyValuePair(label: 'Shuffle Answers', value: 'Yes'),
-                            _KeyValuePair(label: 'Show Scores Immediately', value: 'Yes'),
-                            _KeyValuePair(label: 'Starting Date and Time', value: '12 Sept 2025, 09:00PM'),
-                            _KeyValuePair(label: 'Ending Date and Time', value: '14 Sept 2025, 09:00PM'),
+                            _KeyValuePair(
+                              label: 'Shuffle Questions',
+                              value: 'Yes',
+                            ),
+                            _KeyValuePair(
+                              label: 'Shuffle Answers',
+                              value: 'Yes',
+                            ),
+                            _KeyValuePair(
+                              label: 'Show Scores Immediately',
+                              value: 'Yes',
+                            ),
+                            _KeyValuePair(
+                              label: 'Starting Date and Time',
+                              value: '12 Sept 2025, 09:00PM',
+                            ),
+                            _KeyValuePair(
+                              label: 'Ending Date and Time',
+                              value: '14 Sept 2025, 09:00PM',
+                            ),
                           ],
                         ),
                         const SizedBox(height: 24),
@@ -118,13 +149,18 @@ class ReviewQuizScreen extends StatelessWidget {
                               child: OutlinedButton(
                                 style: OutlinedButton.styleFrom(
                                   backgroundColor: AppColors.brandWhite,
-                                  side: const BorderSide(color: AppColors.brandDark),
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  side: const BorderSide(
+                                    color: AppColors.brandDark,
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(16),
                                   ),
                                 ),
-                                onPressed: () => Navigator.of(context).maybePop(),
+                                onPressed: () =>
+                                    Navigator.of(context).maybePop(),
                                 child: const Text(
                                   'Cancel',
                                   style: TextStyle(
@@ -139,21 +175,23 @@ class ReviewQuizScreen extends StatelessWidget {
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.brandDark,
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(16),
                                   ),
                                 ),
                                 onPressed: () {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Quiz published')),
+                                    const SnackBar(
+                                      content: Text('Quiz published'),
+                                    ),
                                   );
                                 },
                                 child: const Text(
                                   'Publish Quiz',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                                  style: TextStyle(fontWeight: FontWeight.w600),
                                 ),
                               ),
                             ),
@@ -171,7 +209,10 @@ class ReviewQuizScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSection({required String title, required List<Widget> children}) {
+  Widget _buildSection({
+    required String title,
+    required List<Widget> children,
+  }) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -202,10 +243,7 @@ class ReviewQuizScreen extends StatelessWidget {
 }
 
 class _KeyValuePair extends StatelessWidget {
-  const _KeyValuePair({
-    required this.label,
-    required this.value,
-  });
+  const _KeyValuePair({required this.label, required this.value});
 
   final String label;
   final String value;

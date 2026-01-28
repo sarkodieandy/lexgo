@@ -5,12 +5,28 @@ import 'app_colors.dart';
 
 class AppTheme {
   static final ThemeData lightTheme = ThemeData(
-    colorScheme: ColorScheme.fromSeed(seedColor: AppColors.brandBlue).copyWith(
-      primary: AppColors.brandBlue,
-      onPrimary: AppColors.brandWhite,
-      surface: AppColors.surface,
+    colorScheme:
+        ColorScheme.fromSeed(
+          seedColor: AppColors.brandDark,
+          brightness: Brightness.dark,
+        ).copyWith(
+          primary: AppColors.brandDark,
+          onPrimary: AppColors.brandWhite,
+          surface: AppColors.surface,
+        ),
+    scaffoldBackgroundColor: AppColors.brandDark,
+    appBarTheme: const AppBarTheme(
+      backgroundColor: AppColors.brandDark,
+      foregroundColor: AppColors.brandWhite,
     ),
-    scaffoldBackgroundColor: AppColors.surface,
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.brandDark,
+        foregroundColor: AppColors.brandWhite,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        textStyle: const TextStyle(fontWeight: FontWeight.w600),
+      ),
+    ),
     cardTheme: const CardThemeData(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -45,5 +61,40 @@ class AppTheme {
             ),
           ),
         ),
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: {
+        TargetPlatform.android: _FadeScalePageTransitionBuilder(),
+        TargetPlatform.iOS: _FadeScalePageTransitionBuilder(),
+        TargetPlatform.linux: _FadeScalePageTransitionBuilder(),
+        TargetPlatform.macOS: _FadeScalePageTransitionBuilder(),
+        TargetPlatform.windows: _FadeScalePageTransitionBuilder(),
+      },
+    ),
   );
+}
+
+class _FadeScalePageTransitionBuilder extends PageTransitionsBuilder {
+  const _FadeScalePageTransitionBuilder();
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    final curved = CurvedAnimation(
+      parent: animation,
+      curve: Curves.easeOutCubic,
+      reverseCurve: Curves.easeInOut,
+    );
+    return FadeTransition(
+      opacity: curved,
+      child: ScaleTransition(
+        scale: Tween<double>(begin: 0.98, end: 1.0).animate(curved),
+        child: child,
+      ),
+    );
+  }
 }

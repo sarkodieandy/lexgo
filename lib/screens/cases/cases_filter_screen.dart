@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../models/filter_selection.dart';
-import '../theme/app_colors.dart';
+import '../../models/filter_selection.dart';
+import '../../theme/app_colors.dart';
 
 class CasesFilterScreen extends StatefulWidget {
   const CasesFilterScreen({
@@ -24,16 +24,17 @@ class _CasesFilterScreenState extends State<CasesFilterScreen> {
   @override
   void initState() {
     super.initState();
-    _selectedCategory = widget.initialSelection?.category ??
+    _selectedCategory =
+        widget.initialSelection?.category ??
         (widget.categories.isNotEmpty ? widget.categories.first : null);
     _selectedSort = widget.initialSelection?.sort ?? FilterSort.alphabeticalAsc;
   }
 
   void _applyFilters() {
     if (_selectedCategory == null) return;
-    Navigator.of(context).pop(
-      FilterSelection(category: _selectedCategory!, sort: _selectedSort),
-    );
+    Navigator.of(
+      context,
+    ).pop(FilterSelection(category: _selectedCategory!, sort: _selectedSort));
   }
 
   @override
@@ -124,7 +125,10 @@ class _CasesFilterScreenState extends State<CasesFilterScreen> {
                   onPressed: _applyFilters,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.brandWhite,
-                    side: const BorderSide(color: AppColors.brandDark, width: 1.5),
+                    side: const BorderSide(
+                      color: AppColors.brandDark,
+                      width: 1.5,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
@@ -164,10 +168,7 @@ class _CasesFilterScreenState extends State<CasesFilterScreen> {
         child: DropdownButtonFormField<T>(
           initialValue: value,
           decoration: const InputDecoration(border: InputBorder.none),
-          hint: Text(
-            hint,
-            style: TextStyle(color: AppColors.mutedText),
-          ),
+          hint: Text(hint, style: TextStyle(color: AppColors.mutedText)),
           isExpanded: true,
           items: items
               .map(

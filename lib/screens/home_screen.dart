@@ -9,9 +9,9 @@ import '../widgets/home/home_recent_activities_section.dart';
 import '../widgets/home/home_top_section.dart';
 import '../widgets/navigation/app_bottom_navigation.dart';
 import '../widgets/sidebar.dart';
-import 'cases_screen.dart';
-import 'quiz_screen.dart';
-import 'courses.dart';
+import 'cases/cases_screen.dart';
+import 'quiz/quiz_screen.dart';
+import 'courses/courses_list_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});

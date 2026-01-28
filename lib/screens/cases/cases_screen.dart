@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../models/filter_selection.dart';
-import '../providers/home_provider.dart';
-import '../models/cases/case_item.dart';
-import '../theme/app_colors.dart';
-import '../widgets/cases/case_card.dart';
-import '../widgets/sidebar.dart';
+import '../../models/filter_selection.dart';
+import '../../providers/home_provider.dart';
+import '../../models/cases/case_item.dart';
+import '../../theme/app_colors.dart';
+import '../../widgets/cases/case_card.dart';
+import '../../widgets/sidebar.dart';
 import 'cases_filter_screen.dart';
 import 'upload_new_case_screen.dart';
 
@@ -173,7 +173,7 @@ class _CasesHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+      padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
       decoration: const BoxDecoration(color: AppColors.brandDark),
       child: Stack(
         children: [
@@ -190,6 +190,23 @@ class _CasesHeader extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              GestureDetector(
+                onTap: () => Navigator.of(context).maybePop(),
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0B2138),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.arrow_back_ios_new,
+                    color: AppColors.brandWhite,
+                    size: 20,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
               Image.asset(
                 'assets/Union.png',
                 width: 32,

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:lexgo/screens/quize_1.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/home_provider.dart';
-import '../theme/app_colors.dart';
-import '../widgets/quiz/quiz_card.dart';
-import '../widgets/sidebar.dart';
+import '../../providers/home_provider.dart';
+import '../../theme/app_colors.dart';
+import '../../widgets/quiz/quiz_card.dart';
+import '../../widgets/sidebar.dart';
+import 'quize_1.dart';
 
 class QuizScreen extends StatelessWidget {
   const QuizScreen({super.key});

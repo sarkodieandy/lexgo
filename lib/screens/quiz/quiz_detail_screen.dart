@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../models/quiz_item.dart';
-import '../theme/app_colors.dart';
+import '../../models/quiz_item.dart';
+import '../../theme/app_colors.dart';
 
 class QuizDetailScreen extends StatelessWidget {
   const QuizDetailScreen({super.key, required this.quiz});
@@ -17,12 +17,18 @@ class QuizDetailScreen extends StatelessWidget {
         body: SafeArea(
           child: Column(
             children: [
-              _Header(title: quiz.title, onBack: () => Navigator.of(context).maybePop()),
+              _Header(
+                title: quiz.title,
+                onBack: () => Navigator.of(context).maybePop(),
+              ),
               Container(
                 color: AppColors.brandDark,
                 child: TabBar(
                   indicator: const UnderlineTabIndicator(
-                    borderSide: BorderSide(color: AppColors.brandWhite, width: 2),
+                    borderSide: BorderSide(
+                      color: AppColors.brandWhite,
+                      width: 2,
+                    ),
                     insets: EdgeInsets.symmetric(horizontal: 20),
                   ),
                   labelColor: AppColors.brandWhite,
@@ -46,10 +52,16 @@ class QuizDetailScreen extends StatelessWidget {
                   ),
                   child: const TabBarView(
                     children: [
-                      SizedBox.expand(child: Center(child: Text('Questions tab content'))),
+                      SizedBox.expand(
+                        child: Center(child: Text('Questions tab content')),
+                      ),
                       _QuizSettingsTab(),
-                      SizedBox.expand(child: Center(child: Text('Submissions tab content'))),
-                      SizedBox.expand(child: Center(child: Text('Analysis tab content'))),
+                      SizedBox.expand(
+                        child: Center(child: Text('Submissions tab content')),
+                      ),
+                      SizedBox.expand(
+                        child: Center(child: Text('Analysis tab content')),
+                      ),
                     ],
                   ),
                 ),
@@ -124,9 +136,20 @@ class _QuizSettingsTab extends StatelessWidget {
             title: 'Quiz Info',
             description: 'Provide core information of the quiz',
             fields: [
-              FieldSpec(label: 'Quiz Title', placeholder: 'eg. Criminal Law', required: true),
-              FieldSpec(label: 'Course', placeholder: 'Introduction to law', dropdown: true),
-              FieldSpec(label: 'Description/Instruction', placeholder: 'Brief description of what the quiz covers...'),
+              FieldSpec(
+                label: 'Quiz Title',
+                placeholder: 'eg. Criminal Law',
+                required: true,
+              ),
+              FieldSpec(
+                label: 'Course',
+                placeholder: 'Introduction to law',
+                dropdown: true,
+              ),
+              FieldSpec(
+                label: 'Description/Instruction',
+                placeholder: 'Brief description of what the quiz covers...',
+              ),
             ],
           ),
           SizedBox(height: 18),
@@ -134,11 +157,31 @@ class _QuizSettingsTab extends StatelessWidget {
             title: 'Time Settings',
             description: 'Configure quiz duration and availability',
             fields: [
-              FieldSpec(label: 'Quiz Duration', placeholder: 'eg. 30mins', icon: Icons.schedule),
-              FieldSpec(label: 'Start Date', placeholder: 'DD/MM/YY', icon: Icons.calendar_today),
-              FieldSpec(label: 'Start Time', placeholder: 'HH:MM', icon: Icons.schedule),
-              FieldSpec(label: 'End Date', placeholder: 'DD/MM/YY', icon: Icons.calendar_today),
-              FieldSpec(label: 'End Time', placeholder: 'HH:MM', icon: Icons.schedule),
+              FieldSpec(
+                label: 'Quiz Duration',
+                placeholder: 'eg. 30mins',
+                icon: Icons.schedule,
+              ),
+              FieldSpec(
+                label: 'Start Date',
+                placeholder: 'DD/MM/YY',
+                icon: Icons.calendar_today,
+              ),
+              FieldSpec(
+                label: 'Start Time',
+                placeholder: 'HH:MM',
+                icon: Icons.schedule,
+              ),
+              FieldSpec(
+                label: 'End Date',
+                placeholder: 'DD/MM/YY',
+                icon: Icons.calendar_today,
+              ),
+              FieldSpec(
+                label: 'End Time',
+                placeholder: 'HH:MM',
+                icon: Icons.schedule,
+              ),
             ],
           ),
           SizedBox(height: 18),
@@ -150,16 +193,18 @@ class _QuizSettingsTab extends StatelessWidget {
               ToggleSpec(label: 'Shuffle Answers'),
             ],
             dropdownFields: [
-              FieldSpec(label: 'Maximum Attempts', placeholder: '1', dropdown: true),
+              FieldSpec(
+                label: 'Maximum Attempts',
+                placeholder: '1',
+                dropdown: true,
+              ),
             ],
           ),
           SizedBox(height: 18),
           SectionCard(
             title: 'Grading Settings',
             description: 'Configure how the quiz is graded',
-            toggles: [
-              ToggleSpec(label: 'Show Scores Immediately'),
-            ],
+            toggles: [ToggleSpec(label: 'Show Scores Immediately')],
             fields: [
               FieldSpec(label: 'Mark Per Question', placeholder: '20'),
               FieldSpec(label: 'Total Grade', placeholder: 'eg. 100'),
@@ -216,24 +261,24 @@ class SectionCard extends StatelessWidget {
             style: const TextStyle(color: AppColors.mutedText, fontSize: 12),
           ),
           const SizedBox(height: 14),
-          ...fields
-              .map((field) => Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: _buildField(field),
-                  ))
-              ,
-          ...dropdownFields
-              .map((field) => Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: _buildDropdown(field),
-                  ))
-              ,
-          ...toggles
-              .map((toggle) => Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: _buildToggle(toggle),
-                  ))
-              ,
+          ...fields.map(
+            (field) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _buildField(field),
+            ),
+          ),
+          ...dropdownFields.map(
+            (field) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _buildDropdown(field),
+            ),
+          ),
+          ...toggles.map(
+            (toggle) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _buildToggle(toggle),
+            ),
+          ),
         ],
       ),
     );
@@ -243,10 +288,7 @@ class SectionCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          spec.label,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
+        Text(spec.label, style: const TextStyle(fontWeight: FontWeight.w600)),
         const SizedBox(height: 6),
         TextField(
           decoration: InputDecoration(
@@ -268,10 +310,7 @@ class SectionCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          spec.label,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
+        Text(spec.label, style: const TextStyle(fontWeight: FontWeight.w600)),
         const SizedBox(height: 6),
         Container(
           decoration: BoxDecoration(
@@ -302,10 +341,15 @@ class SectionCard extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(toggle.label, style: const TextStyle(fontWeight: FontWeight.w600)),
+            Text(
+              toggle.label,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
             const SizedBox(height: 4),
-            const Text('Present questions in random order for each student',
-                style: TextStyle(color: AppColors.mutedText, fontSize: 12)),
+            const Text(
+              'Present questions in random order for each student',
+              style: TextStyle(color: AppColors.mutedText, fontSize: 12),
+            ),
           ],
         ),
         Switch(value: true, onChanged: (_) {}),

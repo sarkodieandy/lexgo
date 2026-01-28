@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../models/course_assignment.dart';
+import '../../models/submission_filters.dart';
 import '../../theme/app_colors.dart';
 import '../../screens/assignment_search_screen.dart';
+import '../assignments/filter_sort_sheet.dart';
 import 'course_assignment_card.dart';
 
 class CourseAssignmentsSection extends StatelessWidget {
@@ -56,14 +58,18 @@ class CourseAssignmentsSection extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: AppColors.brandDark,
-                borderRadius: BorderRadius.circular(12),
+            InkWell(
+              onTap: () => _showFilterSheet(context),
+              borderRadius: BorderRadius.circular(14),
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AppColors.brandDark,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.tune, color: AppColors.brandWhite),
               ),
-              child: const Icon(Icons.tune, color: AppColors.brandWhite),
             ),
           ],
         ),
@@ -79,6 +85,18 @@ class CourseAssignmentsSection extends StatelessWidget {
         ),
         const SizedBox(height: 8),
       ],
+    );
+  }
+
+  void _showFilterSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => const AssignmentFilterSortSheet(
+        initialFilter: SubmissionFilter.all,
+        initialSort: SubmissionSort.alphabetical,
+      ),
     );
   }
 }
