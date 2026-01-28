@@ -1,6 +1,8 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../providers/courses_provider.dart';
 import '../../theme/app_colors.dart';
 
 class CreateCourseSheet extends StatefulWidget {
@@ -30,6 +32,7 @@ class _CreateCourseSheetState extends State<CreateCourseSheet> {
 
   final _courseCode = TextEditingController();
   final _courseTitle = TextEditingController();
+  final _levelController = TextEditingController();
   final _description = TextEditingController();
   String? _category;
   String? _institution;
@@ -39,6 +42,7 @@ class _CreateCourseSheetState extends State<CreateCourseSheet> {
   void dispose() {
     _courseCode.dispose();
     _courseTitle.dispose();
+    _levelController.dispose();
     _description.dispose();
     super.dispose();
   }
@@ -55,11 +59,45 @@ class _CreateCourseSheetState extends State<CreateCourseSheet> {
     }
   }
 
-  void _submit() {
-    Navigator.of(context).pop();
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Course created')));
+  Future<void> _submit() async {
+    final code = _courseCode.text.trim();
+    final title = _courseTitle.text.trim();
+    final level = _levelController.text.trim();
+
+    if (title.isEmpty ||
+        code.isEmpty ||
+        level.isEmpty ||
+        _category == null ||
+        _institution == null ||
+        _selectedImage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please complete all required fields and upload an image'),
+        ),
+      );
+      return;
+    }
+
+    final provider = context.read<CoursesProvider>();
+    try {
+      await provider.createCourse(
+        title: title,
+        category: _category!,
+        institution: _institution!,
+        level: level,
+        courseCode: code,
+        description: _description.text.trim(),
+        imagePath: _selectedImage!.path!,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Course created successfully')),
+      );
+      Navigator.of(context).pop();
+    } catch (err) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to create course: ${err.toString()}')),
+      );
+    }
   }
 
   @override
@@ -155,6 +193,12 @@ class _CreateCourseSheetState extends State<CreateCourseSheet> {
                 hint: 'Enter Course title',
               ),
               const SizedBox(height: 12),
+              _buildTextField(
+                controller: _levelController,
+                label: 'Level *',
+                hint: 'Enter academic level (e.g. Level 100)',
+              ),
+              const SizedBox(height: 12),
               _buildDropdown(
                 label: 'Category *',
                 value: _category,
@@ -180,18 +224,23 @@ class _CreateCourseSheetState extends State<CreateCourseSheet> {
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _submit,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 18),
-                    backgroundColor: AppColors.brandDark,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                child: Consumer<CoursesProvider>(
+                  builder: (context, provider, child) => ElevatedButton(
+                    onPressed: provider.isCreating ? null : _submit,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      backgroundColor: AppColors.brandDark,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                     ),
-                  ),
-                  child: const Text(
-                    'Create Course',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    child: Text(
+                      provider.isCreating ? 'Creating…' : 'Create Course',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
               ),
