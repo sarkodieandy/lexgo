@@ -1,5 +1,6 @@
 class Course {
   const Course({
+    this.id = '',
     required this.code,
     required this.title,
     required this.category,
@@ -8,6 +9,7 @@ class Course {
     required this.createdAt,
   });
 
+  final String id;
   final String code;
   final String title;
   final String category;

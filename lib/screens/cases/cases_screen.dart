@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/filter_selection.dart';
-import '../../models/cases/case_item.dart';
 import '../../providers/cases_provider.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/cases/case_card.dart';

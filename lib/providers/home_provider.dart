@@ -5,7 +5,6 @@ import '../models/home/activity_item.dart';
 import '../models/home/assignment_progress.dart';
 import '../models/notifications/notification_item.dart';
 import '../models/home/quick_action.dart';
-import '../models/quiz_item.dart';
 import '../models/sidebar/sidebar_item.dart';
 
 class HomeProvider extends ChangeNotifier {
@@ -147,63 +146,32 @@ class HomeProvider extends ChangeNotifier {
     ),
   ];
 
-  List<QuizItem> get quizzes => [
-        QuizItem(
-          title: 'Quiz one',
-          subtitle: "Test Student's General Knowledge",
-          dueDate: DateTime(2025, 9, 17, 10, 10),
-          questions: 45,
-          duration: Duration(hours: 1, minutes: 50),
-        ),
-        QuizItem(
-          title: 'Quiz Two',
-          subtitle: 'Mid Sem 1',
-          dueDate: DateTime(2025, 9, 17, 10, 10),
-          questions: 45,
-          duration: Duration(hours: 1, minutes: 50),
-        ),
-        QuizItem(
-          title: 'Quiz Three',
-          subtitle: 'Mid Sem 2',
-          dueDate: DateTime(2025, 9, 17, 10, 10),
-          questions: 45,
-          duration: Duration(hours: 1, minutes: 50),
-        ),
-        QuizItem(
-          title: 'Quiz Four',
-          subtitle: 'Final Assessment',
-          dueDate: DateTime(2025, 9, 17, 10, 10),
-          questions: 45,
-          duration: Duration(hours: 1, minutes: 50),
-        ),
-      ];
-
   List<CaseItem> get cases => const [
-        CaseItem(
-          id: 'case-1',
-          title: 'The Republic v. John Smith',
-          subtitle: 'Supreme Court of Ghana',
-          code: '[2024] GHASC 15',
-          tag: 'Administrative Law',
-          tagColor: Color(0xFFD14234),
-        ),
-        CaseItem(
-          id: 'case-2',
-          title: 'Case Title',
-          subtitle: 'Source of case',
-          code: 'case code',
-          tag: 'Constitutional Law',
-          tagColor: Color(0xFF8B5CF6),
-        ),
-        CaseItem(
-          id: 'case-3',
-          title: 'Case Title',
-          subtitle: 'Source of case',
-          code: 'case code',
-          tag: 'Contract Law',
-          tagColor: Color(0xFF6366F1),
-        ),
-      ];
+    CaseItem(
+      id: 'case-1',
+      title: 'The Republic v. John Smith',
+      subtitle: 'Supreme Court of Ghana',
+      code: '[2024] GHASC 15',
+      tag: 'Administrative Law',
+      tagColor: Color(0xFFD14234),
+    ),
+    CaseItem(
+      id: 'case-2',
+      title: 'Case Title',
+      subtitle: 'Source of case',
+      code: 'case code',
+      tag: 'Constitutional Law',
+      tagColor: Color(0xFF8B5CF6),
+    ),
+    CaseItem(
+      id: 'case-3',
+      title: 'Case Title',
+      subtitle: 'Source of case',
+      code: 'case code',
+      tag: 'Contract Law',
+      tagColor: Color(0xFF6366F1),
+    ),
+  ];
 
   List<SidebarItem> get primaryMenu => const [
     SidebarItem(label: 'Home', icon: Icons.home, selected: true),

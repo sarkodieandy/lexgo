@@ -131,7 +131,6 @@ class _GradeAssignmentsScreenState extends State<GradeAssignmentsScreen> {
       case SubmissionFilter.pending:
         return 'Pending';
       case SubmissionFilter.all:
-      default:
         return 'All';
     }
   }
@@ -154,32 +153,11 @@ class _GradeAssignmentsScreenState extends State<GradeAssignmentsScreen> {
     );
   }
 
-  static String _filterLabelText(SubmissionFilter option) {
-    switch (option) {
-      case SubmissionFilter.graded:
-        return 'Graded';
-      case SubmissionFilter.pending:
-        return 'Pending';
-      case SubmissionFilter.all:
-      default:
-        return 'All Submissions';
-    }
-  }
-
-  static String _sortLabelText(SubmissionSort option) {
-    switch (option) {
-      case SubmissionSort.alphabetical:
-        return 'Alphabetically (A - Z)';
-    }
-    return '';
-  }
-
   int _sortRecords(AssignmentSubmission a, AssignmentSubmission b) {
     switch (_sortOption) {
       case SubmissionSort.alphabetical:
         return a.studentName.compareTo(b.studentName);
     }
-    return 0;
   }
 
   void _openSubmission(AssignmentSubmission submission) {
@@ -401,7 +379,7 @@ class _GradeAssignmentsScreenState extends State<GradeAssignmentsScreen> {
                             : ListView.separated(
                                 physics: const BouncingScrollPhysics(),
                                 itemCount: _filteredRecords.length,
-                                separatorBuilder: (_, __) =>
+                                separatorBuilder: (context, index) =>
                                     const SizedBox(height: 12),
                                 itemBuilder: (context, index) => InkWell(
                                   borderRadius: BorderRadius.circular(24),

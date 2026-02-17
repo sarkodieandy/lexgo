@@ -1,25 +1,22 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../../models/resource.dart';
+import '../../providers/course_resources_provider.dart';
 import '../../theme/app_colors.dart';
 
 class AddResourceSheet extends StatefulWidget {
-  const AddResourceSheet({super.key, required this.onCreate});
-
-  final ValueChanged<CourseResource> onCreate;
+  const AddResourceSheet({super.key});
 
   @override
   State<AddResourceSheet> createState() => _AddResourceSheetState();
 }
 
 class _AddResourceSheetState extends State<AddResourceSheet> {
-  final TextEditingController _nameController = TextEditingController();
   PlatformFile? _selectedFile;
 
   @override
   void dispose() {
-    _nameController.dispose();
     super.dispose();
   }
 
@@ -30,26 +27,29 @@ class _AddResourceSheetState extends State<AddResourceSheet> {
     );
     if (result != null && result.files.isNotEmpty) {
       setState(() => _selectedFile = result.files.first);
-      _nameController.text = result.files.first.name;
     }
   }
 
-  void _handleAdd() {
-    final title = _nameController.text.trim();
-    if (title.isEmpty) return;
-    final resource = CourseResource(
-      title: title,
-      size: _selectedFile != null
-          ? '${(_selectedFile!.size / (1024 * 1024)).toStringAsFixed(1)}MB'
-          : '0MB',
-      timestamp: DateTime.now(),
-    );
-    widget.onCreate(resource);
-    Navigator.of(context).maybePop();
+  Future<void> _handleAdd() async {
+    final filePath = _selectedFile?.path;
+    if (filePath == null || filePath.isEmpty) return;
+
+    final provider = context.read<CourseResourcesProvider>();
+    try {
+      await provider.upload(filePath);
+      if (!mounted) return;
+      Navigator.of(context).maybePop();
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(provider.error ?? 'Failed to upload resource')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<CourseResourcesProvider>();
     return Material(
       color: Colors.transparent,
       child: Container(
@@ -81,25 +81,6 @@ class _AddResourceSheetState extends State<AddResourceSheet> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                const Text(
-                  'Resource Name',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 6),
-                TextField(
-                  controller: _nameController,
-                  style: const TextStyle(color: AppColors.brandDark),
-                  decoration: InputDecoration(
-                    hintText: 'eg. constitutional Law Essay',
-                    filled: true,
-                    fillColor: const Color(0xFFF6F0F6),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
                 if (_selectedFile != null)
                   Container(
                     padding: const EdgeInsets.symmetric(
@@ -190,7 +171,7 @@ class _AddResourceSheetState extends State<AddResourceSheet> {
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
-                  onPressed: _handleAdd,
+                  onPressed: provider.isUploading ? null : _handleAdd,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.brandDark,
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -198,9 +179,9 @@ class _AddResourceSheetState extends State<AddResourceSheet> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  child: const Text(
-                    'Add Resource',
-                    style: TextStyle(
+                  child: Text(
+                    provider.isUploading ? 'Uploading…' : 'Add Resource',
+                    style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 16,
                       color: AppColors.brandWhite,

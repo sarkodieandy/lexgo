@@ -28,7 +28,7 @@ class AssignmentSubmissionCard extends StatelessWidget {
         border: Border.all(color: const Color(0xFFF1F1F1)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withAlpha(8),
             blurRadius: 10,
             offset: const Offset(0, 6),
           ),

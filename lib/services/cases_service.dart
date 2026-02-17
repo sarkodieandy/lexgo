@@ -1,9 +1,9 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
 import 'api_config.dart';
+import 'api_client.dart';
 
 class CaseModel {
   const CaseModel({
@@ -64,21 +64,19 @@ class PaginatedCasesResponse {
 }
 
 class CasesService {
-  CasesService({http.Client? httpClient, String? baseUrl, String? authToken})
-    : _client = httpClient ?? http.Client(),
+  CasesService({ApiClient? client, String? baseUrl, String? authToken})
+    : _client = client ?? ApiClient.shared,
       _baseUrl = baseUrl ?? ApiConfig.casesBaseUrl,
       _authToken = authToken ?? ApiConfig.defaultAuthToken;
 
-  final http.Client _client;
+  final ApiClient _client;
   final String _baseUrl;
   final String _authToken;
 
   Map<String, String> get _headers {
-    final headers = <String, String>{
-      HttpHeaders.acceptHeader: 'application/json',
-    };
+    final headers = <String, String>{};
     if (_authToken.isNotEmpty) {
-      headers[HttpHeaders.authorizationHeader] = 'Bearer $_authToken';
+      headers['Authorization'] = 'Bearer $_authToken';
     }
     return headers;
   }
@@ -105,10 +103,68 @@ class CasesService {
     }
     final uri = Uri.parse(_baseUrl).replace(queryParameters: queryParameters);
     final response = await _client.get(uri, headers: _headers);
-    if (response.statusCode != HttpStatus.ok) {
-      throw HttpException('Failed to fetch cases', uri: uri);
+    if (response.statusCode != 200) {
+      throw ApiException(
+        ApiClient.extractMessage(response, fallback: 'Failed to fetch cases'),
+        statusCode: response.statusCode,
+        uri: uri,
+      );
     }
     final body = jsonDecode(response.body) as Map<String, dynamic>;
+    if (body['success'] == false) {
+      throw ApiException(
+        (body['message'] as String?) ?? 'Failed to fetch cases',
+        statusCode: response.statusCode,
+        uri: uri,
+      );
+    }
+    return PaginatedCasesResponse.fromJson(body);
+  }
+
+  Future<PaginatedCasesResponse> fetchCourseCases({
+    required String courseId,
+    int page = 1,
+    int limit = 10,
+    String? title,
+    String? category,
+    String sortedBy = '_id',
+    String sortOrder = 'desc',
+  }) async {
+    final queryParameters = <String, String>{
+      'page': page.toString(),
+      'limit': limit.toString(),
+      'sortedBy': sortedBy,
+      'sortOrder': sortOrder,
+    };
+    if (title?.isNotEmpty == true) {
+      queryParameters['title'] = title!;
+    }
+    if (category?.isNotEmpty == true) {
+      queryParameters['category'] = category!;
+    }
+
+    final uri = Uri.parse(
+      '$_baseUrl/${Uri.encodeComponent(courseId)}',
+    ).replace(queryParameters: queryParameters);
+    final response = await _client.get(uri, headers: _headers);
+    if (response.statusCode != 200) {
+      throw ApiException(
+        ApiClient.extractMessage(
+          response,
+          fallback: 'Failed to fetch course cases',
+        ),
+        statusCode: response.statusCode,
+        uri: uri,
+      );
+    }
+    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    if (body['success'] == false) {
+      throw ApiException(
+        (body['message'] as String?) ?? 'Failed to fetch course cases',
+        statusCode: response.statusCode,
+        uri: uri,
+      );
+    }
     return PaginatedCasesResponse.fromJson(body);
   }
 
@@ -120,32 +176,47 @@ class CasesService {
     required String caseCategory,
     required String documentPath,
   }) async {
-    final uri = Uri.parse('$_baseUrl/$courseId');
-    final request = http.MultipartRequest('POST', uri)
-      ..headers.addAll(_headers)
-      ..fields['title'] = title
-      ..fields['sourceOfCase'] = sourceOfCase
-      ..fields['caseCode'] = caseCode
-      ..fields['caseCategory'] = caseCategory;
-    request.files.add(
-      await http.MultipartFile.fromPath('caseDocument', documentPath),
-    );
-
-    final streamedResponse = await request.send();
-    final response = await http.Response.fromStream(streamedResponse);
-    if (response.statusCode != HttpStatus.created) {
-      throw HttpException('Failed to create case', uri: uri);
+    final uri = Uri.parse('$_baseUrl/${Uri.encodeComponent(courseId)}');
+    final response = await _client.sendMultipart(() async {
+      final request = http.MultipartRequest('POST', uri)
+        ..headers.addAll(_headers)
+        ..fields['title'] = title
+        ..fields['sourceOfCase'] = sourceOfCase
+        ..fields['caseCode'] = caseCode
+        ..fields['caseCategory'] = caseCategory;
+      request.files.add(
+        await http.MultipartFile.fromPath('caseDocument', documentPath),
+      );
+      return request;
+    });
+    if (response.statusCode != 201) {
+      throw ApiException(
+        ApiClient.extractMessage(response, fallback: 'Failed to create case'),
+        statusCode: response.statusCode,
+        uri: uri,
+      );
     }
     final body = jsonDecode(response.body) as Map<String, dynamic>;
+    if (body['success'] == false) {
+      throw ApiException(
+        (body['message'] as String?) ?? 'Failed to create case',
+        statusCode: response.statusCode,
+        uri: uri,
+      );
+    }
     final data = body['data'] as Map<String, dynamic>? ?? body;
     return CaseModel.fromJson(data);
   }
 
   Future<void> deleteCase(String id) async {
-    final uri = Uri.parse('$_baseUrl/$id');
+    final uri = Uri.parse('$_baseUrl/${Uri.encodeComponent(id)}');
     final response = await _client.delete(uri, headers: _headers);
-    if (response.statusCode != HttpStatus.ok) {
-      throw HttpException('Failed to delete case', uri: uri);
+    if (response.statusCode != 200) {
+      throw ApiException(
+        ApiClient.extractMessage(response, fallback: 'Failed to delete case'),
+        statusCode: response.statusCode,
+        uri: uri,
+      );
     }
   }
 }

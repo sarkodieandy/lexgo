@@ -47,22 +47,25 @@ class _UploadNewCaseScreenState extends State<UploadNewCaseScreen> {
   Future<void> _submitCase() async {
     if (!_formKey.currentState!.validate()) return;
     final courseId = _courseController.text.trim();
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+    final provider = context.read<CasesProvider>();
     if (courseId.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         const SnackBar(content: Text('Please provide the course ID')),
       );
       return;
     }
     final file = _selectedFile;
     if (file?.path?.isEmpty ?? true) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         const SnackBar(content: Text('Please upload a document first')),
       );
       return;
     }
     setState(() => _isSubmitting = true);
     try {
-      await context.read<CasesProvider>().createCase(
+      await provider.createCase(
         courseId: courseId,
         title: _titleController.text.trim(),
         sourceOfCase: _sourceController.text.trim(),
@@ -70,16 +73,18 @@ class _UploadNewCaseScreenState extends State<UploadNewCaseScreen> {
         caseCategory: _category ?? 'General',
         documentPath: file!.path!,
       );
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         const SnackBar(content: Text('Case uploaded successfully')),
       );
-      Navigator.of(context).pop();
+      navigator.pop();
     } catch (err) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(content: Text('Failed to upload case: ${err.toString()}')),
       );
     } finally {
-      setState(() => _isSubmitting = false);
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
     }
   }
 
@@ -235,7 +240,7 @@ class _UploadNewCaseScreenState extends State<UploadNewCaseScreen> {
         ),
         const SizedBox(height: 6),
         DropdownButtonFormField<String>(
-          value: _category,
+          initialValue: _category,
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.white,

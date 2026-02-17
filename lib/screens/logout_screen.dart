@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../providers/auth_provider.dart';
 import '../theme/app_colors.dart';
 
 class LogoutScreen extends StatelessWidget {
@@ -80,8 +82,22 @@ class LogoutScreen extends StatelessWidget {
                           const SizedBox(width: 16),
                           Expanded(
                             child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.of(context).popUntil((route) => route.isFirst);
+                              onPressed: () async {
+                                final navigator = Navigator.of(context);
+                                final messenger = ScaffoldMessenger.of(context);
+                                final auth = context.read<AuthProvider>();
+                                try {
+                                  await auth.logout();
+                                  navigator.popUntil((route) => route.isFirst);
+                                } catch (_) {
+                                  messenger.showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        auth.error ?? 'Logout failed',
+                                      ),
+                                    ),
+                                  );
+                                }
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.brandDanger,

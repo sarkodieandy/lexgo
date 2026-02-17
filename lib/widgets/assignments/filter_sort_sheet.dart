@@ -85,7 +85,7 @@ class _AssignmentFilterSortSheetState extends State<AssignmentFilterSortSheet> {
                 ),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<SubmissionFilter>(
-                  value: _selectedFilter,
+                  initialValue: _selectedFilter,
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: const Color(0xFFF6F0F6),
@@ -125,7 +125,7 @@ class _AssignmentFilterSortSheetState extends State<AssignmentFilterSortSheet> {
                 ),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<SubmissionSort>(
-                  value: _selectedSort,
+                  initialValue: _selectedSort,
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: const Color(0xFFF6F0F6),
@@ -188,7 +188,6 @@ class _AssignmentFilterSortSheetState extends State<AssignmentFilterSortSheet> {
       case SubmissionFilter.pending:
         return 'Pending';
       case SubmissionFilter.all:
-      default:
         return 'All Submissions';
     }
   }
@@ -198,6 +197,5 @@ class _AssignmentFilterSortSheetState extends State<AssignmentFilterSortSheet> {
       case SubmissionSort.alphabetical:
         return 'Alphabetically (A - Z)';
     }
-    return '';
   }
 }

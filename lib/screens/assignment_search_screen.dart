@@ -143,7 +143,7 @@ class _AssignmentSearchScreenState extends State<AssignmentSearchScreen> {
                                       BoxShadow(
                                         color: const Color(
                                           0xFF000000,
-                                        ).withOpacity(0.04),
+                                        ).withAlpha(10),
                                         blurRadius: 12,
                                         offset: const Offset(0, 6),
                                       ),

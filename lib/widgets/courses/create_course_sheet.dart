@@ -79,6 +79,15 @@ class _CreateCourseSheetState extends State<CreateCourseSheet> {
     }
 
     final provider = context.read<CoursesProvider>();
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+    final imagePath = _selectedImage?.path;
+    if (imagePath == null || imagePath.isEmpty) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Selected image is not available on this device')),
+      );
+      return;
+    }
     try {
       await provider.createCourse(
         title: title,
@@ -87,14 +96,14 @@ class _CreateCourseSheetState extends State<CreateCourseSheet> {
         level: level,
         courseCode: code,
         description: _description.text.trim(),
-        imagePath: _selectedImage!.path!,
+        imagePath: imagePath,
       );
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         const SnackBar(content: Text('Course created successfully')),
       );
-      Navigator.of(context).pop();
+      navigator.pop();
     } catch (err) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(content: Text('Failed to create course: ${err.toString()}')),
       );
     }

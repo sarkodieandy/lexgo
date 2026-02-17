@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../models/resource.dart';
+import '../services/api_config.dart';
 import '../theme/app_colors.dart';
 
 class ResourceDetailScreen extends StatelessWidget {
@@ -93,6 +95,7 @@ class ResourceDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final downloadUrl = resource.downloadUrl;
     return Scaffold(
       backgroundColor: AppColors.brandDark,
       body: SafeArea(
@@ -182,9 +185,32 @@ class ResourceDetailScreen extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            const Icon(
-                              Icons.download_rounded,
-                              color: AppColors.brandDark,
+                            IconButton(
+                              tooltip: downloadUrl == null ? null : 'Download',
+                              onPressed: downloadUrl == null
+                                  ? null
+                                  : () async {
+                                      final uri = downloadUrl.startsWith('http')
+                                          ? Uri.parse(downloadUrl)
+                                          : ApiConfig.resolve(downloadUrl);
+                                      final launched = await launchUrl(
+                                        uri,
+                                        mode: LaunchMode.externalApplication,
+                                      );
+                                      if (!launched && context.mounted) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Unable to open download link',
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    },
+                              icon: const Icon(
+                                Icons.download_rounded,
+                                color: AppColors.brandDark,
+                              ),
                             ),
                           ],
                         ),

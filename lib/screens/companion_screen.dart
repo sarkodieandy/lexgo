@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../services/ai_service.dart';
 import '../theme/app_colors.dart';
 
 class CompanionScreen extends StatelessWidget {
@@ -31,7 +32,19 @@ class CompanionScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () async {
+                final messenger = ScaffoldMessenger.of(context);
+                try {
+                  await AiService().askAi();
+                  messenger.showSnackBar(
+                    const SnackBar(content: Text('AI asked successfully')),
+                  );
+                } catch (err) {
+                  messenger.showSnackBar(
+                    SnackBar(content: Text('Failed to ask AI: $err')),
+                  );
+                }
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.brandDark,
                 shape: RoundedRectangleBorder(
@@ -40,7 +53,7 @@ class CompanionScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
               child: const Text(
-                'Start a Mentorship Chat',
+                'Ask AI',
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
             ),

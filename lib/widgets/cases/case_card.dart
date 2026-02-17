@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../models/cases/case_item.dart';
 import '../../theme/app_colors.dart';
@@ -72,19 +73,42 @@ class CaseCard extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       final messenger = ScaffoldMessenger.of(context);
                       final hasUrl = item.documentUrl?.isNotEmpty == true;
-                      messenger.showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            hasUrl
-                                ? 'Document ready at ${item.documentUrl}'
-                                : 'Document not available yet',
+                      if (!hasUrl) {
+                        messenger.showSnackBar(
+                          const SnackBar(
+                            content: Text('Document not available yet'),
+                            duration: Duration(seconds: 2),
                           ),
-                          duration: const Duration(seconds: 2),
-                        ),
+                        );
+                        return;
+                      }
+
+                      final uri = Uri.tryParse(item.documentUrl!);
+                      if (uri == null) {
+                        messenger.showSnackBar(
+                          const SnackBar(
+                            content: Text('Invalid document URL'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                        return;
+                      }
+
+                      final launched = await launchUrl(
+                        uri,
+                        mode: LaunchMode.externalApplication,
                       );
+                      if (!launched && context.mounted) {
+                        messenger.showSnackBar(
+                          const SnackBar(
+                            content: Text('Unable to open document'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      }
                     },
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),

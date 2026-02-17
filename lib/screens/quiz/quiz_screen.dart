@@ -1,27 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../providers/home_provider.dart';
+import '../../models/quiz_item.dart';
+import '../../providers/quiz_provider.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/quiz/quiz_card.dart';
 import '../../widgets/sidebar.dart';
 import 'quize_1.dart';
 
-class QuizScreen extends StatelessWidget {
+class QuizScreen extends StatefulWidget {
   const QuizScreen({super.key});
 
   @override
+  State<QuizScreen> createState() => _QuizScreenState();
+}
+
+class _QuizScreenState extends State<QuizScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<QuizProvider>().loadQuizzes();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final quizzes = context.watch<HomeProvider>().quizzes;
+    final quizProvider = context.watch<QuizProvider>();
+    final quizzes = quizProvider.quizItems;
     return Scaffold(
       drawer: const Sidebar(),
       backgroundColor: AppColors.brandDark,
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (_) => const Quiz1()));
-        },
+        onPressed: () => Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => const Quiz1())),
         backgroundColor: Colors.black,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: const Text(
@@ -48,21 +61,39 @@ class QuizScreen extends StatelessWidget {
                   ),
                 ),
                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                child: ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: quizzes.length,
-                  itemBuilder: (_, index) => QuizCard(
-                    item: quizzes[index],
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => Quiz1(title: quizzes[index].title),
-                      ),
-                    ),
-                  ),
-                ),
+                child: _buildQuizList(quizzes, quizProvider),
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuizList(List<QuizItem> quizzes, QuizProvider provider) {
+    if (provider.isLoading && quizzes.isEmpty) {
+      return const Center(
+        child: CircularProgressIndicator(color: AppColors.brandDark),
+      );
+    }
+
+    if (quizzes.isEmpty) {
+      final message = provider.error ?? 'No quizzes available';
+      return Center(
+        child: Text(
+          message,
+          style: const TextStyle(color: AppColors.mutedText),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      physics: const BouncingScrollPhysics(),
+      itemCount: quizzes.length,
+      itemBuilder: (_, index) => QuizCard(
+        item: quizzes[index],
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => Quiz1(title: quizzes[index].title)),
         ),
       ),
     );
