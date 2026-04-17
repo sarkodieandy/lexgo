@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'api_config.dart';
@@ -113,6 +114,47 @@ class CoursesService {
     'Content-Type': 'application/json',
   };
 
+  /// GET / — Fetch all courses for the authenticated lecturer.
+  Future<List<CourseModel>> fetchCourses() async {
+    final uri = Uri.parse(_baseUrl);
+    debugPrint('[CoursesService] fetchCourses → GET $uri');
+    try {
+      final response = await _client.get(uri);
+      debugPrint('[CoursesService] fetchCourses status: ${response.statusCode}');
+      debugPrint('[CoursesService] fetchCourses body: ${response.body.length > 500 ? response.body.substring(0, 500) : response.body}');
+      if (response.statusCode != 200) {
+        throw ApiException(
+          ApiClient.extractMessage(response, fallback: 'Failed to fetch courses'),
+          statusCode: response.statusCode,
+          uri: uri,
+        );
+      }
+      final body = jsonDecode(response.body);
+      if (body is Map<String, dynamic>) {
+        if (body['success'] == false) {
+          throw ApiException(
+            (body['message'] as String?) ?? 'Failed to fetch courses',
+            statusCode: response.statusCode,
+            uri: uri,
+          );
+        }
+        final rawData = body['data'] ?? body['courses'] ?? [];
+        debugPrint('[CoursesService] rawData type: ${rawData.runtimeType}, length: ${rawData is List ? rawData.length : 'N/A'}');
+        if (rawData is List) {
+          return rawData
+              .whereType<Map<String, dynamic>>()
+              .map(CourseModel.fromJson)
+              .toList();
+        }
+      }
+      return [];
+    } catch (e, stack) {
+      debugPrint('[CoursesService] fetchCourses error: $e');
+      debugPrint('[CoursesService] fetchCourses stack: $stack');
+      rethrow;
+    }
+  }
+
   Future<CourseModel> createCourse({
     required String title,
     required String category,
@@ -123,6 +165,9 @@ class CoursesService {
     required String imagePath,
   }) async {
     final uri = Uri.parse(_baseUrl);
+    debugPrint('[CoursesService] createCourse → POST $uri');
+    debugPrint('[CoursesService] fields: title=$title, category=$category, institution=$institution, level=$level, courseCode=$courseCode');
+    debugPrint('[CoursesService] imagePath=$imagePath');
     final response = await _client.sendMultipart(() async {
       final request = http.MultipartRequest('POST', uri)
         ..headers.addAll(_headers)
@@ -139,6 +184,8 @@ class CoursesService {
       );
       return request;
     });
+    debugPrint('[CoursesService] createCourse status: ${response.statusCode}');
+    debugPrint('[CoursesService] createCourse body: ${response.body.length > 500 ? response.body.substring(0, 500) : response.body}');
     if (response.statusCode != 201 && response.statusCode != 200) {
       throw ApiException(
         ApiClient.extractMessage(response, fallback: 'Failed to create course'),

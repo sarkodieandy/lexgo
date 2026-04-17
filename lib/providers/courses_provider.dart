@@ -7,8 +7,32 @@ class CoursesProvider extends ChangeNotifier {
 
   final CoursesService _service;
 
+  List<CourseModel> _courses = [];
+  List<CourseModel> get courses => List.unmodifiable(_courses);
+
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+
   bool _isCreating = false;
   bool get isCreating => _isCreating;
+
+  String? _error;
+  String? get error => _error;
+
+  /// Load all courses for the authenticated lecturer.
+  Future<void> loadCourses() async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      _courses = await _service.fetchCourses();
+    } catch (err) {
+      _error = err.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 
   Future<CourseModel> createCourse({
     required String title,
@@ -22,7 +46,7 @@ class CoursesProvider extends ChangeNotifier {
     _isCreating = true;
     notifyListeners();
     try {
-      return await _service.createCourse(
+      final course = await _service.createCourse(
         title: title,
         category: category,
         institution: institution,
@@ -31,6 +55,9 @@ class CoursesProvider extends ChangeNotifier {
         description: description,
         imagePath: imagePath,
       );
+      _courses.insert(0, course);
+      notifyListeners();
+      return course;
     } finally {
       _isCreating = false;
       notifyListeners();

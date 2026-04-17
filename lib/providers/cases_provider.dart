@@ -15,14 +15,16 @@ class CasesProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+  bool _isLoadingMore = false;
+  bool get isLoadingMore => _isLoadingMore;
+
   String? _error;
   String? get error => _error;
 
-  int _currentPage = 1;
-  int get currentPage => _currentPage;
-
-  int _totalPages = 1;
-  int get totalPages => _totalPages;
+  // Cursor-based pagination state
+  String? _nextCursor;
+  bool _hasMore = false;
+  bool get hasMore => _hasMore;
 
   FilterSelection? _activeFilter;
   FilterSelection? get activeFilter => _activeFilter;
@@ -34,18 +36,28 @@ class CasesProvider extends ChangeNotifier {
     return ['All Categories', ...categories];
   }
 
-  Future<void> loadCases({int page = 1}) async {
-    await _fetchCases(page);
+  /// Load (or reload) the first page of cases.
+  Future<void> loadCases() async {
+    _nextCursor = null;
+    await _fetchCases(refresh: true);
+  }
+
+  /// Load the next page using the stored cursor.
+  Future<void> loadMore() async {
+    if (_isLoadingMore || !_hasMore) return;
+    await _fetchCases(refresh: false);
   }
 
   Future<void> applyFilter(FilterSelection filter) async {
     _activeFilter = filter;
-    await _fetchCases(1);
+    _nextCursor = null;
+    await _fetchCases(refresh: true);
   }
 
   Future<void> search(String? query) async {
     _searchTerm = query?.trim().isEmpty == true ? null : query;
-    await _fetchCases(1);
+    _nextCursor = null;
+    await _fetchCases(refresh: true);
   }
 
   Future<void> createCase({
@@ -74,43 +86,41 @@ class CasesProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _fetchCases(int page) async {
-    _isLoading = true;
-    _error = null;
+  Future<void> _fetchCases({required bool refresh}) async {
+    if (refresh) {
+      _isLoading = true;
+      _error = null;
+    } else {
+      _isLoadingMore = true;
+    }
     notifyListeners();
+
     try {
       final response = await _service.fetchAllCases(
-        page: page,
+        cursor: refresh ? null : _nextCursor,
         title: _searchTerm,
         category: _activeFilter?.category == 'All Categories'
             ? null
             : _activeFilter?.category,
-        sortedBy: _sortFieldFromFilter(_activeFilter?.sort),
         sortOrder: _sortOrderFromFilter(_activeFilter?.sort),
       );
-      _cases
-        ..clear()
-        ..addAll(response.data.map(CaseItem.fromModel));
-      _currentPage = response.currentPage;
-      _totalPages = response.totalPages;
+
+      if (refresh) {
+        _cases
+          ..clear()
+          ..addAll(response.data.map(CaseItem.fromModel));
+      } else {
+        _cases.addAll(response.data.map(CaseItem.fromModel));
+      }
+
+      _nextCursor = response.nextCursor;
+      _hasMore = response.hasMore;
     } catch (err) {
       _error = err.toString();
     } finally {
       _isLoading = false;
+      _isLoadingMore = false;
       notifyListeners();
-    }
-  }
-
-  String _sortFieldFromFilter(FilterSort? sort) {
-    switch (sort) {
-      case FilterSort.alphabeticalAsc:
-      case FilterSort.alphabeticalDesc:
-        return 'title';
-      case FilterSort.dateNewest:
-      case FilterSort.dateOldest:
-        return '_id';
-      default:
-        return '_id';
     }
   }
 

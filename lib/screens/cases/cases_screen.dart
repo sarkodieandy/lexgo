@@ -3,8 +3,10 @@ import 'package:provider/provider.dart';
 
 import '../../models/filter_selection.dart';
 import '../../providers/cases_provider.dart';
+import '../../providers/home_provider.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/cases/case_card.dart';
+import '../../widgets/home/home_top_section.dart';
 import '../../widgets/sidebar.dart';
 import 'cases_filter_screen.dart';
 import 'upload_new_case_screen.dart';
@@ -18,6 +20,7 @@ class CasesScreen extends StatefulWidget {
 
 class _CasesScreenState extends State<CasesScreen> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -25,11 +28,21 @@ class _CasesScreenState extends State<CasesScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<CasesProvider>().loadCases();
     });
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      context.read<CasesProvider>().loadMore();
+    }
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -88,14 +101,12 @@ class _CasesScreenState extends State<CasesScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: _openUploadCase,
         backgroundColor: Colors.black,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: const Text(
-          '+',
-          style: TextStyle(
-            fontSize: 32,
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
-          ),
+        elevation: 8,
+        shape: const CircleBorder(),
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
+          size: 32,
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
@@ -159,11 +170,24 @@ class _CasesScreenState extends State<CasesScreen> {
                               child: RefreshIndicator(
                                 onRefresh: () => casesProvider.loadCases(),
                                 child: ListView.builder(
-                                  physics:
-                                      const AlwaysScrollableScrollPhysics(),
-                                  itemCount: cases.length,
-                                  itemBuilder: (_, index) =>
-                                      CaseCard(item: cases[index]),
+                                  controller: _scrollController,
+                                  physics: const AlwaysScrollableScrollPhysics(),
+                                  // +1 for the bottom loader footer
+                                  itemCount: cases.length + 1,
+                                  itemBuilder: (_, index) {
+                                    if (index == cases.length) {
+                                      if (casesProvider.isLoadingMore) {
+                                        return const Padding(
+                                          padding: EdgeInsets.symmetric(vertical: 24),
+                                          child: Center(
+                                            child: CircularProgressIndicator(strokeWidth: 2),
+                                          ),
+                                        );
+                                      }
+                                      return const SizedBox(height: 80);
+                                    }
+                                    return CaseCard(item: cases[index]);
+                                  },
                                 ),
                               ),
                             ),
@@ -186,56 +210,28 @@ class _CasesHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final homeProvider = context.watch<HomeProvider>();
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
+      padding: const EdgeInsets.fromLTRB(24, 28, 24, 18),
       decoration: const BoxDecoration(color: AppColors.brandDark),
-      child: Stack(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Positioned(
-            right: 0,
-            top: 0,
-            child: Image.asset(
-              'assets/Union.png',
-              width: 100,
-              height: 100,
-              color: AppColors.brandWhite.withAlpha(40),
-            ),
-          ),
           Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              GestureDetector(
-                onTap: () => Navigator.of(context).maybePop(),
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0B2138),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.arrow_back_ios_new,
-                    color: AppColors.brandWhite,
-                    size: 20,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Image.asset(
-                'assets/Union.png',
-                width: 32,
-                height: 32,
-                color: AppColors.brandWhite,
-              ),
-              const SizedBox(width: 12),
               const Text(
                 'Cases',
                 style: TextStyle(
                   color: AppColors.brandWhite,
-                  fontSize: 26,
+                  fontSize: 28,
                   fontWeight: FontWeight.w700,
                 ),
+              ),
+              const Spacer(),
+              NotificationToggle(
+                count: homeProvider.notificationCount,
+                onTap: () => Scaffold.of(context).openDrawer(),
               ),
             ],
           ),
@@ -262,10 +258,10 @@ class _SearchRow extends StatelessWidget {
       children: [
         Expanded(
           child: Container(
+            height: 52,
             decoration: BoxDecoration(
               color: const Color(0xFFF2F4F7),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFE1E3E7)),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextField(
@@ -273,9 +269,15 @@ class _SearchRow extends StatelessWidget {
               onSubmitted: onSubmitted,
               decoration: InputDecoration(
                 border: InputBorder.none,
-                hintText: 'Search Cases...',
-                hintStyle: TextStyle(color: AppColors.mutedText),
-                suffixIcon: const Icon(Icons.search, color: Colors.black54),
+                hintText: 'Search Cases..',
+                hintStyle: TextStyle(
+                  color: AppColors.mutedText.withAlpha(180),
+                  fontSize: 15,
+                ),
+                suffixIcon: Icon(
+                  Icons.search,
+                  color: AppColors.mutedText.withAlpha(200),
+                ),
               ),
             ),
           ),
@@ -286,7 +288,7 @@ class _SearchRow extends StatelessWidget {
           height: 52,
           decoration: BoxDecoration(
             color: AppColors.brandDark,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(12),
           ),
           child: IconButton(
             onPressed: onFilterPressed,

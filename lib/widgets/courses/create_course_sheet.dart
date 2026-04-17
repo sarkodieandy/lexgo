@@ -28,6 +28,8 @@ class _CreateCourseSheetState extends State<CreateCourseSheet> {
     'University of Ghana, Legon',
     'University of Cape Coast',
     'Kwame Nkrumah University of Science and Technology',
+    'Central University',
+    'Ashesi University',
   ];
 
   final _courseCode = TextEditingController();
@@ -51,11 +53,13 @@ class _CreateCourseSheetState extends State<CreateCourseSheet> {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.image,
       allowMultiple: false,
+      withData: false,  // Ensure path is returned, not bytes
     );
     if (result?.files.isNotEmpty ?? false) {
       setState(() {
         _selectedImage = result!.files.first;
       });
+      debugPrint('[CreateCourseSheet] Selected image: ${_selectedImage?.name}, path: ${_selectedImage?.path}');
     }
   }
 
@@ -64,12 +68,15 @@ class _CreateCourseSheetState extends State<CreateCourseSheet> {
     final title = _courseTitle.text.trim();
     final level = _levelController.text.trim();
 
+    debugPrint('[CreateCourseSheet] _submit: title=$title, code=$code, level=$level, category=$_category, institution=$_institution, image=${_selectedImage?.name}');
+
     if (title.isEmpty ||
         code.isEmpty ||
         level.isEmpty ||
         _category == null ||
         _institution == null ||
         _selectedImage == null) {
+      debugPrint('[CreateCourseSheet] Validation failed — empty fields');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Please complete all required fields and upload an image'),
@@ -82,6 +89,7 @@ class _CreateCourseSheetState extends State<CreateCourseSheet> {
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
     final imagePath = _selectedImage?.path;
+    debugPrint('[CreateCourseSheet] image path: $imagePath');
     if (imagePath == null || imagePath.isEmpty) {
       messenger.showSnackBar(
         const SnackBar(content: Text('Selected image is not available on this device')),
@@ -103,6 +111,7 @@ class _CreateCourseSheetState extends State<CreateCourseSheet> {
       );
       navigator.pop();
     } catch (err) {
+      debugPrint('[CreateCourseSheet] createCourse error: $err');
       messenger.showSnackBar(
         SnackBar(content: Text('Failed to create course: ${err.toString()}')),
       );

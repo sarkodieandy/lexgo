@@ -34,75 +34,62 @@ class CaseModel {
   }
 }
 
-class PaginatedCasesResponse {
-  const PaginatedCasesResponse({
+/// Response model matching the API's cursor-based pagination format.
+class CursorPagedCasesResponse {
+  const CursorPagedCasesResponse({
     required this.data,
-    required this.currentPage,
-    required this.totalPages,
     required this.count,
     required this.total,
+    this.nextCursor,
+    required this.hasMore,
   });
 
   final List<CaseModel> data;
-  final int currentPage;
-  final int totalPages;
   final int count;
   final int total;
+  final String? nextCursor;
+  final bool hasMore;
 
-  factory PaginatedCasesResponse.fromJson(Map<String, dynamic> json) {
+  factory CursorPagedCasesResponse.fromJson(Map<String, dynamic> json) {
     final List<dynamic> rawData = json['data'] as List<dynamic>? ?? [];
-    return PaginatedCasesResponse(
+    return CursorPagedCasesResponse(
       data: rawData
           .map((item) => CaseModel.fromJson(item as Map<String, dynamic>))
           .toList(),
-      currentPage: json['currentPage'] as int? ?? 1,
-      totalPages: json['totalPages'] as int? ?? 1,
       count: json['count'] as int? ?? rawData.length,
       total: json['total'] as int? ?? rawData.length,
+      nextCursor: json['nextCursor'] as String?,
+      hasMore: json['hasMore'] as bool? ?? false,
     );
   }
 }
 
 class CasesService {
-  CasesService({ApiClient? client, String? baseUrl, String? authToken})
+  CasesService({ApiClient? client})
     : _client = client ?? ApiClient.shared,
-      _baseUrl = baseUrl ?? ApiConfig.casesBaseUrl,
-      _authToken = authToken ?? ApiConfig.defaultAuthToken;
+      _baseUrl = ApiConfig.casesBaseUrl;
 
   final ApiClient _client;
   final String _baseUrl;
-  final String _authToken;
 
-  Map<String, String> get _headers {
-    final headers = <String, String>{};
-    if (_authToken.isNotEmpty) {
-      headers['Authorization'] = 'Bearer $_authToken';
-    }
-    return headers;
-  }
-
-  Future<PaginatedCasesResponse> fetchAllCases({
-    int page = 1,
-    int limit = 10,
+  /// GET / — All cases by the authenticated lecturer (cursor-based pagination).
+  Future<CursorPagedCasesResponse> fetchAllCases({
+    int limit = 25,
+    String? cursor,
     String? title,
     String? category,
-    String sortedBy = '_id',
     String sortOrder = 'desc',
   }) async {
     final queryParameters = <String, String>{
-      'page': page.toString(),
       'limit': limit.toString(),
-      'sortedBy': sortedBy,
       'sortOrder': sortOrder,
     };
-    if (title?.isNotEmpty == true) {
-      queryParameters['title'] = title!;
-    }
-    if (category?.isNotEmpty == true) {
-      queryParameters['category'] = category!;
-    }
+    if (cursor?.isNotEmpty == true) queryParameters['cursor'] = cursor!;
+    if (title?.isNotEmpty == true) queryParameters['title'] = title!;
+    if (category?.isNotEmpty == true) queryParameters['category'] = category!;
+
     final uri = Uri.parse(_baseUrl).replace(queryParameters: queryParameters);
-    final response = await _client.get(uri, headers: _headers);
+    final response = await _client.get(uri);
     if (response.statusCode != 200) {
       throw ApiException(
         ApiClient.extractMessage(response, fallback: 'Failed to fetch cases'),
@@ -118,35 +105,30 @@ class CasesService {
         uri: uri,
       );
     }
-    return PaginatedCasesResponse.fromJson(body);
+    return CursorPagedCasesResponse.fromJson(body);
   }
 
-  Future<PaginatedCasesResponse> fetchCourseCases({
+  /// GET /:courseId — Cases for a specific course (cursor-based pagination).
+  Future<CursorPagedCasesResponse> fetchCourseCases({
     required String courseId,
-    int page = 1,
-    int limit = 10,
+    int limit = 25,
+    String? cursor,
     String? title,
     String? category,
-    String sortedBy = '_id',
     String sortOrder = 'desc',
   }) async {
     final queryParameters = <String, String>{
-      'page': page.toString(),
       'limit': limit.toString(),
-      'sortedBy': sortedBy,
       'sortOrder': sortOrder,
     };
-    if (title?.isNotEmpty == true) {
-      queryParameters['title'] = title!;
-    }
-    if (category?.isNotEmpty == true) {
-      queryParameters['category'] = category!;
-    }
+    if (cursor?.isNotEmpty == true) queryParameters['cursor'] = cursor!;
+    if (title?.isNotEmpty == true) queryParameters['title'] = title!;
+    if (category?.isNotEmpty == true) queryParameters['category'] = category!;
 
     final uri = Uri.parse(
       '$_baseUrl/${Uri.encodeComponent(courseId)}',
     ).replace(queryParameters: queryParameters);
-    final response = await _client.get(uri, headers: _headers);
+    final response = await _client.get(uri);
     if (response.statusCode != 200) {
       throw ApiException(
         ApiClient.extractMessage(
@@ -165,9 +147,10 @@ class CasesService {
         uri: uri,
       );
     }
-    return PaginatedCasesResponse.fromJson(body);
+    return CursorPagedCasesResponse.fromJson(body);
   }
 
+  /// POST /:courseId — Create a new case with a document file.
   Future<CaseModel> createCase({
     required String courseId,
     required String title,
@@ -179,7 +162,6 @@ class CasesService {
     final uri = Uri.parse('$_baseUrl/${Uri.encodeComponent(courseId)}');
     final response = await _client.sendMultipart(() async {
       final request = http.MultipartRequest('POST', uri)
-        ..headers.addAll(_headers)
         ..fields['title'] = title
         ..fields['sourceOfCase'] = sourceOfCase
         ..fields['caseCode'] = caseCode
@@ -208,9 +190,10 @@ class CasesService {
     return CaseModel.fromJson(data);
   }
 
+  /// DELETE /:id — Delete a case by its ID.
   Future<void> deleteCase(String id) async {
     final uri = Uri.parse('$_baseUrl/${Uri.encodeComponent(id)}');
-    final response = await _client.delete(uri, headers: _headers);
+    final response = await _client.delete(uri);
     if (response.statusCode != 200) {
       throw ApiException(
         ApiClient.extractMessage(response, fallback: 'Failed to delete case'),

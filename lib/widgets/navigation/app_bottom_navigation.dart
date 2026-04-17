@@ -13,10 +13,10 @@ class AppBottomNavigation extends StatelessWidget {
   final ValueChanged<int>? onTap;
 
   static const _items = [
-    _NavigationItem(icon: Icons.home, label: 'Home'),
-    _NavigationItem(icon: Icons.work_outline, label: 'Cases'),
-    _NavigationItem(icon: Icons.quiz_outlined, label: 'Quiz'),
-    _NavigationItem(icon: Icons.menu_book_outlined, label: 'Courses'),
+    _NavigationItem(icon: Icons.home_outlined, label: 'Home'),
+    _NavigationItem(icon: Icons.business_center_outlined, label: 'Cases'),
+    _NavigationItem(icon: Icons.access_time_outlined, label: 'Quiz'),
+    _NavigationItem(icon: Icons.auto_stories_outlined, label: 'Courses'),
   ];
 
   @override

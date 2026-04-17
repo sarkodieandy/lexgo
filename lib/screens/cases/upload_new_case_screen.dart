@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/cases_provider.dart';
+import '../../providers/courses_provider.dart';
+import '../../services/courses_service.dart';
 import '../../theme/app_colors.dart';
 
 class UploadNewCaseScreen extends StatefulWidget {
@@ -14,20 +16,30 @@ class UploadNewCaseScreen extends StatefulWidget {
 
 class _UploadNewCaseScreenState extends State<UploadNewCaseScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _courseController = TextEditingController();
   final _titleController = TextEditingController();
   final _sourceController = TextEditingController();
   final _codeController = TextEditingController();
+  final _courseIdController = TextEditingController();
   String? _category;
+  CourseModel? _selectedCourse;
   PlatformFile? _selectedFile;
   bool _isSubmitting = false;
 
   @override
+  void initState() {
+    super.initState();
+    // Load courses when the screen opens
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<CoursesProvider>().loadCourses();
+    });
+  }
+
+  @override
   void dispose() {
-    _courseController.dispose();
     _titleController.dispose();
     _sourceController.dispose();
     _codeController.dispose();
+    _courseIdController.dispose();
     super.dispose();
   }
 
@@ -46,13 +58,15 @@ class _UploadNewCaseScreenState extends State<UploadNewCaseScreen> {
 
   Future<void> _submitCase() async {
     if (!_formKey.currentState!.validate()) return;
-    final courseId = _courseController.text.trim();
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
     final provider = context.read<CasesProvider>();
+
+    // Use dropdown selection or fallback text field
+    final courseId = _selectedCourse?.id ?? _courseIdController.text.trim();
     if (courseId.isEmpty) {
       messenger.showSnackBar(
-        const SnackBar(content: Text('Please provide the course ID')),
+        const SnackBar(content: Text('Please select or enter a course ID')),
       );
       return;
     }
@@ -90,6 +104,7 @@ class _UploadNewCaseScreenState extends State<UploadNewCaseScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final coursesProvider = context.watch<CoursesProvider>();
     return Scaffold(
       backgroundColor: AppColors.brandDark,
       body: SafeArea(
@@ -116,11 +131,7 @@ class _UploadNewCaseScreenState extends State<UploadNewCaseScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildField(
-                              'Course ID',
-                              'eg. LAW-001',
-                              _courseController,
-                            ),
+                            _buildCourseDropdown(coursesProvider),
                             const SizedBox(height: 14),
                             _buildField(
                               'Case Title',
@@ -184,6 +195,98 @@ class _UploadNewCaseScreenState extends State<UploadNewCaseScreen> {
     );
   }
 
+  Widget _buildCourseDropdown(CoursesProvider coursesProvider) {
+    final courses = coursesProvider.courses;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Course',
+          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 6),
+        if (coursesProvider.isLoading)
+          const Center(child: Padding(
+            padding: EdgeInsets.all(12),
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ))
+        else if (courses.isNotEmpty)
+          DropdownButtonFormField<String>(
+            value: _selectedCourse?.id,
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide.none,
+              ),
+            ),
+            hint: const Text('Select a course'),
+            items: courses.map((course) {
+              return DropdownMenuItem(
+                value: course.id,
+                child: Text('${course.title} (${course.courseCode})'),
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() {
+                _selectedCourse = courses.firstWhere((c) => c.id == value);
+              });
+            },
+            validator: (value) =>
+                value == null ? 'Please select a course' : null,
+          )
+        else
+          // Fallback: text field for course ID when API fetch fails
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (coursesProvider.error != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    children: [
+                      Icon(Icons.info_outline, size: 16, color: AppColors.mutedText),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          'Could not load courses. Enter the Course ID manually.',
+                          style: TextStyle(color: AppColors.mutedText, fontSize: 12),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => coursesProvider.loadCourses(),
+                        child: const Text('Retry', style: TextStyle(fontSize: 12)),
+                      ),
+                    ],
+                  ),
+                ),
+              TextFormField(
+                controller: _courseIdController,
+                style: const TextStyle(color: Colors.black87),
+                decoration: InputDecoration(
+                  hintText: 'Paste your Course ID here',
+                  hintStyle: TextStyle(color: AppColors.mutedText),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 18,
+                  ),
+                ),
+                validator: (value) =>
+                    (value?.isEmpty ?? true) ? 'Please enter the course ID' : null,
+              ),
+            ],
+          ),
+      ],
+    );
+  }
+
   Widget _buildField(
     String label,
     String placeholder,
@@ -240,7 +343,7 @@ class _UploadNewCaseScreenState extends State<UploadNewCaseScreen> {
         ),
         const SizedBox(height: 6),
         DropdownButtonFormField<String>(
-          initialValue: _category,
+          value: _category,
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.white,

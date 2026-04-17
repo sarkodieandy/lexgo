@@ -4,7 +4,7 @@ abstract class ApiConfig {
    
     defaultValue: 'https://lexgo-bc-2.onrender.com/api',
   );
-  static const String _lecturerCasesPath = '/api/LecturerCases';
+  static const String _lecturerCasesPath = '/api/v1/LecturerCases';
   static const String _lecturerQuizPath = '/api/LecturerQuiz';
   static const String _coursesPath = '/api/Courses';
   static const String _subLecturerPath = '/api/SubLecturer';

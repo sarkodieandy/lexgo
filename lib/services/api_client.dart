@@ -42,6 +42,10 @@ class ApiClient {
     _accessToken = normalized;
   }
 
+  Map<String, String> get authHeaders {
+    return _accessToken != null ? {_authorizationHeader: 'Bearer $_accessToken'} : {};
+  }
+
   void clearSession() {
     _cookies.clear();
     final token = ApiConfig.defaultAuthToken.trim();

@@ -7,12 +7,12 @@ import '../../providers/course_assignments_provider.dart';
 import '../../providers/course_resources_provider.dart';
 import '../../theme/app_colors.dart';
 import '../../models/resource.dart';
-import '../resource_detail_screen.dart';
 import '../../widgets/courses/add_resource_sheet.dart';
 import '../../widgets/courses/add_topic_sheet.dart';
 import '../../widgets/courses/course_assignments_section.dart';
 import '../../widgets/courses/qa_tab.dart';
 import '../../widgets/create_newassignmentfab.dart';
+import 'pdf_preview_screen.dart';
 
 class CourseDetailScreen extends StatefulWidget {
   const CourseDetailScreen({super.key, required this.course});
@@ -306,8 +306,9 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
                                     onResourceTap: (resource) =>
                                         Navigator.of(context).push(
                                       MaterialPageRoute(
-                                        builder: (_) => ResourceDetailScreen(
-                                          resource: resource,
+                                        builder: (_) => PdfPreviewScreen(
+                                          resourceId: resource.id,
+                                          title: resource.title,
                                         ),
                                       ),
                                     ),
