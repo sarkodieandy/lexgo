@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
+import '../models/user.dart';
 import 'api_client.dart';
 import 'api_config.dart';
 
@@ -10,7 +11,7 @@ class AuthService {
 
   final ApiClient _client;
 
-  Future<void> register({
+  Future<User?> register({
     required String firstName,
     required String lastName,
     String? otherName,
@@ -25,7 +26,7 @@ class AuthService {
     String role = 'lecturer',
     String? detectedCountry,
   }) async {
-    final uri = ApiConfig.resolve('/api/Auth/register');
+    final uri = ApiConfig.resolve('/api/v1/Auth/register');
     try {
       final payload = <String, dynamic>{
         'firstName': firstName,
@@ -68,14 +69,23 @@ class AuthService {
           uri: uri,
         );
       }
+
+      // Try to parse user data from the response
+      final userData = decoded['user'] ?? decoded['data'];
+      if (userData is Map<String, dynamic>) {
+        return User.fromJson(userData);
+      } else if (decoded is Map<String, dynamic> && decoded.containsKey('firstName')) {
+        return User.fromJson(decoded);
+      }
+      return null;
     } catch (error, stackTrace) {
       _logError('register', error, stackTrace);
       rethrow;
     }
   }
 
-  Future<void> login({required String email, required String password}) async {
-    final uri = ApiConfig.resolve('/api/Auth/login');
+  Future<User?> login({required String email, required String password}) async {
+    final uri = ApiConfig.resolve('/api/v1/Auth/login');
     try {
       final response = await _client.post(
         uri,
@@ -96,9 +106,20 @@ class AuthService {
         if (token is String && token.trim().isNotEmpty) {
           _client.setAccessToken(token);
         }
+
+        // Try to parse user data from the response
+        final userData = decoded['user'] ?? decoded['data'];
+        if (userData is Map<String, dynamic>) {
+          return User.fromJson(userData);
+        } else if (decoded.containsKey('firstName')) {
+          // Fallback if user data is at the root
+          return User.fromJson(decoded);
+        }
       }
+      return null;
     } on FormatException {
       // Ignore non-JSON responses when login succeeds via cookies only.
+      return null;
     } catch (error, stackTrace) {
       _logError('login', error, stackTrace);
       rethrow;
@@ -106,7 +127,7 @@ class AuthService {
   }
 
   Future<void> logout() async {
-    final uri = ApiConfig.resolve('/api/Auth/logout');
+    final uri = ApiConfig.resolve('/api/v1/Auth/logout');
     try {
       final response = await _client.post(
         uri,
@@ -128,7 +149,16 @@ class AuthService {
     }
   }
 
-  Future<bool> refreshSession() => _client.refreshToken();
+  Future<User?> refreshSession() async {
+    final refreshed = await _client.refreshToken();
+    if (!refreshed) return null;
+
+    // After refreshing token, we could optionally fetch profile if not returned.
+    // For now, we'll try to get it from the last response if ApiClient stored it,
+    // or return a placeholder if we can't get it.
+    // Ideally, there would be a /profile endpoint.
+    return null; // Update this when we have a profile endpoint
+  }
 
   void _logError(String action, Object error, StackTrace stackTrace) {
     debugPrint('[AuthService] $action failed: $error');

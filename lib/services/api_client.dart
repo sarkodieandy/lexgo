@@ -49,7 +49,7 @@ class ApiClient {
   }
 
   Future<bool> refreshToken() async {
-    final uri = ApiConfig.resolve('/api/Auth/refresh-token');
+    final uri = ApiConfig.resolve('/api/v1/Auth/refresh-token');
     try {
       final response = await post(
         uri,

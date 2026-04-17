@@ -10,14 +10,21 @@ import '../models/sidebar/sidebar_item.dart';
 class HomeProvider extends ChangeNotifier {
   final DateTime _today = DateTime.now();
 
+  String _userName = 'Student';
+  String get userName => _userName;
+
+  set userName(String value) {
+    if (_userName == value) return;
+    _userName = value;
+    notifyListeners();
+  }
+
   String get greeting {
     final hour = _today.hour;
     if (hour < 12) return 'Good Morning';
     if (hour < 17) return 'Good Afternoon';
     return 'Good Evening';
   }
-
-  String get userName => 'Dr.Johnson';
 
   String get formattedDate => '${_today.month}/${_today.day}/${_today.year}';
 
