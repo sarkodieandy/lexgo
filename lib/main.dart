@@ -22,10 +22,16 @@ class LexGoApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProxyProvider<AuthProvider, HomeProvider>(
+          create: (_) => HomeProvider(),
+          update: (_, auth, home) {
+            if (home == null) return HomeProvider()..userName = auth.userName;
+            return home..userName = auth.userName;
+          },
+        ),
         ChangeNotifierProvider(create: (_) => CourseAssignmentsProvider()),
         ChangeNotifierProvider(create: (_) => CasesProvider()),
         ChangeNotifierProvider(create: (_) => CoursesProvider()),
-        ChangeNotifierProvider(create: (_) => HomeProvider()),
         ChangeNotifierProvider(create: (_) => QuizProvider()),
         ChangeNotifierProvider(create: (_) => AnalysisProvider()),
       ],

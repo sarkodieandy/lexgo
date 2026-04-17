@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../models/user.dart';
 import '../services/api_config.dart';
 import '../services/auth_service.dart';
 
@@ -21,6 +22,11 @@ class AuthProvider extends ChangeNotifier {
   bool _isAuthenticated;
   bool get isAuthenticated => _isAuthenticated;
 
+  User? _currentUser;
+  User? get currentUser => _currentUser;
+
+  String get userName => _currentUser?.firstName ?? 'Student';
+
   String? _error;
   String? get error => _error;
 
@@ -34,7 +40,8 @@ class AuthProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
     try {
-      _isAuthenticated = await _service.refreshSession();
+      _currentUser = await _service.refreshSession();
+      _isAuthenticated = _currentUser != null;
     } catch (err, stackTrace) {
       debugPrint('[AuthProvider] bootstrap failed: $err');
       debugPrintStack(
@@ -57,7 +64,7 @@ class AuthProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
     try {
-      await _service.login(email: email, password: password);
+      _currentUser = await _service.login(email: email, password: password);
       _isAuthenticated = true;
     } catch (err, stackTrace) {
       debugPrint('[AuthProvider] login failed: $err');
