@@ -10,7 +10,7 @@ import '../models/sidebar/sidebar_item.dart';
 class HomeProvider extends ChangeNotifier {
   final DateTime _today = DateTime.now();
 
-  String _userName = 'Student';
+  String _userName = 'Dr.';
   String get userName => _userName;
 
   set userName(String value) {
@@ -34,26 +34,30 @@ class HomeProvider extends ChangeNotifier {
     QuickAction(
       title: 'Create Quiz',
       subtitle: 'Test your knowledge',
-      icon: Icons.quiz,
-      background: Color(0xFFFCECBB),
+      icon: Icons.chat_bubble_outline_rounded,
+      background: Color(0xFFFDF3DC),
+      iconColor: Color(0xFFE5A800),
     ),
     QuickAction(
       title: 'Upload Material',
       subtitle: 'Send course materials',
-      icon: Icons.upload_file,
-      background: Color(0xFFE7F0FF),
+      icon: Icons.upload_rounded,
+      background: Color(0xFFEAF1FF),
+      iconColor: Color(0xFF3B6FE0),
     ),
     QuickAction(
       title: 'Submissions',
       subtitle: 'View test and quizzes',
-      icon: Icons.upload_file_outlined,
-      background: Color(0xFFE9F5EF),
+      icon: Icons.receipt_long_outlined,
+      background: Color(0xFFFFECEC),
+      iconColor: Color(0xFFD14234),
     ),
     QuickAction(
       title: 'View Cases',
       subtitle: 'Open cases',
-      icon: Icons.business_center_outlined,
-      background: Color(0xFFFFF3F3),
+      icon: Icons.menu_book_outlined,
+      background: Color(0xFFF0F0F0),
+      iconColor: Color(0xFF1A1A2E),
     ),
   ];
 

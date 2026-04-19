@@ -25,7 +25,7 @@ class AuthProvider extends ChangeNotifier {
   User? _currentUser;
   User? get currentUser => _currentUser;
 
-  String get userName => _currentUser?.firstName ?? 'Student';
+  String get userName => _currentUser?.firstName ?? 'Dr.';
 
   String? _error;
   String? get error => _error;

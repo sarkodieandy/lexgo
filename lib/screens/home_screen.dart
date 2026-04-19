@@ -9,9 +9,9 @@ import '../widgets/home/home_recent_activities_section.dart';
 import '../widgets/home/home_top_section.dart';
 import '../widgets/navigation/app_bottom_navigation.dart';
 import '../widgets/sidebar.dart';
-import 'cases/cases_screen.dart';
 import 'quiz/quiz_screen.dart';
 import 'courses/courses_list_screen.dart';
+import '../widgets/navigation/app_back_button.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -20,12 +20,8 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = context.watch<HomeProvider>();
     return Scaffold(
-      drawer: const Sidebar(),
+      // Removed drawer and bottomNavigationBar as they are now in MainNavigationScreen
       backgroundColor: AppColors.brandDark,
-      bottomNavigationBar: AppBottomNavigation(
-        selectedIndex: 0,
-        onTap: (index) => _handleNavigation(context, index),
-      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -39,7 +35,7 @@ class HomeScreen extends StatelessWidget {
             Expanded(
               child: Container(
                 decoration: const BoxDecoration(
-                  color: AppColors.surface,
+                  color: Color(0xFFF5F5F5),
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(32),
                     topRight: Radius.circular(32),
@@ -47,14 +43,17 @@ class HomeScreen extends StatelessWidget {
                 ),
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+                  padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Hero card is the first item, separated from dark header
+                      HomeHeroCard(userName: provider.userName),
+                      const SizedBox(height: 24),
                       HomeQuickActions(actions: provider.quickActions),
-                      const SizedBox(height: 18),
+                      const SizedBox(height: 24),
                       HomeAssignmentStats(categories: provider.assignmentStats),
-                      const SizedBox(height: 18),
+                      const SizedBox(height: 24),
                       HomeRecentActivities(
                         activities: provider.recentActivities,
                       ),
@@ -70,30 +69,5 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  void _handleNavigation(BuildContext context, int selectedIndex) {
-    if (selectedIndex == 1) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const CasesScreen()));
-      return;
-    }
-
-    if (selectedIndex == 2) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const QuizScreen()));
-      return;
-    }
-
-    if (selectedIndex == 3) {
-      Navigator.of(context).push(MaterialPageRoute(builder: (_) => Courses()));
-      return;
-    }
-
-    if (selectedIndex != 0) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Coming soon')));
-    }
-  }
+  // Removed _handleNavigation as it's now handled by MainNavigationScreen
 }

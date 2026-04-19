@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../models/course.dart';
 import '../services/courses_service.dart';
 
 class CoursesProvider extends ChangeNotifier {
@@ -7,8 +8,8 @@ class CoursesProvider extends ChangeNotifier {
 
   final CoursesService _service;
 
-  List<CourseModel> _courses = [];
-  List<CourseModel> get courses => List.unmodifiable(_courses);
+  List<Course> _courses = [];
+  List<Course> get courses => List.unmodifiable(_courses);
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -34,7 +35,7 @@ class CoursesProvider extends ChangeNotifier {
     }
   }
 
-  Future<CourseModel> createCourse({
+  Future<Course> createCourse({
     required String title,
     required String category,
     required String institution,

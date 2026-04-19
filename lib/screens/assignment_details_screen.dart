@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/course_assignment.dart';
 import '../screens/assignment_submission.dart';
 import '../theme/app_colors.dart';
+import '../widgets/navigation/app_back_button.dart';
 
 class AssignmentDetailsScreen extends StatelessWidget {
   const AssignmentDetailsScreen({super.key, required this.assignment});
@@ -47,18 +48,7 @@ class AssignmentDetailsScreen extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Row(
                 children: [
-                  GestureDetector(
-                    onTap: () => Navigator.of(context).maybePop(),
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF0B2138),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(Icons.arrow_back, color: Colors.white),
-                    ),
-                  ),
+                  const AppBackButton(),
                   const Expanded(
                     child: Text(
                       'Assignment Details',

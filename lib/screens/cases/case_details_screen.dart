@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../models/cases/case_item.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/navigation/app_back_button.dart';
 
 class CaseDetailsScreen extends StatelessWidget {
   const CaseDetailsScreen({super.key, required this.item});
@@ -88,10 +89,7 @@ class CaseDetailsScreen extends StatelessWidget {
       decoration: const BoxDecoration(color: AppColors.brandDark),
       child: Row(
         children: [
-          IconButton(
-            onPressed: () => Navigator.of(context).pop(),
-            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
-          ),
+          const AppBackButton(),
           const SizedBox(width: 8),
           const Text(
             'Case Details',

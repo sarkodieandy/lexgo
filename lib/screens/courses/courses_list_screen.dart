@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../models/course.dart';
+import '../../providers/courses_provider.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/navigation/app_back_button.dart';
 import '../../widgets/courses/create_course_sheet.dart';
 import 'course_detail_screen.dart';
 
@@ -33,31 +36,21 @@ class _CoursesState extends State<Courses> {
   ];
 
   final TextEditingController _searchController = TextEditingController();
-  final List<Course> _courses = [
-    Course(
-      code: 'LAW 001',
-      title: 'Introduction to Law',
-      category: 'Administrative Law',
-      institution: 'University of Ghana School of Law',
-      image: 'assets/course_card1.png',
-      createdAt: DateTime(2025, 9, 1),
-    ),
-    Course(
-      code: 'LAW 301',
-      title: 'Law Implementation',
-      category: 'Contract Law',
-      institution: 'University of Ghana School of Law',
-      image: 'assets/Course Card2.png',
-      createdAt: DateTime(2025, 9, 12),
-    ),
-  ];
+  
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<CoursesProvider>().loadCourses();
+    });
+  }
 
   String _selectedCategory = _categories.first;
   String _selectedSort = _sortOptions.first;
 
-  List<Course> get _filteredCourses {
+  List<Course> _getFilteredCourses(List<Course> courses) {
     final query = _searchController.text.toLowerCase();
-    final filtered = _courses.where((course) {
+    final filtered = courses.where((course) {
       final matchesCategory =
           _selectedCategory == 'All Categories' ||
           course.category == _selectedCategory;
@@ -284,7 +277,8 @@ class _CoursesState extends State<Courses> {
 
   @override
   Widget build(BuildContext context) {
-    final courses = _filteredCourses;
+    final provider = context.watch<CoursesProvider>();
+    final courses = _getFilteredCourses(provider.courses);
     return Scaffold(
       backgroundColor: AppColors.brandWhite,
       floatingActionButton: FloatingActionButton(
@@ -301,21 +295,7 @@ class _CoursesState extends State<Courses> {
               padding: const EdgeInsets.fromLTRB(16, 20, 24, 18),
               child: Row(
                 children: [
-                  GestureDetector(
-                    onTap: () => Navigator.of(context).pop(),
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: AppColors.brandWhite,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.arrow_back,
-                        color: AppColors.brandDark,
-                      ),
-                    ),
-                  ),
+                  const AppBackButton(),
                   const SizedBox(width: 16),
                   const Text(
                     'Courses',
@@ -383,126 +363,157 @@ class _CoursesState extends State<Courses> {
             const SizedBox(height: 12),
             _buildActiveFilterRow(),
             const SizedBox(height: 12),
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 0,
-                ),
-                physics: const BouncingScrollPhysics(),
-                itemCount: courses.length,
-                itemBuilder: (context, index) {
-                  final course = courses[index];
-                  return InkWell(
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => CourseDetailScreen(course: course),
-                      ),
+            if (provider.isLoading)
+              const Expanded(child: Center(child: CircularProgressIndicator()))
+            else if (provider.error != null && provider.courses.isEmpty)
+              Expanded(
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Failed to load courses: ${provider.error}',
+                          textAlign: TextAlign.center,
+                        ),
+                        TextButton(
+                          onPressed: () => provider.loadCourses(),
+                          child: const Text('Retry'),
+                        ),
+                      ],
                     ),
-                    borderRadius: BorderRadius.circular(20),
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      decoration: BoxDecoration(
-                        color: AppColors.brandWhite,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color(0x14000000),
-                            blurRadius: 12,
-                            offset: Offset(0, 6),
+                  ),
+                ),
+              )
+            else if (courses.isEmpty)
+              const Expanded(child: Center(child: Text('No courses found')))
+            else
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: () => provider.loadCourses(),
+                  child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 0,
+                    ),
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: courses.length,
+                    itemBuilder: (context, index) {
+                      final course = courses[index];
+                      return InkWell(
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => CourseDetailScreen(course: course),
                           ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Stack(
-                            children: [
-                              ClipRRect(
-                                borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(20),
-                                  topRight: Radius.circular(20),
-                                ),
-                                child: Image.asset(
-                                  course.image,
-                                  fit: BoxFit.cover,
-                                  height: 140,
-                                  width: double.infinity,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      Container(
-                                        color: AppColors.brandDark,
-                                        height: 140,
-                                        width: double.infinity,
-                                      ),
-                                ),
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          decoration: BoxDecoration(
+                            color: AppColors.brandWhite,
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x14000000),
+                                blurRadius: 12,
+                                offset: Offset(0, 6),
                               ),
-                              Positioned(
-                                right: 16,
-                                top: 16,
-                                child: GestureDetector(
-                                  onTap: () => _showCourseActions(course),
-                                  child: Container(
-                                    width: 36,
-                                    height: 36,
-                                    decoration: const BoxDecoration(
-                                      color: AppColors.brandWhite,
-                                      shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Color(0x22000000),
-                                          blurRadius: 8,
-                                          offset: Offset(0, 2),
-                                        ),
-                                      ],
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Stack(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: const BorderRadius.only(
+                                      topLeft: Radius.circular(20),
+                                      topRight: Radius.circular(20),
                                     ),
-                                    child: const Icon(
-                                      Icons.more_vert,
-                                      color: AppColors.brandDark,
+                                    child: Image.asset(
+                                      course.image,
+                                      fit: BoxFit.cover,
+                                      height: 140,
+                                      width: double.infinity,
+                                      errorBuilder: (context, error, stackTrace) =>
+                                          Container(
+                                            color: AppColors.brandDark,
+                                            height: 140,
+                                            width: double.infinity,
+                                          ),
                                     ),
                                   ),
+                                  Positioned(
+                                    right: 16,
+                                    top: 16,
+                                    child: GestureDetector(
+                                      onTap: () => _showCourseActions(course),
+                                      child: Container(
+                                        width: 36,
+                                        height: 36,
+                                        decoration: const BoxDecoration(
+                                          color: AppColors.brandWhite,
+                                          shape: BoxShape.circle,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Color(0x22000000),
+                                              blurRadius: 8,
+                                              offset: Offset(0, 2),
+                                            ),
+                                          ],
+                                        ),
+                                        child: const Icon(
+                                          Icons.more_vert,
+                                          color: AppColors.brandDark,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '${course.code} : ${course.title}',
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.brandDark,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      course.category,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: AppColors.mutedText,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      course.institution,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: AppColors.mutedText,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
                           ),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '${course.code} : ${course.title}',
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.brandDark,
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  course.category,
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: AppColors.mutedText,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  course.institution,
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: AppColors.mutedText,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+                        ),
+                      );
+                    },
+                  ),
+                ),
               ),
-            ),
           ],
         ),
       ),

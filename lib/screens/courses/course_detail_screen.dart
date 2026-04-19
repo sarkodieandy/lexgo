@@ -5,14 +5,17 @@ import 'package:provider/provider.dart';
 import '../../models/course.dart';
 import '../../providers/course_assignments_provider.dart';
 import '../../providers/course_resources_provider.dart';
+import '../../providers/ai_materials_provider.dart';
 import '../../theme/app_colors.dart';
 import '../../models/resource.dart';
+import '../../widgets/navigation/app_back_button.dart';
 import '../../widgets/courses/add_resource_sheet.dart';
 import '../../widgets/courses/add_topic_sheet.dart';
 import '../../widgets/courses/course_assignments_section.dart';
 import '../../widgets/courses/qa_tab.dart';
 import '../../widgets/create_newassignmentfab.dart';
 import 'pdf_preview_screen.dart';
+import 'ai_material_details_screen.dart';
 
 class CourseDetailScreen extends StatefulWidget {
   const CourseDetailScreen({super.key, required this.course});
@@ -27,6 +30,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
   late final CourseResourcesProvider _resourcesProvider;
+  late final AiMaterialsProvider _aiMaterialsProvider;
+  final ScrollController _resourcesScrollController = ScrollController();
 
   void _openAddTopicSheet(BuildContext context) {
     showModalBottomSheet(
@@ -89,6 +94,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
     final course = widget.course;
     final courseId = course.id.isNotEmpty ? course.id : course.code;
     _resourcesProvider = CourseResourcesProvider(courseId: courseId);
+    _aiMaterialsProvider = AiMaterialsProvider(courseId: courseId);
     _tabController = TabController(length: 4, vsync: this);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging && mounted) {
@@ -97,20 +103,34 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _resourcesProvider.load();
+      _aiMaterialsProvider.loadMaterials();
     });
+    _resourcesScrollController.addListener(_onResourcesScroll);
+  }
+
+  void _onResourcesScroll() {
+    if (_resourcesScrollController.position.pixels >=
+        _resourcesScrollController.position.maxScrollExtent - 200) {
+      _resourcesProvider.loadMore();
+    }
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     _resourcesProvider.dispose();
+    _aiMaterialsProvider.dispose();
+    _resourcesScrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-      value: _resourcesProvider,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: _resourcesProvider),
+        ChangeNotifierProvider.value(value: _aiMaterialsProvider),
+      ],
       child: Builder(
         builder: (context) {
           final course = widget.course;
@@ -152,21 +172,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
                       children: [
                         Row(
                           children: [
-                            GestureDetector(
-                              onTap: () => Navigator.of(context).maybePop(),
-                              child: Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color: AppColors.brandNavy,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Icon(
-                                  Icons.arrow_back_ios_new,
-                                  color: AppColors.brandWhite,
-                                ),
-                              ),
-                            ),
+                            const AppBackButton(),
+                            const SizedBox(width: 16),
                             const SizedBox(width: 16),
                             Expanded(
                               child: Text(
@@ -178,6 +185,40 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
                                 ),
                               ),
                             ),
+                            PopupMenuButton<String>(
+                              icon: const Icon(Icons.more_vert, color: AppColors.brandWhite),
+                              onSelected: (value) async {
+                                if (value == 'delete') {
+                                  final confirm = await showDialog<bool>(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: const Text('Delete Course'),
+                                      content: const Text('Are you sure you want to delete this course? All data will be lost.'),
+                                      actions: [
+                                        TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+                                        TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete', style: TextStyle(color: Colors.red))),
+                                      ],
+                                    ),
+                                  );
+                                  if (confirm == true) {
+                                    try {
+                                      await _resourcesProvider.deleteCourse();
+                                      if (mounted) Navigator.pop(context, true);
+                                    } catch (e) {
+                                      if (mounted) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(content: Text('Failed to delete course: $e')),
+                                        );
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              itemBuilder: (context) => [
+                                const PopupMenuItem(value: 'delete', child: Text('Delete Course', style: TextStyle(color: Colors.red))),
+                              ],
+                            ),
+                            const SizedBox(width: 8),
                             Container(
                               width: 48,
                               height: 48,
@@ -229,24 +270,53 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
                         child: TabBarView(
                           controller: _tabController,
                           children: [
-                            ListView.separated(
-                              padding: const EdgeInsets.only(bottom: 16),
-                              itemCount: topics.length + 1,
-                              physics: const BouncingScrollPhysics(),
-                              separatorBuilder: (context, index) =>
-                                  const SizedBox(height: 14),
-                              itemBuilder: (context, index) {
-                                if (index == 0) {
-                                  return _TopicsHeader(
-                                    onAddTopic: () =>
-                                        _openAddTopicSheet(context),
-                                  );
-                                }
-                                final topicIndex = index - 1;
-                                return _TopicTile(
-                                  number: topicIndex + 1,
-                                  title: topics[topicIndex],
-                                  subtitle: subtitles[topicIndex],
+                            Consumer<AiMaterialsProvider>(
+                              builder: (context, aiProvider, _) {
+                                final aiTopics = aiProvider.materials;
+                                final totalCount = 1 + topics.length + aiTopics.length;
+                                
+                                return ListView.separated(
+                                  padding: const EdgeInsets.only(bottom: 16),
+                                  itemCount: totalCount,
+                                  physics: const BouncingScrollPhysics(),
+                                  separatorBuilder: (context, index) =>
+                                      const SizedBox(height: 14),
+                                  itemBuilder: (context, index) {
+                                    if (index == 0) {
+                                      return _TopicsHeader(
+                                        onAddTopic: () => _openAddTopicSheet(context),
+                                        onGenerateAI: () => aiProvider.startGeneration(),
+                                        isGenerating: aiProvider.status.isInProgress,
+                                      );
+                                    }
+                                    
+                                    final itemIndex = index - 1;
+                                    if (itemIndex < topics.length) {
+                                      return _TopicTile(
+                                        number: itemIndex + 1,
+                                        title: topics[itemIndex],
+                                        subtitle: subtitles[itemIndex],
+                                      );
+                                    }
+
+                                    final aiIndex = itemIndex - topics.length;
+                                    final aiMaterial = aiTopics[aiIndex];
+                                    return _TopicTile(
+                                      number: itemIndex + 1,
+                                      title: aiMaterial.topic,
+                                      subtitle: 'AI Generated Content',
+                                      isAi: true,
+                                      onTap: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (_) => AiMaterialDetailsScreen(
+                                              material: aiMaterial,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
                                 );
                               },
                             ),
@@ -302,7 +372,9 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
                                 return RefreshIndicator(
                                   onRefresh: () => provider.load(),
                                   child: _ResourceList(
+                                    scrollController: _resourcesScrollController,
                                     resources: resources,
+                                    isLoadingMore: provider.isLoadingMore,
                                     onResourceTap: (resource) =>
                                         Navigator.of(context).push(
                                       MaterialPageRoute(
@@ -337,92 +409,192 @@ class _TopicTile extends StatelessWidget {
     required this.number,
     required this.title,
     required this.subtitle,
+    this.isAi = false,
+    this.onTap,
   });
 
   final int number;
   final String title;
   final String subtitle;
+  final bool isAi;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 16,
-            backgroundColor: AppColors.brandDark,
-            child: Text(
-              number.toString(),
-              style: const TextStyle(color: AppColors.brandWhite),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: isAi ? Border.all(color: AppColors.brandNavy.withOpacity(0.2), width: 1.5) : null,
+        ),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 16,
+              backgroundColor: isAi ? AppColors.brandNavy : AppColors.brandDark,
+              child: isAi ? const Icon(Icons.auto_awesome, size: 14, color: AppColors.brandWhite) : Text(
+                number.toString(),
+                style: const TextStyle(color: AppColors.brandWhite),
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: const TextStyle(color: AppColors.mutedText),
-                ),
-              ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      if (isAi)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: AppColors.brandNavy.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: const Text('AI', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.brandNavy)),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(color: AppColors.mutedText),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Container(
-            width: 32,
-            height: 32,
-            decoration: const BoxDecoration(
-              color: AppColors.brandDark,
-              shape: BoxShape.circle,
+            const SizedBox(width: 8),
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: isAi ? AppColors.brandNavy : AppColors.brandDark,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.arrow_forward_ios,
+                color: AppColors.brandWhite,
+                size: 16,
+              ),
             ),
-            child: const Icon(
-              Icons.arrow_forward_ios,
-              color: AppColors.brandWhite,
-              size: 16,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
 class _TopicsHeader extends StatelessWidget {
-  const _TopicsHeader({required this.onAddTopic});
+  const _TopicsHeader({
+    required this.onAddTopic,
+    required this.onGenerateAI,
+    this.isGenerating = false,
+  });
 
   final VoidCallback onAddTopic;
+  final VoidCallback onGenerateAI;
+  final bool isGenerating;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text(
-          'Topics',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Topics',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            ),
+            ElevatedButton.icon(
+              onPressed: onAddTopic,
+              icon: const Icon(Icons.add, size: 16),
+              label: const Text(
+                'Add Topic',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.brandDark,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+            ),
+          ],
         ),
-        ElevatedButton.icon(
-          onPressed: onAddTopic,
-          icon: const Icon(Icons.add, size: 16),
-          label: const Text(
-            'Add Topic',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.brandDark,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+        const SizedBox(height: 16),
+        InkWell(
+          onTap: isGenerating ? null : onGenerateAI,
+          borderRadius: BorderRadius.circular(20),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF1E3A5F), Color(0xFF0D1B2A)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.brandNavy.withOpacity(0.3),
+                  blurRadius: 15,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: isGenerating 
+                    ? const Padding(padding: EdgeInsets.all(12), child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    : const Icon(Icons.auto_awesome, color: Colors.white),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        isGenerating ? 'Generating Materials...' : 'Generate with AI',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        isGenerating ? 'Please wait, our AI is building your course content.' : 'Automagically create course topics and materials.',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.7),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (!isGenerating)
+                  const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 14),
+              ],
             ),
           ),
         ),
@@ -434,18 +606,32 @@ class _TopicsHeader extends StatelessWidget {
 typedef ResourceTap = void Function(CourseResource resource);
 
 class _ResourceList extends StatelessWidget {
-  const _ResourceList({required this.resources, required this.onResourceTap});
+  const _ResourceList({
+    required this.resources,
+    required this.onResourceTap,
+    this.scrollController,
+    this.isLoadingMore = false,
+  });
 
   final List<CourseResource> resources;
   final ResourceTap onResourceTap;
+  final ScrollController? scrollController;
+  final bool isLoadingMore;
 
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
+      controller: scrollController,
       padding: const EdgeInsets.symmetric(vertical: 12),
-      itemCount: resources.length,
+      itemCount: resources.length + (isLoadingMore ? 1 : 0),
       separatorBuilder: (context, index) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
+        if (index == resources.length) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
         final resource = resources[index];
         return InkWell(
           borderRadius: BorderRadius.circular(24),

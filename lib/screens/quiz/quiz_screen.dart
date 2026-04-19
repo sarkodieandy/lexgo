@@ -6,6 +6,7 @@ import '../../providers/quiz_provider.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/quiz/quiz_card.dart';
 import '../../widgets/sidebar.dart';
+import '../../widgets/navigation/app_back_button.dart';
 import 'quize_1.dart';
 
 class QuizScreen extends StatefulWidget {
@@ -29,7 +30,6 @@ class _QuizScreenState extends State<QuizScreen> {
     final quizProvider = context.watch<QuizProvider>();
     final quizzes = quizProvider.quizItems;
     return Scaffold(
-      drawer: const Sidebar(),
       backgroundColor: AppColors.brandDark,
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.of(
@@ -50,7 +50,7 @@ class _QuizScreenState extends State<QuizScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            _Header(onBack: () => Navigator.of(context).maybePop()),
+          _Header(onBack: () => Navigator.of(context).maybePop()),
             Expanded(
               child: Container(
                 decoration: const BoxDecoration(
@@ -113,21 +113,7 @@ class _Header extends StatelessWidget {
       decoration: const BoxDecoration(color: AppColors.brandDark),
       child: Row(
         children: [
-          GestureDetector(
-            onTap: onBack,
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: AppColors.brandWhite,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
-                Icons.arrow_back_ios_new,
-                color: AppColors.brandDark,
-              ),
-            ),
-          ),
+          const AppBackButton(),
           const SizedBox(width: 16),
           const Text(
             'Quiz',

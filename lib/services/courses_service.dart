@@ -6,73 +6,24 @@ import 'package:http/http.dart' as http;
 import 'api_config.dart';
 import 'api_client.dart';
 import '../models/resource.dart';
-
-class CourseModel {
-  const CourseModel({
-    required this.id,
-    required this.title,
-    required this.courseCode,
-    required this.category,
-    required this.institution,
-    required this.level,
-    this.description,
-    this.imageUrl,
-  });
-
-  final String id;
-  final String title;
-  final String courseCode;
-  final String category;
-  final String institution;
-  final String level;
-  final String? description;
-  final String? imageUrl;
-
-  factory CourseModel.fromJson(Map<String, dynamic> json) {
-    return CourseModel(
-      id: json['_id'] as String? ?? '',
-      title: json['title'] as String? ?? '',
-      courseCode: json['courseCode'] as String? ?? '',
-      category: json['category'] as String? ?? 'General',
-      institution: json['institution'] as String? ?? '',
-      level: json['level'] as String? ?? '',
-      description: json['description'] as String?,
-      imageUrl: json['imageUrl'] as String?,
-    );
-  }
-}
+import '../models/course.dart';
+import '../models/ai_material.dart';
 
 class PaginatedCourseResourcesResponse {
   const PaginatedCourseResourcesResponse({
     required this.data,
-    required this.currentPage,
-    required this.totalPages,
-    required this.count,
+    this.nextCursor,
+    this.hasMore = false,
     required this.total,
   });
 
   final List<CourseResource> data;
-  final int currentPage;
-  final int totalPages;
-  final int count;
+  final String? nextCursor;
+  final bool hasMore;
   final int total;
 
   factory PaginatedCourseResourcesResponse.fromJson(Map<String, dynamic> json) {
-    dynamic rawData = json['data'];
-    int currentPage = json['currentPage'] as int? ?? 1;
-    int totalPages = json['totalPages'] as int? ?? 1;
-    int count = json['count'] as int? ?? 0;
-    int total = json['total'] as int? ?? 0;
-
-    if (rawData is Map<String, dynamic>) {
-      currentPage = rawData['currentPage'] as int? ?? currentPage;
-      totalPages = rawData['totalPages'] as int? ?? totalPages;
-      count = rawData['count'] as int? ?? count;
-      total = rawData['total'] as int? ?? total;
-      rawData = rawData['data'] ?? rawData['resources'] ?? [];
-    }
-
-    final List<dynamic> list = rawData is List ? rawData : const [];
+    final List<dynamic> list = json['data'] is List ? json['data'] : const [];
     final resources = list
         .whereType<Map<String, dynamic>>()
         .map(CourseResource.fromJson)
@@ -80,10 +31,9 @@ class PaginatedCourseResourcesResponse {
 
     return PaginatedCourseResourcesResponse(
       data: resources,
-      currentPage: currentPage,
-      totalPages: totalPages,
-      count: count != 0 ? count : resources.length,
-      total: total != 0 ? total : resources.length,
+      nextCursor: json['nextCursor'] as String?,
+      hasMore: json['hasMore'] as bool? ?? false,
+      total: json['total'] as int? ?? resources.length,
     );
   }
 }
@@ -115,7 +65,7 @@ class CoursesService {
   };
 
   /// GET / — Fetch all courses for the authenticated lecturer.
-  Future<List<CourseModel>> fetchCourses() async {
+  Future<List<Course>> fetchCourses() async {
     final uri = Uri.parse(_baseUrl);
     debugPrint('[CoursesService] fetchCourses → GET $uri');
     try {
@@ -143,7 +93,7 @@ class CoursesService {
         if (rawData is List) {
           return rawData
               .whereType<Map<String, dynamic>>()
-              .map(CourseModel.fromJson)
+              .map(Course.fromJson)
               .toList();
         }
       }
@@ -155,7 +105,7 @@ class CoursesService {
     }
   }
 
-  Future<CourseModel> createCourse({
+  Future<Course> createCourse({
     required String title,
     required String category,
     required String institution,
@@ -202,24 +152,30 @@ class CoursesService {
       );
     }
     final data = body['data'] as Map<String, dynamic>? ?? body;
-    return CourseModel.fromJson(data);
+    return Course.fromJson(data);
   }
 
   Future<PaginatedCourseResourcesResponse> fetchCourseResources({
     required String courseId,
-    int page = 1,
-    int limit = 10,
+    String? cursor,
+    int limit = 25,
+    String sort = '-createdAt',
   }) async {
     final queryParameters = <String, String>{
-      'page': page.toString(),
       'limit': limit.toString(),
+      'sort': sort,
     };
+    if (cursor != null) {
+      queryParameters['cursor'] = cursor;
+    }
+
     final uri = Uri.parse(
       '$_baseUrl/resources/${Uri.encodeComponent(courseId)}',
     ).replace(
       queryParameters: queryParameters,
     );
-    final response = await _client.get(uri, headers: _headers);
+
+    final response = await _client.get(uri);
     if (response.statusCode != 200) {
       throw ApiException(
         ApiClient.extractMessage(response, fallback: 'Failed to fetch resources'),
@@ -240,9 +196,6 @@ class CoursesService {
     }
     return const PaginatedCourseResourcesResponse(
       data: [],
-      currentPage: 1,
-      totalPages: 1,
-      count: 0,
       total: 0,
     );
   }
@@ -373,11 +326,11 @@ class CoursesService {
     return const {};
   }
 
-  Future<List<dynamic>> fetchCourseMaterials(String courseId) async {
+  Future<List<AiMaterial>> fetchCourseMaterials(String courseId) async {
     final uri = Uri.parse(
       '$_baseUrl/courseMaterials/${Uri.encodeComponent(courseId)}',
     );
-    final response = await _client.get(uri, headers: _headers);
+    final response = await _client.get(uri);
     if (response.statusCode != 200) {
       throw ApiException(
         ApiClient.extractMessage(
@@ -398,11 +351,38 @@ class CoursesService {
         );
       }
       final data = body['data'];
-      if (data is List) return data;
+      if (data is List) {
+        return data.whereType<Map<String, dynamic>>().map(AiMaterial.fromJson).toList();
+      }
       if (data is Map<String, dynamic> && data['data'] is List) {
-        return data['data'] as List<dynamic>;
+        return (data['data'] as List)
+            .whereType<Map<String, dynamic>>()
+            .map(AiMaterial.fromJson)
+            .toList();
       }
     }
     return const [];
+  }
+
+  Future<String> fetchResourceContents(String courseId) async {
+    final uri = Uri.parse(
+      '$_baseUrl/resourceContents/${Uri.encodeComponent(courseId)}',
+    );
+    final response = await _client.get(uri);
+    if (response.statusCode != 200) {
+      throw ApiException(
+        ApiClient.extractMessage(
+          response,
+          fallback: 'Failed to fetch resource contents',
+        ),
+        statusCode: response.statusCode,
+        uri: uri,
+      );
+    }
+    final body = jsonDecode(response.body);
+    if (body is Map<String, dynamic> && body['success'] == true) {
+      return (body['data'] as String?) ?? '';
+    }
+    return '';
   }
 }

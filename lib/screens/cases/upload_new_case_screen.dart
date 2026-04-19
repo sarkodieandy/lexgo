@@ -2,10 +2,11 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/course.dart';
 import '../../providers/cases_provider.dart';
 import '../../providers/courses_provider.dart';
-import '../../services/courses_service.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/navigation/app_back_button.dart';
 
 class UploadNewCaseScreen extends StatefulWidget {
   const UploadNewCaseScreen({super.key});
@@ -21,7 +22,7 @@ class _UploadNewCaseScreenState extends State<UploadNewCaseScreen> {
   final _codeController = TextEditingController();
   final _courseIdController = TextEditingController();
   String? _category;
-  CourseModel? _selectedCourse;
+  Course? _selectedCourse;
   PlatformFile? _selectedFile;
   bool _isSubmitting = false;
 
@@ -225,7 +226,7 @@ class _UploadNewCaseScreenState extends State<UploadNewCaseScreen> {
             items: courses.map((course) {
               return DropdownMenuItem(
                 value: course.id,
-                child: Text('${course.title} (${course.courseCode})'),
+                child: Text('${course.title} (${course.code})'),
               );
             }).toList(),
             onChanged: (value) {
@@ -405,23 +406,7 @@ class _UploadNewCaseScreenState extends State<UploadNewCaseScreen> {
       color: AppColors.brandDark,
       child: Row(
         children: [
-          GestureDetector(
-            onTap: () => Navigator.of(context).maybePop(),
-            child: Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: AppColors.brandNavy,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Center(
-                child: Icon(
-                  Icons.arrow_back_ios_new,
-                  color: AppColors.brandWhite,
-                ),
-              ),
-            ),
-          ),
+          const AppBackButton(),
           const SizedBox(width: 16),
           const Text(
             'Upload Case',

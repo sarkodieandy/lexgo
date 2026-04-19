@@ -6,8 +6,8 @@ import '../../providers/cases_provider.dart';
 import '../../providers/home_provider.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/cases/case_card.dart';
-import '../../widgets/home/home_top_section.dart';
 import '../../widgets/sidebar.dart';
+import '../../widgets/navigation/app_back_button.dart';
 import 'cases_filter_screen.dart';
 import 'upload_new_case_screen.dart';
 
@@ -96,7 +96,6 @@ class _CasesScreenState extends State<CasesScreen> {
     final cases = casesProvider.cases;
     final hasError = casesProvider.error != null;
     return Scaffold(
-      drawer: const Sidebar(),
       backgroundColor: AppColors.brandDark,
       floatingActionButton: FloatingActionButton(
         onPressed: _openUploadCase,
@@ -220,6 +219,8 @@ class _CasesHeader extends StatelessWidget {
         children: [
           Row(
             children: [
+              const AppBackButton(),
+              const SizedBox(width: 12),
               const Text(
                 'Cases',
                 style: TextStyle(
@@ -229,7 +230,7 @@ class _CasesHeader extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              NotificationToggle(
+              _NotificationBadge(
                 count: homeProvider.notificationCount,
                 onTap: () => Scaffold.of(context).openDrawer(),
               ),
@@ -297,6 +298,43 @@ class _SearchRow extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _NotificationBadge extends StatelessWidget {
+  const _NotificationBadge({required this.count, required this.onTap});
+  final int count;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: const BoxDecoration(
+              color: AppColors.brandWhite,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.menu, color: AppColors.brandDark, size: 20),
+          ),
+          if (count > 0)
+            Positioned(
+              right: -4,
+              top: -4,
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                child: Text('$count', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700)),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

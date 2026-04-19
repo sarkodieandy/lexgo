@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
 import '../../theme/app_colors.dart';
-import '../home_screen.dart';
+import '../main_navigation_screen.dart';
 import 'login_screen.dart';
 
 class AuthGate extends StatelessWidget {
@@ -21,7 +21,7 @@ class AuthGate extends StatelessWidget {
       return const LoginScreen();
     }
 
-    return const HomeScreen();
+    return const MainNavigationScreen();
   }
 }
 

@@ -1,62 +1,38 @@
 import 'package:flutter/material.dart';
-
 import '../../models/home/quick_action.dart';
 import '../../theme/app_colors.dart';
 
 class HomeQuickActions extends StatelessWidget {
-  const HomeQuickActions({
-    super.key,
-    required this.actions,
-  });
+  const HomeQuickActions({super.key, required this.actions});
 
   final List<QuickAction> actions;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.brandWhite,
-        borderRadius: BorderRadius.circular(32),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x14000000),
-            blurRadius: 16,
-            offset: Offset(0, 8),
-          )
-        ],
-      ),
-      padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Quick Actions',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: AppColors.brandDark,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Quick Actions',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: AppColors.brandDark,
           ),
-          const SizedBox(height: 16),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final width = (constraints.maxWidth - 16) / 2;
-              return Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                children: actions
-                    .map(
-                      (action) => SizedBox(
-                        width: width,
-                        child: _QuickActionCard(action: action),
-                      ),
-                    )
-                    .toList(),
-              );
-            },
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 16),
+        GridView.count(
+          crossAxisCount: 2,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          mainAxisSpacing: 14,
+          crossAxisSpacing: 14,
+          childAspectRatio: 1.15,
+          children: actions
+              .map((action) => _QuickActionCard(action: action))
+              .toList(),
+        ),
+      ],
     );
   }
 }
@@ -68,42 +44,52 @@ class _QuickActionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.actionTile,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              color: action.background,
-              borderRadius: BorderRadius.circular(16),
+    return InkWell(
+      onTap: action.onTap,
+      borderRadius: BorderRadius.circular(18),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: AppColors.brandWhite,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x0A000000),
+              blurRadius: 10,
+              offset: Offset(0, 4),
             ),
-            child: Icon(action.icon, color: AppColors.brandDark),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            action.title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: AppColors.brandDark,
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 46,
+              height: 46,
+              decoration: BoxDecoration(
+                color: action.background,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(action.icon, color: action.iconColor ?? AppColors.brandDark, size: 22),
             ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            action.subtitle,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 12, color: AppColors.mutedText),
-          ),
-        ],
+            const SizedBox(height: 10),
+            Text(
+              action.title,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: AppColors.brandDark,
+              ),
+            ),
+            const SizedBox(height: 3),
+            Text(
+              action.subtitle,
+              style: const TextStyle(fontSize: 11, color: AppColors.mutedText),
+              maxLines: 2,
+            ),
+          ],
+        ),
       ),
     );
   }

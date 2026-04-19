@@ -2,7 +2,7 @@ abstract class ApiConfig {
   static const String _host = String.fromEnvironment(
     'API_HOST',
    
-    defaultValue: 'https://lexgo-bc-2.onrender.com/api',
+    defaultValue: 'https://api.lexg0.uk/api',
   );
   static const String _lecturerCasesPath = '/api/v1/LecturerCases';
   static const String _lecturerQuizPath = '/api/LecturerQuiz';

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-
 import '../../theme/app_colors.dart';
 
-/// Displays the dark header with the hero card and drawer trigger.
 class HomeTopSection extends StatelessWidget {
   const HomeTopSection({
     super.key,
@@ -19,52 +17,28 @@ class HomeTopSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      decoration: const BoxDecoration(color: AppColors.brandDark),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 24, 24, 28),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: AppColors.brandWhite,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Image.asset('assets/Union.png', fit: BoxFit.contain),
-                ),
-                const SizedBox(width: 16),
-                const Text(
-                  'Home',
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.brandWhite,
-                  ),
-                ),
-                const Spacer(),
-                NotificationToggle(count: notificationCount, onTap: onMenuTap),
-              ],
+      color: AppColors.brandDark,
+      padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
+      child: Row(
+        children: [
+          const Text(
+            'Home',
+            style: TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.w700,
+              color: AppColors.brandWhite,
             ),
-            const SizedBox(height: 20),
-            HomeHeroCard(userName: userName),
-          ],
-        ),
+          ),
+          const Spacer(),
+          _NotificationButton(count: notificationCount, onTap: onMenuTap),
+        ],
       ),
     );
   }
 }
 
-class NotificationToggle extends StatelessWidget {
-  const NotificationToggle({
-    super.key,
-    required this.count,
-    required this.onTap,
-  });
+class _NotificationButton extends StatelessWidget {
+  const _NotificationButton({required this.count, required this.onTap});
 
   final int count;
   final VoidCallback onTap;
@@ -73,48 +47,39 @@ class NotificationToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        width: 48,
-        height: 48,
-        decoration: BoxDecoration(
-          color: AppColors.brandWhite,
-          shape: BoxShape.circle,
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x22000000),
-              blurRadius: 12,
-              offset: Offset(0, 4),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: const BoxDecoration(
+              color: AppColors.brandWhite,
+              shape: BoxShape.circle,
             ),
-          ],
-        ),
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            const Center(
-              child: Icon(Icons.menu, color: AppColors.brandDark),
-            ),
-            if (count > 0)
-              Positioned(
-                right: -5,
-                top: -5,
-                child: Container(
-                  padding: const EdgeInsets.all(5),
-                  decoration: const BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Text(
-                    '$count',
-                    style: const TextStyle(
-                      color: AppColors.brandWhite,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                    ),
+            child: const Icon(Icons.menu, color: AppColors.brandDark, size: 22),
+          ),
+          if (count > 0)
+            Positioned(
+              right: -4,
+              top: -4,
+              child: Container(
+                padding: const EdgeInsets.all(5),
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
+                ),
+                child: Text(
+                  '$count',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }
@@ -129,28 +94,26 @@ class HomeHeroCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
         color: AppColors.brandNavy,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x40000000),
-            blurRadius: 20,
-            offset: Offset(0, 10),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Stack(
+        clipBehavior: Clip.none,
         children: [
+          // Decorative watermark on the right
           Positioned(
-            right: -10,
-            bottom: -10,
-            child: Image.asset(
-              'assets/Vector.png',
-              width: 120,
-              height: 120,
-              color: AppColors.brandWhite.withAlpha(51),
+            right: -8,
+            top: -8,
+            bottom: -8,
+            child: Opacity(
+              opacity: 0.15,
+              child: Image.asset(
+                'assets/Union.png',
+                width: 120,
+                fit: BoxFit.contain,
+              ),
             ),
           ),
           Column(
@@ -160,14 +123,18 @@ class HomeHeroCard extends StatelessWidget {
                 'Good Day, $userName',
                 style: const TextStyle(
                   color: AppColors.brandWhite,
-                  fontSize: 24,
+                  fontSize: 22,
                   fontWeight: FontWeight.w700,
                 ),
               ),
               const SizedBox(height: 8),
               const Text(
-                'Ready to inspire your students? Let’s make today productive.',
-                style: TextStyle(color: AppColors.brandAccent, fontSize: 14),
+                'Ready to inspire your students? Let\'s make today productive.',
+                style: TextStyle(
+                  color: Color(0xFFB0BAD4),
+                  fontSize: 13,
+                  height: 1.5,
+                ),
               ),
             ],
           ),
