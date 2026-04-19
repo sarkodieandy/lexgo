@@ -101,6 +101,8 @@ class QuizService {
     bool? shuffleQuestions,
     bool? shuffleAnswers,
     bool? showScoresImmediately,
+    int? numberOfQuestions,
+    String? difficultyLevel,
   }) async {
     final uri = Uri.parse('$_baseUrl/create/auto');
     final response = await _client.sendMultipart(() async {
@@ -130,6 +132,12 @@ class QuizService {
       if (showScoresImmediately != null) {
         request.fields['showScoresImmediately'] =
             showScoresImmediately.toString();
+      }
+      if (numberOfQuestions != null) {
+        request.fields['numberOfQuestions'] = numberOfQuestions.toString();
+      }
+      if (difficultyLevel != null) {
+        request.fields['difficultyLevel'] = difficultyLevel;
       }
 
       request.files.add(

@@ -3,6 +3,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/quiz/submission_record.dart';
+import '../../models/quiz/quiz_question.dart';
+import '../../providers/courses_provider.dart';
+import '../../providers/quiz_provider.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/quiz/analysis/analysis_tab.dart';
 import '../../widgets/quiz/submissions/submissions_tab.dart';
@@ -25,11 +28,8 @@ class _Quiz1State extends State<Quiz1> with SingleTickerProviderStateMixin {
     'Analysis',
   ];
   final List<String> setupOptions = ['Manual Creation', 'Upload Document'];
-  final List<String> courses = [
-    'LAW001 : Introduction to law',
-    'LAW002 : Fundamentals of Criminal law',
-  ];
-  final List<String> attemptOptions = ['1', '2', '3', '4', '5'];
+  String? selectedCourseId;
+  final List<String> attemptOptions = ['1', '2', '3', '4', '5', 'Unlimited'];
   final List<QuestionEntry> questionEntries = const [
     QuestionEntry(
       title: 'Question 1',
@@ -160,8 +160,7 @@ class _Quiz1State extends State<Quiz1> with SingleTickerProviderStateMixin {
   final TextEditingController _instructionController = TextEditingController(
     text: 'Brief description of what the quiz covers...',
   );
-  int durationHours = 3;
-  int durationMinutes = 20;
+  int durationMinutesLabel = 45;
   DateTime startDate = DateTime.now();
   DateTime endDate = DateTime.now().add(const Duration(days: 7));
   TimeOfDay startTime = const TimeOfDay(hour: 10, minute: 0);
@@ -176,12 +175,14 @@ class _Quiz1State extends State<Quiz1> with SingleTickerProviderStateMixin {
 
   bool get _isManualMode => selectedSetup == 'Manual Creation';
 
-  String get durationLabel =>
-      '${durationHours.toString().padLeft(2, '0')} : ${durationMinutes.toString().padLeft(2, '0')}';
+  String get durationLabel => '$durationMinutesLabel minutes';
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<CoursesProvider>().loadCourses();
+    });
     manualQuestions.addAll([
       ManualQuestion(
         id: 1,
@@ -315,9 +316,7 @@ class _Quiz1State extends State<Quiz1> with SingleTickerProviderStateMixin {
             ),
           ),
           GestureDetector(
-            onTap: () => Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (_) => const ReviewQuizScreen())),
+            onTap: _publishQuiz,
             child: Container(
               width: 44,
               height: 44,
@@ -454,14 +453,7 @@ class _Quiz1State extends State<Quiz1> with SingleTickerProviderStateMixin {
               required: true,
             ),
             const SizedBox(height: 12),
-            _buildDropdownField(
-              label: 'Course',
-              value: selectedCourse,
-              items: courses,
-              onChanged: (value) => setState(() {
-                selectedCourse = value;
-              }),
-            ),
+            _buildCourseDropdown(),
             const SizedBox(height: 12),
             _buildTextField(
               label: 'Description / Instruction',
@@ -1778,5 +1770,147 @@ class _SelectDurationDialogState extends State<_SelectDurationDialog> {
         ),
       ),
     );
+  }
+
+  Widget _buildCourseDropdown() {
+    final coursesProvider = context.watch<CoursesProvider>();
+    final courses = coursesProvider.courses;
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Course *',
+          style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.brandDark),
+        ),
+        const SizedBox(height: 6),
+        if (coursesProvider.isLoading)
+          const LinearProgressIndicator()
+        else
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8F9FD),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: selectedCourseId,
+                isExpanded: true,
+                hint: const Text('Select a course'),
+                items: courses.map((course) {
+                  return DropdownMenuItem(
+                    value: course.id,
+                    child: Text('${course.code}: ${course.title}'),
+                  );
+                }).toList(),
+                onChanged: (value) => setState(() => selectedCourseId = value),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Future<void> _publishQuiz() async {
+    if (selectedCourseId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a course')),
+      );
+      return;
+    }
+
+    final title = _quizTitleController.text.trim();
+    if (title.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a quiz title')),
+      );
+      return;
+    }
+
+    setState(() => _isGenerating = true); 
+    try {
+      final quizProvider = context.read<QuizProvider>();
+      final startTimeDateTime = DateTime(
+        startDate.year,
+        startDate.month,
+        startDate.day,
+        startTime.hour,
+        startTime.minute,
+      );
+      final endTimeDateTime = DateTime(
+        endDate.year,
+        endDate.month,
+        endDate.day,
+        endTime.hour,
+        endTime.minute,
+      );
+
+      final attempts = selectedAttempts == 'Unlimited' ? -1 : int.tryParse(selectedAttempts) ?? 1;
+
+      if (_isManualMode) {
+        final payloadQuestions = manualQuestions.map((q) => {
+          'question': q.textController.text.trim(),
+          'options': q.options.map((o) => o.textController.text.trim()).toList(),
+          'correctAnswer': q.options.firstWhere((o) => o.isCorrect).textController.text.trim(),
+          'explanation': '',
+          'mark': 1,
+        }).toList();
+
+        await quizProvider.createManualQuiz(
+          courseId: selectedCourseId!,
+          title: title,
+          description: _instructionController.text.trim(),
+          quizDurationMinutes: durationMinutesLabel,
+          quizStartTime: startTimeDateTime,
+          quizEndTime: endTimeDateTime,
+          attempts: attempts,
+          shuffleQuestions: shuffleQuestions,
+          shuffleAnswers: shuffleAnswers,
+          showScoresImmediately: showScoresImmediately,
+          questions: payloadQuestions,
+        );
+      } else {
+        if (selectedDocument == null) {
+          throw Exception('Please upload a document first');
+        }
+        await quizProvider.createAutoQuiz(
+          courseId: selectedCourseId!,
+          title: title,
+          description: _instructionController.text.trim(),
+          documentPath: selectedDocument!.path!,
+          quizDurationMinutes: durationMinutesLabel,
+          quizStartTime: startTimeDateTime,
+          quizEndTime: endTimeDateTime,
+          attempts: attempts,
+          shuffleQuestions: shuffleQuestions,
+          shuffleAnswers: shuffleAnswers,
+          showScoresImmediately: showScoresImmediately,
+        );
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Quiz published successfully!')),
+        );
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to publish quiz: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isGenerating = false);
+    }
+  }
+
+  String _formatFileSize(int bytes) {
+    if (bytes <= 0) return '0 B';
+    const suffixes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    var i = (bytes.toString().length - 1) ~/ 3;
+    var value = bytes / (1 << (i * 10));
+    return '${value.toStringAsFixed(1)} ${suffixes[i]}';
   }
 }

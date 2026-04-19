@@ -5,7 +5,8 @@ abstract class ApiConfig {
     defaultValue: 'https://api.lexg0.uk/api',
   );
   static const String _lecturerCasesPath = '/api/v1/LecturerCases';
-  static const String _lecturerQuizPath = '/api/LecturerQuiz';
+  static const String _lecturerQuizPath = '/api/v1/LecturerQuiz';
+  static const String _studentQuizPath = '/api/StudentQuiz';
   static const String _coursesPath = '/api/Courses';
   static const String _subLecturerPath = '/api/SubLecturer';
   static const String _notesPath = '/api/Notes';
@@ -31,6 +32,9 @@ abstract class ApiConfig {
 
   /// Base URL for all lecturer quiz endpoints.
   static String get quizBaseUrl => '$host$_lecturerQuizPath';
+
+  /// Base URL for all student quiz endpoints.
+  static String get studentQuizBaseUrl => '$host$_studentQuizPath';
 
   /// Base URL for course endpoints.
   static String get coursesBaseUrl => '$host$_coursesPath';

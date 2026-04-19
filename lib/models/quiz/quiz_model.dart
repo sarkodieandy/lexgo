@@ -1,3 +1,5 @@
+import 'quiz_question.dart';
+
 class QuizModel {
   const QuizModel({
     required this.id,
@@ -11,6 +13,11 @@ class QuizModel {
     this.questionCount,
     this.attempts,
     this.isPublished,
+    this.shuffleQuestions = false,
+    this.shuffleAnswers = false,
+    this.showScoresImmediately = true,
+    this.questions = const [],
+    this.grade,
   });
 
   final String id;
@@ -24,6 +31,11 @@ class QuizModel {
   final int? questionCount;
   final int? attempts;
   final bool? isPublished;
+  final bool shuffleQuestions;
+  final bool shuffleAnswers;
+  final bool showScoresImmediately;
+  final List<QuizQuestion> questions;
+  final QuizGrade? grade;
 
   factory QuizModel.fromJson(Map<String, dynamic> json) {
     DateTime? parseDate(String? value) {
@@ -65,7 +77,7 @@ class QuizModel {
     }
 
     return QuizModel(
-      id: json['_id'] as String? ?? '',
+      id: json['_id'] as String? ?? json['id'] as String? ?? '',
       title: json['title'] as String? ?? 'Untitled Quiz',
       description: json['description'] as String?,
       courseId: parseCourseId(json['courseId'] ?? json['course']),
@@ -75,9 +87,40 @@ class QuizModel {
       quizEndTime: parseDate(json['quizEndTime'] as String?),
       durationMinutes: parseInt(json['quizDuration']),
       questionCount:
-          parseQuestionCount(json['questionCount'] ?? json['questions']),
+          parseQuestionCount(json['questions'] ?? json['questionCount']),
       attempts: parseInt(json['attempts']),
       isPublished: json['isPublished'] as bool?,
+      shuffleQuestions: json['shuffleQuestions'] as bool? ?? false,
+      shuffleAnswers: json['shuffleAnswers'] as bool? ?? false,
+      showScoresImmediately: json['showScoresImmediately'] as bool? ?? true,
+      questions: (json['questions'] as List<dynamic>?)
+              ?.map((e) => QuizQuestion.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
+      grade: json['grade'] != null
+          ? QuizGrade.fromJson(json['grade'] as Map<String, dynamic>)
+          : null,
     );
+  }
+}
+
+class QuizGrade {
+  final int markPerQuestion;
+  final int totalMarks;
+
+  const QuizGrade({required this.markPerQuestion, required this.totalMarks});
+
+  factory QuizGrade.fromJson(Map<String, dynamic> json) {
+    return QuizGrade(
+      markPerQuestion: (json['markPerQuestion'] as num?)?.toInt() ?? 1,
+      totalMarks: (json['totalMarks'] as num?)?.toInt() ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'markPerQuestion': markPerQuestion,
+      'totalMarks': totalMarks,
+    };
   }
 }

@@ -6,6 +6,7 @@ import 'providers/cases_provider.dart';
 import 'providers/course_assignments_provider.dart';
 import 'providers/courses_provider.dart';
 import 'providers/home_provider.dart';
+import 'providers/quiz_participation_provider.dart';
 import 'providers/quiz_provider.dart';
 import 'screens/auth/auth_gate.dart';
 import 'theme/app_theme.dart';
@@ -33,6 +34,7 @@ class LexGoApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CasesProvider()),
         ChangeNotifierProvider(create: (_) => CoursesProvider()),
         ChangeNotifierProvider(create: (_) => QuizProvider()),
+        ChangeNotifierProvider(create: (_) => QuizParticipationProvider()),
         ChangeNotifierProvider(create: (_) => AnalysisProvider()),
       ],
       child: MaterialApp(
