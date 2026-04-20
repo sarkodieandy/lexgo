@@ -67,6 +67,22 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           shape: const CircleBorder(),
           child: const Icon(Icons.add, color: Colors.white, size: 32),
         );
+      case 2: // Quiz
+        return FloatingActionButton(
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const Quiz1()),
+          ),
+          backgroundColor: Colors.black,
+          shape: const CircleBorder(),
+          child: const Icon(Icons.add, color: Colors.white, size: 30),
+        );
+      case 3: // Courses
+        return FloatingActionButton(
+          onPressed: _openCreateCourseSheet,
+          backgroundColor: Colors.black,
+          shape: const CircleBorder(),
+          child: const Icon(Icons.add, color: Colors.white, size: 30),
+        );
       default:
         return null;
     }

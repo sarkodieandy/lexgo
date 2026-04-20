@@ -287,172 +287,162 @@ class _CoursesState extends State<Courses> {
     final homeProvider = context.watch<HomeProvider>();
     final courses = _getFilteredCourses(provider.courses);
 
-    return Scaffold(
-      backgroundColor: AppColors.brandDark,
-      body: Column(
-        children: [
-          // Header Section
-          Container(
-            padding: const EdgeInsets.fromLTRB(28, 48, 28, 24),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Courses',
-                  style: TextStyle(
-                    color: AppColors.brandWhite,
-                    fontSize: 32,
-                    fontWeight: FontWeight.w700,
-                  ),
+    return Column(
+      children: [
+        // Header Section
+        Container(
+          padding: const EdgeInsets.fromLTRB(28, 48, 28, 24),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Courses',
+                style: TextStyle(
+                  color: AppColors.brandWhite,
+                  fontSize: 32,
+                  fontWeight: FontWeight.w700,
                 ),
-                Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Builder(
-                      builder: (context) => GestureDetector(
-                        onTap: () => Scaffold.of(context).openDrawer(),
+              ),
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Builder(
+                    builder: (context) => GestureDetector(
+                      onTap: () => Scaffold.of(context).openDrawer(),
+                      child: Container(
+                        width: 52,
+                        height: 52,
+                        decoration: const BoxDecoration(
+                          color: AppColors.brandWhite,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.menu,
+                          color: Color(0xFF0D0D0D),
+                          size: 24,
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (homeProvider.notificationCount > 0)
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: Container(
+                        width: 18,
+                        height: 18,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFFF3D71),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Text(
+                            '${homeProvider.notificationCount}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+
+        // Content Area
+        Expanded(
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+            ),
+            child: Column(
+              children: [
+                const SizedBox(height: 24),
+                // Search & Filter Bar
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          height: 52,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF2F4F7),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: TextField(
+                            controller: _searchController,
+                            onChanged: (_) => setState(() {}),
+                            decoration: const InputDecoration(
+                              prefixIcon: Icon(
+                                Icons.search,
+                                color: Color(0xFF98A2B3),
+                                size: 22,
+                              ),
+                              hintText: 'Search Courses..',
+                              hintStyle: TextStyle(
+                                color: Color(0xFF98A2B3),
+                                fontSize: 16,
+                              ),
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(vertical: 15),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      GestureDetector(
+                        onTap: _showFilterSheet,
                         child: Container(
                           width: 52,
                           height: 52,
-                          decoration: const BoxDecoration(
-                            color: AppColors.brandWhite,
-                            shape: BoxShape.circle,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0D253F),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Icon(
-                            Icons.menu,
-                            color: Color(0xFF0D0D0D),
+                            Icons.tune,
+                            color: Colors.white,
                             size: 24,
                           ),
                         ),
                       ),
-                    ),
-                    if (homeProvider.notificationCount > 0)
-                      Positioned(
-                        top: 0,
-                        right: 0,
-                        child: Container(
-                          width: 18,
-                          height: 18,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFFF3D71),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Center(
-                            child: Text(
-                              '${homeProvider.notificationCount}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _buildActiveFilterRow(),
+                const SizedBox(height: 8),
+
+                // Courses List
+                Expanded(
+                  child: provider.isLoading && provider.courses.isEmpty
+                      ? const Center(child: CircularProgressIndicator())
+                      : RefreshIndicator(
+                          onRefresh: () => provider.loadCourses(),
+                          child: courses.isEmpty
+                              ? const Center(child: Text('No courses found'))
+                              : ListView.builder(
+                                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+                                  itemCount: courses.length,
+                                  physics: const BouncingScrollPhysics(),
+                                  itemBuilder: (context, index) {
+                                    final course = courses[index];
+                                    return _buildCourseCard(course, index == 0);
+                                  },
+                                ),
                         ),
-                      ),
-                  ],
                 ),
               ],
             ),
           ),
-
-          // Content Area
-          Expanded(
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-              ),
-              child: Column(
-                children: [
-                  const SizedBox(height: 24),
-                  // Search & Filter Bar
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            height: 52,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF2F4F7),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: TextField(
-                              controller: _searchController,
-                              onChanged: (_) => setState(() {}),
-                              decoration: const InputDecoration(
-                                prefixIcon: Icon(
-                                  Icons.search,
-                                  color: Color(0xFF98A2B3),
-                                  size: 22,
-                                ),
-                                hintText: 'Search Courses..',
-                                hintStyle: TextStyle(
-                                  color: Color(0xFF98A2B3),
-                                  fontSize: 16,
-                                ),
-                                border: InputBorder.none,
-                                contentPadding: EdgeInsets.symmetric(vertical: 15),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        GestureDetector(
-                          onTap: _showFilterSheet,
-                          child: Container(
-                            width: 52,
-                            height: 52,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF0D253F),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Icon(
-                              Icons.tune,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildActiveFilterRow(),
-                  const SizedBox(height: 8),
-
-                  // Courses List
-                  Expanded(
-                    child: provider.isLoading && provider.courses.isEmpty
-                        ? const Center(child: CircularProgressIndicator())
-                        : RefreshIndicator(
-                            onRefresh: () => provider.loadCourses(),
-                            child: courses.isEmpty
-                                ? const Center(child: Text('No courses found'))
-                                : ListView.builder(
-                                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-                                    itemCount: courses.length,
-                                    physics: const BouncingScrollPhysics(),
-                                    itemBuilder: (context, index) {
-                                      final course = courses[index];
-                                      return _buildCourseCard(course, index == 0);
-                                    },
-                                  ),
-                          ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-      drawer: Sidebar(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _openCreateCourseSheet,
-        backgroundColor: const Color(0xFF0D0D0D),
-        shape: const CircleBorder(),
-        child: const Icon(Icons.add, color: Colors.white, size: 30),
-      ),
+        ),
+      ],
     );
   }
 

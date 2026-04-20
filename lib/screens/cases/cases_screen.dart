@@ -247,7 +247,9 @@ class _CasesHeader extends StatelessWidget {
         children: [
           Row(
             children: [
-              const AppBackButton(),
+              AppBackButton(
+                onTap: () => context.read<HomeProvider>().updateTabIndex(0),
+              ),
               const SizedBox(width: 12),
               const Text(
                 'Cases',

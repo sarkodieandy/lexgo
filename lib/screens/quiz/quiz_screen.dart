@@ -33,37 +33,23 @@ class _QuizScreenState extends State<QuizScreen> {
     final homeProvider = context.watch<HomeProvider>();
     final quizzes = quizProvider.quizItems;
 
-    return Scaffold(
-      backgroundColor: AppColors.brandDark,
-      body: Column(
-        children: [
-          const _Header(),
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(32),
-                  topRight: Radius.circular(32),
-                ),
+    return Column(
+      children: [
+        const _Header(),
+        Expanded(
+          child: Container(
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(32),
+                topRight: Radius.circular(32),
               ),
-              child: _buildQuizList(quizzes, quizProvider),
             ),
+            child: _buildQuizList(quizzes, quizProvider),
           ),
-        ],
-      ),
-      drawer: Sidebar(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const Quiz1()),
-          );
-        },
-        backgroundColor: const Color(0xFF0D0D0D),
-        shape: const CircleBorder(),
-        child: const Icon(Icons.add, color: Colors.white, size: 30),
-      ),
+        ),
+      ],
     );
   }
 

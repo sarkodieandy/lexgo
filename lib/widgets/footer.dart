@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../providers/auth_provider.dart';
 import '../theme/app_colors.dart';
 
 class Footer extends StatelessWidget {
@@ -33,28 +35,36 @@ class Footer extends StatelessWidget {
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Text(
-                      'Dr.Johnson Coffie',
-                      style: TextStyle(
-                        color: AppColors.brandDark,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Lecturer',
-                      style: TextStyle(
-                        color: AppColors.mutedText,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ],
+                child: Consumer<AuthProvider>(
+                  builder: (context, auth, _) {
+                    final role = auth.currentUser?.role ?? 'Lecturer';
+                    final roleText = role.isNotEmpty 
+                        ? role[0].toUpperCase() + role.substring(1)
+                        : 'Lecturer';
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          auth.displayName,
+                          style: const TextStyle(
+                            color: AppColors.brandDark,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          roleText,
+                          style: const TextStyle(
+                            color: AppColors.mutedText,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
             ],

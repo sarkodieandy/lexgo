@@ -114,7 +114,15 @@ class Sidebar extends StatelessWidget {
 
   void _navigate(BuildContext context, SidebarItem item) {
     final nav = context.read<HomeProvider>();
-    Navigator.of(context).pop();
+    final isTab = ['Home', 'Cases', 'Quiz', 'Courses'].contains(item.label);
+
+    if (isTab) {
+      // Pop until the root to ensure we see the MainNavigationScreen
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    } else {
+      // Just pop the drawer
+      Navigator.of(context).pop();
+    }
 
     switch (item.label) {
       case 'Home':

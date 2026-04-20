@@ -57,33 +57,15 @@ class HomeScreen extends StatelessWidget {
                         onTap: () {
                           switch (action.title) {
                             case 'Create Quiz':
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => const QuizScreen(),
-                                ),
-                              );
-                              break;
-                            case 'Submissions':
                             case 'Quiz':
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => const QuizScreen(),
-                                ),
-                              );
+                            case 'Submissions':
+                              provider.updateTabIndex(2);
                               break;
                             case 'View Cases':
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => const CasesScreen(),
-                                ),
-                              );
+                              provider.updateTabIndex(1);
                               break;
                             case 'Upload Material':
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => const Courses(autoOpenCreate: true),
-                                ),
-                              );
+                              provider.updateTabIndex(3);
                               break;
                             default:
                               debugPrint('No navigation for ${action.title}');

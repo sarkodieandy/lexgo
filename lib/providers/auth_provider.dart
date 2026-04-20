@@ -41,19 +41,37 @@ class AuthProvider extends ChangeNotifier {
   User? _currentUser;
   User? get currentUser => _currentUser;
 
-  String get userName => _currentUser?.firstName ?? 'Dr.';
+  String get displayName {
+    final name = _currentUser?.fullName;
+    return (name != null && name.trim().isNotEmpty) ? 'Dr. $name' : 'Dr.';
+  }
+
+  String get userName {
+    final name = _currentUser?.fullName;
+    return (name != null && name.trim().isNotEmpty) ? name : 'Dr.';
+  }
 
   String? _error;
   String? get error => _error;
 
   Future<void> _bootstrap() async {
     await ApiClient.shared.init();
-    if (_isAuthenticated || ApiClient.shared.authHeaders.isNotEmpty) {
+    
+    final hasToken = ApiClient.shared.authHeaders.isNotEmpty;
+    if (hasToken) {
+      _isAuthenticated = true;
       _isBootstrapping = false;
       notifyListeners();
+      
+      // Optionally fetch user info here if needed
+      try {
+        _currentUser = await _service.refreshSession();
+      } catch (e) {
+        debugPrint('[AuthProvider] session refresh failed: $e');
+      }
       return;
     }
-
+ 
     _error = null;
     notifyListeners();
     try {
