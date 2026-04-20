@@ -13,27 +13,34 @@ class AppBottomNavigation extends StatelessWidget {
   final ValueChanged<int>? onTap;
 
   static const _items = [
-    _NavigationItem(icon: Icons.home_outlined, label: 'Home'),
-    _NavigationItem(icon: Icons.business_center_outlined, label: 'Cases'),
-    _NavigationItem(icon: Icons.access_time_outlined, label: 'Quiz'),
-    _NavigationItem(icon: Icons.auto_stories_outlined, label: 'Courses'),
+    _NavigationItem(icon: Icons.home_filled, label: 'Home'),
+    _NavigationItem(icon: Icons.work_outline, label: 'Cases'),
+    _NavigationItem(icon: Icons.access_time, label: 'Quiz'),
+    _NavigationItem(icon: Icons.menu_book_outlined, label: 'courses'),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 82,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-      decoration: const BoxDecoration(
-        border: Border(top: BorderSide(color: AppColors.border)),
+      height: 80,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
         color: AppColors.brandWhite,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(10),
+            blurRadius: 4,
+            offset: const Offset(0, -2),
+          ),
+        ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: List.generate(_items.length, (index) {
           final item = _items[index];
           return Expanded(
-            child: InkWell(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
               onTap: () => onTap?.call(index),
               child: _AppNavItem(
                 icon: item.icon,
@@ -68,18 +75,24 @@ class _AppNavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? AppColors.brandBlue : AppColors.mutedText;
+    final color = selected ? Colors.black : const Color(0xFF868282);
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, color: color),
-        const SizedBox(height: 4),
+        Icon(
+          icon,
+          color: color,
+          size: 28,
+        ),
+        const SizedBox(height: 6),
         Text(
           label,
           style: TextStyle(
             color: color,
-            fontSize: 12,
-            fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+            fontSize: 14,
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+            letterSpacing: 0.2,
           ),
         ),
       ],

@@ -279,46 +279,41 @@ class _CoursesState extends State<Courses> {
   Widget build(BuildContext context) {
     final provider = context.watch<CoursesProvider>();
     final courses = _getFilteredCourses(provider.courses);
-    return Scaffold(
-      backgroundColor: AppColors.brandWhite,
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: AppColors.brandDark,
-        onPressed: _openCreateCourseSheet,
-        child: const Icon(Icons.add, color: AppColors.brandWhite),
-      ),
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              color: AppColors.brandDark,
-              padding: const EdgeInsets.fromLTRB(16, 20, 24, 18),
-              child: Row(
-                children: [
-                  const AppBackButton(),
-                  const SizedBox(width: 16),
-                  const Text(
-                    'Courses',
-                    style: TextStyle(
-                      color: AppColors.brandWhite,
-                      fontSize: 28,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const Spacer(),
-                  Container(
-                    width: 48,
-                    height: 48,
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppColors.brandWhite,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Image.asset('assets/Union.png', fit: BoxFit.contain),
-                  ),
-                ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          color: AppColors.brandDark,
+          padding: const EdgeInsets.fromLTRB(16, 20, 24, 18),
+          child: Row(
+            children: [
+              const AppBackButton(),
+              const SizedBox(width: 16),
+              const Text(
+                'Courses',
+                style: TextStyle(
+                  color: AppColors.brandWhite,
+                  fontSize: 28,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
-            ),
+              const Spacer(),
+              GestureDetector(
+                onTap: () => Scaffold.of(context).openDrawer(),
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.brandWhite,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Image.asset('assets/Union.png', fit: BoxFit.contain),
+                ),
+              ),
+            ],
+          ),
+        ),
             const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -515,8 +510,6 @@ class _CoursesState extends State<Courses> {
                 ),
               ),
           ],
-        ),
-      ),
-    );
+        );
   }
 }

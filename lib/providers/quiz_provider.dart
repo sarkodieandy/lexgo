@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 
 import '../models/quiz/quiz_model.dart';
+import '../models/quiz/submission_record.dart';
 import '../models/quiz_item.dart';
 import '../services/quiz_service.dart';
 import '../services/student_quiz_service.dart';
@@ -15,6 +16,7 @@ class QuizProvider extends ChangeNotifier {
   final QuizService _service;
   final StudentQuizService _studentService;
   final List<QuizModel> _quizzes = [];
+  final List<SubmissionRecord> _submissions = [];
   bool _isLoading = false;
   bool _isActionLoading = false;
   String? _error;
@@ -23,6 +25,7 @@ class QuizProvider extends ChangeNotifier {
       UnmodifiableListView(_quizzes.map(QuizItem.fromModel).toList());
 
   List<QuizModel> get quizzes => List.unmodifiable(_quizzes);
+  List<SubmissionRecord> get submissions => List.unmodifiable(_submissions);
   bool get isLoading => _isLoading;
   bool get isActionLoading => _isActionLoading;
   String? get error => _error;
@@ -159,5 +162,22 @@ class QuizProvider extends ChangeNotifier {
   /// For Students: Fetches full details including questions (correct answer stripped by backend)
   Future<QuizModel> getStudentQuizDetails(String quizId) async {
     return await _studentService.getQuizDetails(quizId);
+  }
+
+  Future<void> loadSubmissions(String quizId) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      final items = await _service.fetchQuizSubmissions(quizId);
+      _submissions
+        ..clear()
+        ..addAll(items);
+    } catch (err) {
+      _error = err.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 }

@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'api_config.dart';
 import 'api_client.dart';
 import '../models/quiz/quiz_model.dart';
+import '../models/quiz/submission_record.dart';
 
 class QuizService {
   QuizService({ApiClient? client, String? baseUrl, String? authToken})
@@ -272,6 +273,46 @@ class QuizService {
         statusCode: response.statusCode,
         uri: uri,
       );
+  }
+
+  Future<List<SubmissionRecord>> fetchQuizSubmissions(String quizId) async {
+    final uri = Uri.parse('$_baseUrl/submissions/${Uri.encodeComponent(quizId)}');
+    final response = await _client.get(uri, headers: _headers);
+    
+    if (response.statusCode != 200) {
+      throw ApiException(
+        ApiClient.extractMessage(response, fallback: 'Failed to fetch quiz submissions'),
+        statusCode: response.statusCode,
+        uri: uri,
+      );
     }
+    
+    final body = jsonDecode(response.body);
+    if (body is Map<String, dynamic> && body['success'] == true) {
+      final data = body['data'];
+      if (data is List) {
+        return data.map((e) => SubmissionRecord.fromJson(e)).toList();
+      }
+    }
+    return [];
+  }
+
+  Future<Map<String, dynamic>> fetchQuizAnalysis(String quizId) async {
+    final uri = Uri.parse('$_baseUrl/results/${Uri.encodeComponent(quizId)}');
+    final response = await _client.get(uri, headers: _headers);
+    
+    if (response.statusCode != 200) {
+      throw ApiException(
+        ApiClient.extractMessage(response, fallback: 'Failed to fetch quiz analysis'),
+        statusCode: response.statusCode,
+        uri: uri,
+      );
+    }
+    
+    final body = jsonDecode(response.body);
+    if (body is Map<String, dynamic> && body['success'] == true) {
+      return body['data'] as Map<String, dynamic>? ?? {};
+    }
+    return {};
   }
 }

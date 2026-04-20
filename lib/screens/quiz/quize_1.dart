@@ -1,6 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../models/quiz/submission_record.dart';
 import '../../models/quiz/quiz_question.dart';
@@ -12,9 +13,10 @@ import '../../widgets/quiz/submissions/submissions_tab.dart';
 import 'review_quiz_screen.dart';
 
 class Quiz1 extends StatefulWidget {
-  const Quiz1({super.key, this.title = 'Quiz one'});
+  const Quiz1({super.key, this.title = 'Quiz one', this.quizId});
 
   final String title;
+  final String? quizId;
 
   @override
   State<Quiz1> createState() => _Quiz1State();
@@ -160,6 +162,8 @@ class _Quiz1State extends State<Quiz1> with SingleTickerProviderStateMixin {
   final TextEditingController _instructionController = TextEditingController(
     text: 'Brief description of what the quiz covers...',
   );
+  int durationHours = 0;
+  int durationMinutes = 45;
   int durationMinutesLabel = 45;
   DateTime startDate = DateTime.now();
   DateTime endDate = DateTime.now().add(const Duration(days: 7));
@@ -167,7 +171,7 @@ class _Quiz1State extends State<Quiz1> with SingleTickerProviderStateMixin {
   TimeOfDay endTime = const TimeOfDay(hour: 12, minute: 0);
   PlatformFile? selectedDocument;
   DateTime? documentUploadTime;
-  bool _isGenerating = false;
+  bool _isPublishing = false;
   bool _hasGenerated = false;
   final bool _isCreatingQuiz = true;
   late final AnimationController _shimmerController;
@@ -271,7 +275,7 @@ class _Quiz1State extends State<Quiz1> with SingleTickerProviderStateMixin {
               ],
             ),
           ),
-          if (_isGenerating) _buildLoadingOverlay(),
+          if (_isPublishing) _buildLoadingOverlay(),
         ],
       ),
     );
@@ -365,7 +369,7 @@ class _Quiz1State extends State<Quiz1> with SingleTickerProviderStateMixin {
           final selected = index == activeTab;
           return Expanded(
             child: GestureDetector(
-              onTap: () => setState(() => activeTab = index),
+              onTap: () => _onTabChanged(index),
               child: Column(
                 children: [
                   FittedBox(
@@ -405,15 +409,51 @@ class _Quiz1State extends State<Quiz1> with SingleTickerProviderStateMixin {
         }).toList(),
       ),
     );
+  void _onTabChanged(int index) {
+    setState(() => activeTab = index);
+    
+    if (widget.quizId == null) return;
+    
+    if (index == 2) {
+      // Submissions tab
+      context.read<QuizProvider>().loadSubmissions(widget.quizId!);
+    } else if (index == 3) {
+      // Analysis tab
+      context.read<AnalysisProvider>().loadAnalysis(widget.quizId!);
+    }
   }
 
   Widget _buildTabContent() {
     if (activeTab == 0) return _buildQuestionsTab();
     if (activeTab == 1) return _buildSettingsContent();
+    
     if (activeTab == 2) {
-      return SubmissionsTab(submissions: submissions);
+      final quizProvider = context.watch<QuizProvider>();
+      if (quizProvider.isLoading) {
+        return const Center(
+          child: Padding(
+            padding: EdgeInsets.only(top: 100),
+            child: CircularProgressIndicator(color: AppColors.brandDark),
+          ),
+        );
+      }
+      return SubmissionsTab(submissions: quizProvider.submissions);
     }
-    return const AnalysisTab();
+    
+    if (activeTab == 3) {
+      final analysisProvider = context.watch<AnalysisProvider>();
+      if (analysisProvider.isLoading) {
+        return const Center(
+          child: Padding(
+            padding: EdgeInsets.only(top: 100),
+            child: CircularProgressIndicator(color: AppColors.brandDark),
+          ),
+        );
+      }
+      return const AnalysisTab();
+    }
+    
+    return const SizedBox.shrink();
   }
 
   Widget _buildQuestionsTab() {
@@ -671,7 +711,7 @@ class _Quiz1State extends State<Quiz1> with SingleTickerProviderStateMixin {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _isGenerating ? null : _startGeneration,
+                onPressed: _isPublishing ? null : _startGeneration,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.brandDark,
                   shape: RoundedRectangleBorder(
@@ -786,11 +826,11 @@ class _Quiz1State extends State<Quiz1> with SingleTickerProviderStateMixin {
   }
 
   void _startGeneration() async {
-    setState(() => _isGenerating = true);
+    setState(() => _isPublishing = true);
     await Future.delayed(const Duration(seconds: 3));
     if (!mounted) return;
     setState(() {
-      _isGenerating = false;
+      _isPublishing = false;
       _hasGenerated = true;
     });
   }
@@ -1298,7 +1338,7 @@ class _Quiz1State extends State<Quiz1> with SingleTickerProviderStateMixin {
         Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          initialValue: value,
+          value: value,
           isExpanded: true,
           dropdownColor: AppColors.brandWhite,
           onChanged: (value) {
@@ -1554,6 +1594,141 @@ class _Quiz1State extends State<Quiz1> with SingleTickerProviderStateMixin {
       ),
     );
   }
+
+  Widget _buildCourseDropdown() {
+    final coursesProvider = context.watch<CoursesProvider>();
+    final courses = coursesProvider.courses;
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Course *',
+          style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.brandDark),
+        ),
+        const SizedBox(height: 6),
+        if (coursesProvider.isLoading)
+          const LinearProgressIndicator()
+        else
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8F9FD),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: selectedCourseId,
+                isExpanded: true,
+                hint: const Text('Select a course'),
+                items: courses.map((course) {
+                  return DropdownMenuItem(
+                    value: course.id,
+                    child: Text('${course.code}: ${course.title}'),
+                  );
+                }).toList(),
+                onChanged: (value) => setState(() => selectedCourseId = value),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Future<void> _publishQuiz() async {
+    if (selectedCourseId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a course')),
+      );
+      return;
+    }
+
+    final title = _quizTitleController.text.trim();
+    if (title.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a quiz title')),
+      );
+      return;
+    }
+
+    setState(() => _isPublishing = true); 
+    try {
+      final quizProvider = context.read<QuizProvider>();
+      final startTimeDateTime = DateTime(
+        startDate.year,
+        startDate.month,
+        startDate.day,
+        startTime.hour,
+        startTime.minute,
+      );
+      final endTimeDateTime = DateTime(
+        endDate.year,
+        endDate.month,
+        endDate.day,
+        endTime.hour,
+        endTime.minute,
+      );
+
+      final attempts = selectedAttempts == 'Unlimited' ? -1 : int.tryParse(selectedAttempts) ?? 1;
+
+      if (_isManualMode) {
+        final payloadQuestions = manualQuestions.map((q) => {
+          'question': q.textController.text.trim(),
+          'options': q.options.map((o) => o.controller.text.trim()).toList(),
+          'correctAnswer': q.options.firstWhere((o) => o.isCorrect).controller.text.trim(),
+          'explanation': '',
+          'mark': 1,
+        }).toList();
+
+        await quizProvider.createManualQuiz(
+          courseId: selectedCourseId!,
+          title: title,
+          description: _instructionController.text.trim(),
+          quizDurationMinutes: durationMinutesLabel,
+          quizStartTime: startTimeDateTime,
+          quizEndTime: endTimeDateTime,
+          attempts: attempts,
+          shuffleQuestions: shuffleQuestions,
+          shuffleAnswers: shuffleAnswers,
+          showScoresImmediately: showScoresImmediately,
+          questions: payloadQuestions,
+        );
+      } else {
+        if (selectedDocument == null) {
+          throw Exception('Please upload a document first');
+        }
+        await quizProvider.createAutoQuiz(
+          courseId: selectedCourseId!,
+          title: title,
+          description: _instructionController.text.trim(),
+          documentPath: selectedDocument!.path!,
+          quizDurationMinutes: durationMinutesLabel,
+          quizStartTime: startTimeDateTime,
+          quizEndTime: endTimeDateTime,
+          attempts: attempts,
+          shuffleQuestions: shuffleQuestions,
+          shuffleAnswers: shuffleAnswers,
+          showScoresImmediately: showScoresImmediately,
+        );
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Quiz published successfully!')),
+        );
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to publish quiz: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isPublishing = false);
+    }
+  }
+
 }
 
 class QuestionEntry {
@@ -1771,146 +1946,5 @@ class _SelectDurationDialogState extends State<_SelectDurationDialog> {
       ),
     );
   }
-
-  Widget _buildCourseDropdown() {
-    final coursesProvider = context.watch<CoursesProvider>();
-    final courses = coursesProvider.courses;
-    
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Course *',
-          style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.brandDark),
-        ),
-        const SizedBox(height: 6),
-        if (coursesProvider.isLoading)
-          const LinearProgressIndicator()
-        else
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8F9FD),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                value: selectedCourseId,
-                isExpanded: true,
-                hint: const Text('Select a course'),
-                items: courses.map((course) {
-                  return DropdownMenuItem(
-                    value: course.id,
-                    child: Text('${course.code}: ${course.title}'),
-                  );
-                }).toList(),
-                onChanged: (value) => setState(() => selectedCourseId = value),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
-  Future<void> _publishQuiz() async {
-    if (selectedCourseId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a course')),
-      );
-      return;
-    }
-
-    final title = _quizTitleController.text.trim();
-    if (title.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a quiz title')),
-      );
-      return;
-    }
-
-    setState(() => _isGenerating = true); 
-    try {
-      final quizProvider = context.read<QuizProvider>();
-      final startTimeDateTime = DateTime(
-        startDate.year,
-        startDate.month,
-        startDate.day,
-        startTime.hour,
-        startTime.minute,
-      );
-      final endTimeDateTime = DateTime(
-        endDate.year,
-        endDate.month,
-        endDate.day,
-        endTime.hour,
-        endTime.minute,
-      );
-
-      final attempts = selectedAttempts == 'Unlimited' ? -1 : int.tryParse(selectedAttempts) ?? 1;
-
-      if (_isManualMode) {
-        final payloadQuestions = manualQuestions.map((q) => {
-          'question': q.textController.text.trim(),
-          'options': q.options.map((o) => o.textController.text.trim()).toList(),
-          'correctAnswer': q.options.firstWhere((o) => o.isCorrect).textController.text.trim(),
-          'explanation': '',
-          'mark': 1,
-        }).toList();
-
-        await quizProvider.createManualQuiz(
-          courseId: selectedCourseId!,
-          title: title,
-          description: _instructionController.text.trim(),
-          quizDurationMinutes: durationMinutesLabel,
-          quizStartTime: startTimeDateTime,
-          quizEndTime: endTimeDateTime,
-          attempts: attempts,
-          shuffleQuestions: shuffleQuestions,
-          shuffleAnswers: shuffleAnswers,
-          showScoresImmediately: showScoresImmediately,
-          questions: payloadQuestions,
-        );
-      } else {
-        if (selectedDocument == null) {
-          throw Exception('Please upload a document first');
-        }
-        await quizProvider.createAutoQuiz(
-          courseId: selectedCourseId!,
-          title: title,
-          description: _instructionController.text.trim(),
-          documentPath: selectedDocument!.path!,
-          quizDurationMinutes: durationMinutesLabel,
-          quizStartTime: startTimeDateTime,
-          quizEndTime: endTimeDateTime,
-          attempts: attempts,
-          shuffleQuestions: shuffleQuestions,
-          shuffleAnswers: shuffleAnswers,
-          showScoresImmediately: showScoresImmediately,
-        );
-      }
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Quiz published successfully!')),
-        );
-        Navigator.of(context).pop();
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to publish quiz: $e')),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isGenerating = false);
-    }
-  }
-
-  String _formatFileSize(int bytes) {
-    if (bytes <= 0) return '0 B';
-    const suffixes = ['B', 'KB', 'MB', 'GB', 'TB'];
-    var i = (bytes.toString().length - 1) ~/ 3;
-    var value = bytes / (1 << (i * 10));
-    return '${value.toStringAsFixed(1)} ${suffixes[i]}';
-  }
 }
+

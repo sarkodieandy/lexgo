@@ -95,111 +95,93 @@ class _CasesScreenState extends State<CasesScreen> {
     final casesProvider = context.watch<CasesProvider>();
     final cases = casesProvider.cases;
     final hasError = casesProvider.error != null;
-    return Scaffold(
-      backgroundColor: AppColors.brandDark,
-      floatingActionButton: FloatingActionButton(
-        onPressed: _openUploadCase,
-        backgroundColor: Colors.black,
-        elevation: 8,
-        shape: const CircleBorder(),
-        child: const Icon(
-          Icons.add,
-          color: Colors.white,
-          size: 32,
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      body: SafeArea(
-        child: Column(
-          children: [
-            const _CasesHeader(),
-            Expanded(
-              child: Stack(
-                children: [
-                  Positioned(
-                    right: -40,
-                    top: 20,
-                    child: Image.asset(
-                      'assets/Union.png',
-                      width: 220,
-                      height: 220,
-                      color: Colors.black12,
-                    ),
+    return Column(
+      children: [
+        const _CasesHeader(),
+        Expanded(
+          child: Stack(
+            children: [
+              Positioned(
+                right: -40,
+                top: 20,
+                child: Image.asset(
+                  'assets/Union.png',
+                  width: 220,
+                  height: 220,
+                  color: Colors.black12,
+                ),
+              ),
+              Container(
+                decoration: const BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(32),
+                    topRight: Radius.circular(32),
                   ),
-                  Container(
-                    decoration: const BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(32),
-                        topRight: Radius.circular(32),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                  child: Column(
+                    children: [
+                      _SearchRow(
+                        controller: _searchController,
+                        onSubmitted: (value) => casesProvider.search(value),
+                        onFilterPressed: _openFilter,
                       ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                      child: Column(
-                        children: [
-                          _SearchRow(
-                            controller: _searchController,
-                            onSubmitted: (value) => casesProvider.search(value),
-                            onFilterPressed: _openFilter,
-                          ),
-                          const SizedBox(height: 20),
-                          if (casesProvider.isLoading)
-                            const Expanded(
-                              child: Center(child: CircularProgressIndicator()),
-                            )
-                          else if (hasError)
-                            Expanded(
-                              child: Center(
-                                child: Text(
-                                  casesProvider.error ?? 'Unable to load cases',
-                                  style: const TextStyle(
-                                    color: Colors.redAccent,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ),
-                            )
-                          else if (cases.isEmpty)
-                            const Expanded(
-                              child: Center(child: Text('No cases found')),
-                            )
-                          else
-                            Expanded(
-                              child: RefreshIndicator(
-                                onRefresh: () => casesProvider.loadCases(),
-                                child: ListView.builder(
-                                  controller: _scrollController,
-                                  physics: const AlwaysScrollableScrollPhysics(),
-                                  // +1 for the bottom loader footer
-                                  itemCount: cases.length + 1,
-                                  itemBuilder: (_, index) {
-                                    if (index == cases.length) {
-                                      if (casesProvider.isLoadingMore) {
-                                        return const Padding(
-                                          padding: EdgeInsets.symmetric(vertical: 24),
-                                          child: Center(
-                                            child: CircularProgressIndicator(strokeWidth: 2),
-                                          ),
-                                        );
-                                      }
-                                      return const SizedBox(height: 80);
-                                    }
-                                    return CaseCard(item: cases[index]);
-                                  },
-                                ),
+                      const SizedBox(height: 20),
+                      if (casesProvider.isLoading)
+                        const Expanded(
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                      else if (hasError)
+                        Expanded(
+                          child: Center(
+                            child: Text(
+                              casesProvider.error ?? 'Unable to load cases',
+                              style: const TextStyle(
+                                color: Colors.redAccent,
+                                fontSize: 16,
                               ),
                             ),
-                        ],
-                      ),
-                    ),
+                          ),
+                        )
+                      else if (cases.isEmpty)
+                        const Expanded(
+                          child: Center(child: Text('No cases found')),
+                        )
+                      else
+                        Expanded(
+                          child: RefreshIndicator(
+                            onRefresh: () => casesProvider.loadCases(),
+                            child: ListView.builder(
+                              controller: _scrollController,
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              itemCount: cases.length + 1,
+                              itemBuilder: (_, index) {
+                                if (index == cases.length) {
+                                  if (casesProvider.isLoadingMore) {
+                                    return const Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 24),
+                                      child: Center(
+                                        child: CircularProgressIndicator(strokeWidth: 2),
+                                      ),
+                                    );
+                                  }
+                                  return const SizedBox(height: 80);
+                                }
+                                return CaseCard(item: cases[index]);
+                              },
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../models/user.dart';
+import '../services/api_client.dart';
 import '../services/api_config.dart';
 import '../services/auth_service.dart';
 
@@ -9,6 +10,21 @@ class AuthProvider extends ChangeNotifier {
     : _service = service ?? AuthService(),
       _isAuthenticated = ApiConfig.defaultAuthToken.trim().isNotEmpty {
     _bootstrap();
+    // Listen for terminal session failures from the API layer
+    ApiClient.shared.onSessionExpired.addListener(_handleSessionExpired);
+  }
+
+  void _handleSessionExpired() {
+    if (ApiClient.shared.onSessionExpired.value) {
+      if (_isAuthenticated) {
+        _isAuthenticated = false;
+        _currentUser = null;
+        _error = 'Session expired. Please login again.';
+        notifyListeners();
+      }
+      // Reset the notifier
+      ApiClient.shared.onSessionExpired.value = false;
+    }
   }
 
   final AuthService _service;

@@ -9,7 +9,7 @@ class AppBackButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap ?? () => Navigator.of(context).maybePop(),
+      onTap: onTap ?? () => Navigator.of(context).pop(),
       child: Container(
         width: 40,
         height: 40,

@@ -27,6 +27,8 @@ class ApiClient {
 
   static final ApiClient shared = ApiClient._();
 
+  final ValueNotifier<bool> onSessionExpired = ValueNotifier(false);
+
   final http.Client _inner;
   final Map<String, String> _cookies = {};
   String? _accessToken;
@@ -50,6 +52,7 @@ class ApiClient {
     _cookies.clear();
     final token = ApiConfig.defaultAuthToken.trim();
     _accessToken = token.isNotEmpty ? token : null;
+    onSessionExpired.value = true;
   }
 
   Future<bool> refreshToken() async {
@@ -171,12 +174,30 @@ class ApiClient {
     final response = await request();
     _storeCookiesFromResponse(response);
 
+    if (response.statusCode == 429) {
+      final resetHeader = response.headers['x-ratelimit-reset'];
+      String message = 'Too many requests.';
+      if (resetHeader != null) {
+        final resetTime = int.tryParse(resetHeader);
+        if (resetTime != null) {
+          final waitMinutes = ((resetTime * 1000 - DateTime.now().millisecondsSinceEpoch) / 60000).ceil();
+          if (waitMinutes > 0) {
+            message = 'Too many requests. Please try again in $waitMinutes minutes.';
+          }
+        }
+      }
+      throw ApiException(message, statusCode: 429, uri: response.request?.url);
+    }
+
     if (!retryOn401 || response.statusCode != 401) {
       return response;
     }
 
     final refreshed = await refreshToken();
-    if (!refreshed) return response;
+    if (!refreshed) {
+      clearSession(); // This will trigger onSessionExpired
+      return response;
+    }
 
     final retryResponse = await request();
     _storeCookiesFromResponse(retryResponse);
@@ -301,12 +322,33 @@ class ApiClient {
     try {
       final decoded = jsonDecode(response.body);
       if (decoded is Map<String, dynamic>) {
+        // Common Reference format: { "success": false, "message": "..." }
         final message = decoded['message'];
         if (message is String && message.trim().isNotEmpty) {
           return message.trim();
         }
+        
+        // Sometimes nested in data
+        final data = decoded['data'];
+        if (data is Map<String, dynamic>) {
+          final nestedMessage = data['message'];
+          if (nestedMessage is String && nestedMessage.trim().isNotEmpty) {
+            return nestedMessage.trim();
+          }
+        }
       }
     } catch (_) {}
+
+    // Status code fallbacks
+    switch (response.statusCode) {
+      case 400: return 'Invalid request. Please check your input.';
+      case 401: return 'Session expired. Please login again.';
+      case 403: return 'Access denied. You do not have permission.';
+      case 404: return 'Resource not found.';
+      case 429: return 'Too many requests. Please try again later.';
+      case 500: return 'Server error. Please try again later.';
+    }
+
     return fallback;
   }
 }
