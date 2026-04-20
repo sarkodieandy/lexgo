@@ -47,7 +47,8 @@ class AuthProvider extends ChangeNotifier {
   String? get error => _error;
 
   Future<void> _bootstrap() async {
-    if (_isAuthenticated) {
+    await ApiClient.shared.init();
+    if (_isAuthenticated || ApiClient.shared.authHeaders.isNotEmpty) {
       _isBootstrapping = false;
       notifyListeners();
       return;

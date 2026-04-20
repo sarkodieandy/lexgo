@@ -9,8 +9,11 @@ import '../widgets/home/home_recent_activities_section.dart';
 import '../widgets/home/home_top_section.dart';
 import '../widgets/navigation/app_bottom_navigation.dart';
 import '../widgets/sidebar.dart';
-import 'quiz/quiz_screen.dart';
 import 'courses/courses_list_screen.dart';
+import 'quiz/quiz_screen.dart';
+import 'quiz/quize_1.dart';
+import 'cases/cases_screen.dart';
+import '../models/home/quick_action.dart';
 import '../widgets/navigation/app_back_button.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -43,7 +46,52 @@ class HomeScreen extends StatelessWidget {
                 children: [
                   HomeHeroCard(userName: provider.userName),
                   const SizedBox(height: 24),
-                  HomeQuickActions(actions: provider.quickActions),
+                  HomeQuickActions(
+                    actions: provider.quickActions.map<QuickAction>((action) {
+                      return QuickAction(
+                        title: action.title,
+                        subtitle: action.subtitle,
+                        icon: action.icon,
+                        background: action.background,
+                        iconColor: action.iconColor,
+                        onTap: () {
+                          switch (action.title) {
+                            case 'Create Quiz':
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => const Quiz1(),
+                                ),
+                              );
+                              break;
+                            case 'Submissions':
+                            case 'Quiz':
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => const QuizScreen(),
+                                ),
+                              );
+                              break;
+                            case 'View Cases':
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => const CasesScreen(),
+                                ),
+                              );
+                              break;
+                            case 'Upload Material':
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => const Courses(),
+                                ),
+                              );
+                              break;
+                            default:
+                              debugPrint('No navigation for ${action.title}');
+                          }
+                        },
+                      );
+                    }).toList(),
+                  ),
                   const SizedBox(height: 24),
                   HomeAssignmentStats(categories: provider.assignmentStats),
                   const SizedBox(height: 24),

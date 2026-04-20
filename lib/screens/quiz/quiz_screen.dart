@@ -34,23 +34,26 @@ class _QuizScreenState extends State<QuizScreen> {
     final isLecturer = authProvider.currentUser?.role?.toLowerCase() == 'lecturer';
     final quizzes = quizProvider.quizItems;
 
-    return Column(
-      children: [
-        _Header(onBack: () => Navigator.of(context).maybePop()),
-        Expanded(
-          child: Container(
-            decoration: const BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(32),
-                topRight: Radius.circular(32),
+    return Scaffold(
+      backgroundColor: AppColors.brandDark,
+      body: Column(
+        children: [
+          const _Header(),
+          Expanded(
+            child: Container(
+              decoration: const BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(32),
+                  topRight: Radius.circular(32),
+                ),
               ),
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+              child: _buildQuizList(quizzes, quizProvider, isLecturer),
             ),
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-            child: _buildQuizList(quizzes, quizProvider, isLecturer),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -180,41 +183,67 @@ class _QuizScreenState extends State<QuizScreen> {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.onBack});
-
-  final VoidCallback onBack;
+  const _Header();
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+      padding: const EdgeInsets.fromLTRB(28, 48, 28, 24),
       decoration: const BoxDecoration(color: AppColors.brandDark),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const AppBackButton(),
-          const SizedBox(width: 16),
           const Text(
             'Quiz',
             style: TextStyle(
               color: AppColors.brandWhite,
-              fontSize: 26,
+              fontSize: 32,
               fontWeight: FontWeight.w700,
             ),
           ),
-          const Spacer(),
-          GestureDetector(
-            onTap: () => Scaffold.of(context).openDrawer(),
-            child: Container(
-              width: 48,
-              height: 48,
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppColors.brandWhite,
-                borderRadius: BorderRadius.circular(12),
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              GestureDetector(
+                onTap: () => Scaffold.of(context).openDrawer(),
+                child: Container(
+                  width: 52,
+                  height: 52,
+                  decoration: const BoxDecoration(
+                    color: AppColors.brandWhite,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.menu,
+                    color: Color(0xFF0D0D0D),
+                    size: 24,
+                  ),
+                ),
               ),
-              child: Image.asset('assets/Union.png', fit: BoxFit.contain),
-            ),
+              Positioned(
+                top: 0,
+                right: 0,
+                child: Container(
+                  width: 18,
+                  height: 18,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFFF3D71),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Center(
+                    child: Text(
+                      '6',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

@@ -7,6 +7,7 @@ import '../../models/quiz/submission_record.dart';
 import '../../models/quiz/quiz_question.dart';
 import '../../providers/courses_provider.dart';
 import '../../providers/quiz_provider.dart';
+import '../../providers/analysis_provider.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/quiz/analysis/analysis_tab.dart';
 import '../../widgets/quiz/submissions/submissions_tab.dart';
@@ -60,95 +61,9 @@ class _Quiz1State extends State<Quiz1> with SingleTickerProviderStateMixin {
     ),
   ];
 
-  final List<SubmissionRecord> submissions = [
-    SubmissionRecord(
-      name: 'Mike Adjatey',
-      id: '22189872',
-      score: 18,
-      total: 20,
-      correctAnswers: 18,
-      submittedAt: 'Oct 29, 2025 07:30PM',
-      duration: '30 minutes',
-      avatarColor: Color(0xFFE53935),
-      category: 'Criminal Law',
-      submittedAtDate: DateTime(2025, 10, 29, 19, 30),
-    ),
-    SubmissionRecord(
-      name: 'Andrew Kaine',
-      id: '22153103',
-      score: 18,
-      total: 20,
-      correctAnswers: 18,
-      submittedAt: 'Oct 29, 2025 07:30PM',
-      duration: '1 hour 50 minutes',
-      avatarColor: Color(0xFF673AB7),
-      category: 'Contract Law',
-      submittedAtDate: DateTime(2025, 10, 29, 19, 30),
-    ),
-    SubmissionRecord(
-      name: 'Kofi',
-      id: '22125693',
-      score: 14,
-      total: 20,
-      correctAnswers: 14,
-      submittedAt: 'Oct 29, 2025 07:30PM',
-      duration: '1 hour 50 minutes',
-      avatarColor: Color(0xFF3F51B5),
-      category: 'Administrative Law',
-      submittedAtDate: DateTime(2025, 10, 29, 19, 30),
-    ),
-    SubmissionRecord(
-      name: 'Kojo',
-      id: '22195055',
-      score: 14,
-      total: 20,
-      correctAnswers: 18,
-      submittedAt: 'Oct 29, 2025 07:30PM',
-      duration: '1 hour 50 minutes',
-      avatarColor: Color(0xFF9C27B0),
-      category: 'Constitutional Law',
-      submittedAtDate: DateTime(2025, 10, 29, 19, 30),
-    ),
-    SubmissionRecord(
-      name: 'Yaw',
-      id: '22174641',
-      score: 12,
-      total: 20,
-      correctAnswers: 12,
-      submittedAt: 'Oct 29, 2025 07:30PM',
-      duration: '1 hour 50 minutes',
-      avatarColor: Color(0xFFFF9800),
-      category: 'Property Law',
-      submittedAtDate: DateTime(2025, 10, 29, 19, 30),
-    ),
-    SubmissionRecord(
-      name: 'Ama',
-      id: '22130074',
-      score: 12,
-      total: 20,
-      correctAnswers: 12,
-      submittedAt: 'Oct 29, 2025 07:30PM',
-      duration: '1 hour 50 minutes',
-      avatarColor: Color(0xFF9C27B0),
-      category: 'Family Law',
-      submittedAtDate: DateTime(2025, 10, 29, 19, 30),
-    ),
-    SubmissionRecord(
-      name: 'Kwesi',
-      id: '22191057',
-      score: 10,
-      total: 20,
-      correctAnswers: 10,
-      submittedAt: 'Oct 29, 2025 07:30PM',
-      duration: '1 hour 50 minutes',
-      avatarColor: Color(0xFF3F51B5),
-      category: 'Corporate Law',
-      submittedAtDate: DateTime(2025, 10, 29, 19, 30),
-    ),
-  ];
   final List<ManualQuestion> manualQuestions = [];
 
-  int activeTab = 0;
+  late int activeTab;
   String selectedSetup = 'Upload Document';
   String selectedCourse = 'LAW001 : Introduction to law';
   String selectedAttempts = '1';
@@ -213,6 +128,7 @@ class _Quiz1State extends State<Quiz1> with SingleTickerProviderStateMixin {
         ],
       ),
     ]);
+    activeTab = widget.quizId == null ? 1 : 0;
     _shimmerController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
@@ -284,52 +200,38 @@ class _Quiz1State extends State<Quiz1> with SingleTickerProviderStateMixin {
   Widget _buildAppBar() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       color: AppColors.brandDark,
       child: Row(
         children: [
-          Material(
-            color: AppColors.brandDark,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(12),
-              onTap: () => Navigator.of(context).pop(),
-              child: Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: AppColors.brandNavy,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.arrow_back_ios_new,
-                  color: AppColors.brandWhite,
-                  size: 18,
-                ),
+          IconButton(
+            onPressed: () => Navigator.of(context).pop(),
+            iconSize: 42,
+            padding: EdgeInsets.zero,
+            icon: Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: const Color(0x22FFFFFF),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Icon(
+                Icons.chevron_left,
+                color: AppColors.brandWhite,
+                size: 24,
               ),
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
               _isCreatingQuiz ? 'Create Quiz' : widget.title,
+              textAlign: TextAlign.center,
               style: const TextStyle(
                 color: AppColors.brandWhite,
                 fontSize: 24,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w700,
               ),
-            ),
-          ),
-          GestureDetector(
-            onTap: _publishQuiz,
-            child: Container(
-              width: 44,
-              height: 44,
-              margin: const EdgeInsets.only(right: 12),
-              decoration: BoxDecoration(
-                color: AppColors.brandWhite,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(Icons.send, color: AppColors.brandDark),
             ),
           ),
           PopupMenuButton<String>(
@@ -344,13 +246,17 @@ class _Quiz1State extends State<Quiz1> with SingleTickerProviderStateMixin {
               ),
             ],
             child: Container(
-              width: 44,
-              height: 44,
+              width: 42,
+              height: 42,
               decoration: BoxDecoration(
-                color: AppColors.brandNavy,
+                color: Colors.transparent,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.more_vert, color: AppColors.brandWhite),
+              child: const Icon(
+                Icons.more_vert,
+                color: AppColors.brandWhite,
+                size: 24,
+              ),
             ),
           ),
         ],
@@ -409,6 +315,8 @@ class _Quiz1State extends State<Quiz1> with SingleTickerProviderStateMixin {
         }).toList(),
       ),
     );
+  }
+
   void _onTabChanged(int index) {
     setState(() => activeTab = index);
     
@@ -629,15 +537,15 @@ class _Quiz1State extends State<Quiz1> with SingleTickerProviderStateMixin {
   }) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: AppColors.brandWhite,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(32),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x14000000),
-            blurRadius: 16,
-            offset: Offset(0, 6),
+            color: Color(0x06000000),
+            blurRadius: 20,
+            offset: Offset(0, 8),
           ),
         ],
       ),
@@ -646,14 +554,25 @@ class _Quiz1State extends State<Quiz1> with SingleTickerProviderStateMixin {
         children: [
           Text(
             title,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF0D0D0D),
+            ),
           ),
           if (subtitle != null) ...[
-            const SizedBox(height: 4),
-            Text(subtitle, style: const TextStyle(color: AppColors.mutedText)),
+            const SizedBox(height: 6),
+            Text(
+              subtitle,
+              style: const TextStyle(
+                color: Color(0xFF6C757D),
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
           ],
           if (children != null && children.isNotEmpty) ...[
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             ...children,
           ],
         ],
@@ -1301,23 +1220,36 @@ class _Quiz1State extends State<Quiz1> with SingleTickerProviderStateMixin {
       children: [
         Row(
           children: [
-            Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+            Text(
+              label,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF6C757D),
+                fontSize: 14,
+              ),
+            ),
             if (required)
               const Text(' *', style: TextStyle(color: AppColors.brandDanger)),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 10),
         TextFormField(
           controller: controller,
           keyboardType: inputType,
           minLines: minLines,
           maxLines: minLines > 1 ? minLines : 1,
+          style: const TextStyle(fontWeight: FontWeight.w500),
           decoration: InputDecoration(
             hintText: hint,
+            hintStyle: const TextStyle(
+              color: Color(0xFFAEAEAE),
+              fontWeight: FontWeight.w400,
+            ),
             filled: true,
-            fillColor: const Color(0xFFF2F0F5),
+            fillColor: const Color(0xFFF8F9FD),
+            contentPadding: const EdgeInsets.all(20),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(20),
               borderSide: BorderSide.none,
             ),
           ),
@@ -1374,29 +1306,40 @@ class _Quiz1State extends State<Quiz1> with SingleTickerProviderStateMixin {
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
-          const SizedBox(height: 8),
+          Text(
+            label,
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF6C757D),
+              fontSize: 14,
+            ),
+          ),
+          const SizedBox(height: 10),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: const Color(0xFFF2F0F5),
-              borderRadius: BorderRadius.circular(16),
+              color: const Color(0xFFF8F9FD),
+              borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
               children: [
                 Expanded(
                   child: Text(
                     hint,
-                    style: const TextStyle(color: AppColors.mutedText),
+                    style: const TextStyle(
+                      color: Color(0xFFAEAEAE),
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
                 ),
                 const Icon(
-                  Icons.keyboard_arrow_right,
-                  color: AppColors.mutedText,
+                  Icons.access_time_outlined,
+                  color: Color(0xFF0D0D0D),
+                  size: 22,
                 ),
               ],
             ),
@@ -1414,27 +1357,40 @@ class _Quiz1State extends State<Quiz1> with SingleTickerProviderStateMixin {
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF2F0F5),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
-            const SizedBox(height: 6),
-            Row(
+      borderRadius: BorderRadius.circular(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF6C757D),
+              fontSize: 14,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8F9FD),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(icon, size: 18, color: AppColors.mutedText),
-                const SizedBox(width: 8),
-                Text(hint, style: const TextStyle(color: AppColors.mutedText)),
+                Text(
+                  hint,
+                  style: const TextStyle(
+                    color: Color(0xFFAEAEAE),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Icon(icon, size: 22, color: const Color(0xFF0D0D0D)),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -1533,28 +1489,40 @@ class _Quiz1State extends State<Quiz1> with SingleTickerProviderStateMixin {
     required bool value,
     required ValueChanged<bool> onChanged,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF2F0F5),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              label,
-              style: const TextStyle(fontWeight: FontWeight.w600),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontWeight: FontWeight.w700,
+            fontSize: 16,
+            color: Color(0xFF0D0D0D),
+          ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Text(
+                'Present questions in random order for each student',
+                style: TextStyle(
+                  color: const Color(0xFF6C757D),
+                  fontSize: 12,
+                ),
+              ),
             ),
-          ),
-          Switch(
-            value: value,
-            onChanged: onChanged,
-            activeThumbColor: AppColors.brandBlue,
-            activeTrackColor: AppColors.brandBlue.withAlpha(120),
-          ),
-        ],
-      ),
+            Transform.scale(
+              scale: 0.8,
+              child: CupertinoSwitch(
+                value: value,
+                onChanged: onChanged,
+                activeColor: const Color(0xFF0D253F),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 

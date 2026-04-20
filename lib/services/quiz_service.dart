@@ -273,6 +273,7 @@ class QuizService {
         statusCode: response.statusCode,
         uri: uri,
       );
+    }
   }
 
   Future<List<SubmissionRecord>> fetchQuizSubmissions(String quizId) async {

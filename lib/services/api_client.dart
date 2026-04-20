@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 
 import 'api_config.dart';
 import 'http_client_factory.dart';
+import 'auth_persistence_service.dart';
 
 class ApiException implements Exception {
   ApiException(this.message, {this.statusCode, this.uri});
@@ -27,6 +28,22 @@ class ApiClient {
 
   static final ApiClient shared = ApiClient._();
 
+  final AuthPersistenceService _persistence = AuthPersistenceService();
+  bool _initialized = false;
+
+  Future<void> init() async {
+    if (_initialized) return;
+    final session = await _persistence.loadSession();
+    if (session['token'] != null) {
+      _accessToken = session['token'] as String;
+    }
+    if (session['cookies'] != null) {
+      _cookies.addAll(session['cookies'] as Map<String, String>);
+    }
+    _initialized = true;
+    debugPrint('[ApiClient] Session initialized from storage.');
+  }
+
   final ValueNotifier<bool> onSessionExpired = ValueNotifier(false);
 
   final http.Client _inner;
@@ -42,6 +59,7 @@ class ApiClient {
     final normalized = token?.trim();
     if (normalized == null || normalized.isEmpty) return;
     _accessToken = normalized;
+    _persistence.saveSession(token: normalized);
   }
 
   Map<String, String> get authHeaders {
@@ -52,6 +70,7 @@ class ApiClient {
     _cookies.clear();
     final token = ApiConfig.defaultAuthToken.trim();
     _accessToken = token.isNotEmpty ? token : null;
+    _persistence.clearSession();
     onSessionExpired.value = true;
   }
 
@@ -260,6 +279,7 @@ class ApiClient {
         // Ignore malformed cookie values.
       }
     }
+    _persistence.saveSession(token: _accessToken, cookies: _cookies);
   }
 
   List<String> _splitSetCookieHeader(String headerValue) {

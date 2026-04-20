@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/course.dart';
 import '../../providers/courses_provider.dart';
+import '../../providers/home_provider.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/navigation/app_back_button.dart';
 import '../../widgets/courses/create_course_sheet.dart';
@@ -278,238 +279,271 @@ class _CoursesState extends State<Courses> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<CoursesProvider>();
+    final homeProvider = context.watch<HomeProvider>();
     final courses = _getFilteredCourses(provider.courses);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Container(
-          color: AppColors.brandDark,
-          padding: const EdgeInsets.fromLTRB(16, 20, 24, 18),
-          child: Row(
-            children: [
-              const AppBackButton(),
-              const SizedBox(width: 16),
-              const Text(
-                'Courses',
-                style: TextStyle(
-                  color: AppColors.brandWhite,
-                  fontSize: 28,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const Spacer(),
-              GestureDetector(
-                onTap: () => Scaffold.of(context).openDrawer(),
-                child: Container(
-                  width: 48,
-                  height: 48,
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
+
+    return Scaffold(
+      backgroundColor: AppColors.brandDark,
+      body: Column(
+        children: [
+          // Header Section
+          Container(
+            padding: const EdgeInsets.fromLTRB(28, 48, 28, 24),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Courses',
+                  style: TextStyle(
                     color: AppColors.brandWhite,
-                    borderRadius: BorderRadius.circular(16),
+                    fontSize: 32,
+                    fontWeight: FontWeight.w700,
                   ),
-                  child: Image.asset('assets/Union.png', fit: BoxFit.contain),
                 ),
-              ),
-            ],
-          ),
-        ),
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF2F4F7),
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: TextField(
-                        controller: _searchController,
-                        onChanged: (_) => setState(() {}),
-                        decoration: const InputDecoration(
-                          border: InputBorder.none,
-                          hintText: '| Search Courses...',
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    GestureDetector(
+                      onTap: () => Scaffold.of(context).openDrawer(),
+                      child: Container(
+                        width: 52,
+                        height: 52,
+                        decoration: const BoxDecoration(
+                          color: AppColors.brandWhite,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.menu,
+                          color: Color(0xFF0D0D0D),
+                          size: 24,
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  GestureDetector(
-                    onTap: _showFilterSheet,
-                    child: Container(
-                      width: 52,
-                      height: 52,
-                      decoration: BoxDecoration(
-                        color: AppColors.brandDark,
-                        borderRadius: BorderRadius.circular(16),
+                    if (homeProvider.notificationCount > 0)
+                      Positioned(
+                        top: 0,
+                        right: 0,
+                        child: Container(
+                          width: 18,
+                          height: 18,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFFF3D71),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: Text(
+                              '${homeProvider.notificationCount}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
-                      child: const Icon(
-                        Icons.tune,
-                        color: AppColors.brandWhite,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
-            _buildActiveFilterRow(),
-            const SizedBox(height: 12),
-            if (provider.isLoading)
-              const Expanded(child: Center(child: CircularProgressIndicator()))
-            else if (provider.error != null && provider.courses.isEmpty)
-              Expanded(
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 40),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+          ),
+
+          // Content Area
+          Expanded(
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+              ),
+              child: Column(
+                children: [
+                  const SizedBox(height: 24),
+                  // Search & Filter Bar
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Row(
                       children: [
-                        const Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Failed to load courses: ${provider.error}',
-                          textAlign: TextAlign.center,
+                        Expanded(
+                          child: Container(
+                            height: 52,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF2F4F7),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: TextField(
+                              controller: _searchController,
+                              onChanged: (_) => setState(() {}),
+                              decoration: const InputDecoration(
+                                prefixIcon: Icon(
+                                  Icons.search,
+                                  color: Color(0xFF98A2B3),
+                                  size: 22,
+                                ),
+                                hintText: 'Search Courses..',
+                                hintStyle: TextStyle(
+                                  color: Color(0xFF98A2B3),
+                                  fontSize: 16,
+                                ),
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.symmetric(vertical: 15),
+                              ),
+                            ),
+                          ),
                         ),
-                        TextButton(
-                          onPressed: () => provider.loadCourses(),
-                          child: const Text('Retry'),
+                        const SizedBox(width: 12),
+                        GestureDetector(
+                          onTap: _showFilterSheet,
+                          child: Container(
+                            width: 52,
+                            height: 52,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF0D253F),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(
+                              Icons.tune,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                          ),
                         ),
                       ],
                     ),
                   ),
-                ),
-              )
-            else if (courses.isEmpty)
-              const Expanded(child: Center(child: Text('No courses found')))
-            else
-              Expanded(
-                child: RefreshIndicator(
-                  onRefresh: () => provider.loadCourses(),
-                  child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 0,
+                  const SizedBox(height: 12),
+                  _buildActiveFilterRow(),
+                  const SizedBox(height: 8),
+
+                  // Courses List
+                  Expanded(
+                    child: provider.isLoading && provider.courses.isEmpty
+                        ? const Center(child: CircularProgressIndicator())
+                        : RefreshIndicator(
+                            onRefresh: () => provider.loadCourses(),
+                            child: courses.isEmpty
+                                ? const Center(child: Text('No courses found'))
+                                : ListView.builder(
+                                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+                                    itemCount: courses.length,
+                                    physics: const BouncingScrollPhysics(),
+                                    itemBuilder: (context, index) {
+                                      final course = courses[index];
+                                      return _buildCourseCard(course, index == 0);
+                                    },
+                                  ),
+                          ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _openCreateCourseSheet,
+        backgroundColor: const Color(0xFF0D0D0D),
+        shape: const CircleBorder(),
+        child: const Icon(Icons.add, color: Colors.white, size: 30),
+      ),
+    );
+  }
+
+  Widget _buildCourseCard(Course course, bool isSpecial) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: InkWell(
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => CourseDetailScreen(course: course)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.asset(
+                    course.image,
+                    height: 180,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Container(
+                      height: 180,
+                      color: const Color(0xFFEDF2F7),
+                      child: const Icon(Icons.image_outlined, size: 40),
                     ),
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: courses.length,
-                    itemBuilder: (context, index) {
-                      final course = courses[index];
-                      return InkWell(
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => CourseDetailScreen(course: course),
-                          ),
-                        ),
-                        borderRadius: BorderRadius.circular(20),
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(vertical: 8),
-                          decoration: BoxDecoration(
-                            color: AppColors.brandWhite,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Color(0x14000000),
-                                blurRadius: 12,
-                                offset: Offset(0, 6),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Stack(
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: const BorderRadius.only(
-                                      topLeft: Radius.circular(20),
-                                      topRight: Radius.circular(20),
-                                    ),
-                                    child: Image.asset(
-                                      course.image,
-                                      fit: BoxFit.cover,
-                                      height: 140,
-                                      width: double.infinity,
-                                      errorBuilder: (context, error, stackTrace) =>
-                                          Container(
-                                            color: AppColors.brandDark,
-                                            height: 140,
-                                            width: double.infinity,
-                                          ),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    right: 16,
-                                    top: 16,
-                                    child: GestureDetector(
-                                      onTap: () => _showCourseActions(course),
-                                      child: Container(
-                                        width: 36,
-                                        height: 36,
-                                        decoration: const BoxDecoration(
-                                          color: AppColors.brandWhite,
-                                          shape: BoxShape.circle,
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Color(0x22000000),
-                                              blurRadius: 8,
-                                              offset: Offset(0, 2),
-                                            ),
-                                          ],
-                                        ),
-                                        child: const Icon(
-                                          Icons.more_vert,
-                                          color: AppColors.brandDark,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      '${course.code} : ${course.title}',
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w600,
-                                        color: AppColors.brandDark,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      course.category,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        color: AppColors.mutedText,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      course.institution,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        color: AppColors.mutedText,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
                   ),
                 ),
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.more_vert, color: Colors.black),
+                      onPressed: () => _showCourseActions(course),
+                    ),
+                  ),
+                ),
+                if (isSpecial)
+                  Positioned(
+                    bottom: 12,
+                    right: 12,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFD14234),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Text(
+                        'Special',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              '${course.code} : ${course.title}',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF0D0D0D),
               ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              course.category,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color(0xFF6C757D),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              course.institution,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color(0xFF6C757D),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ],
-        );
+        ),
+      ),
+    );
   }
 }
