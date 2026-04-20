@@ -59,7 +59,7 @@ class HomeScreen extends StatelessWidget {
                             case 'Create Quiz':
                               Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder: (_) => const Quiz1(),
+                                  builder: (_) => const QuizScreen(),
                                 ),
                               );
                               break;
@@ -81,7 +81,7 @@ class HomeScreen extends StatelessWidget {
                             case 'Upload Material':
                               Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder: (_) => const Courses(),
+                                  builder: (_) => const Courses(autoOpenCreate: true),
                                 ),
                               );
                               break;

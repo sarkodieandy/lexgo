@@ -10,6 +10,7 @@ import 'quiz/quize_1.dart';
 import 'cases/upload_new_case_screen.dart';
 import '../theme/app_colors.dart';
 import '../providers/auth_provider.dart';
+import '../providers/home_provider.dart';
 import '../widgets/courses/create_course_sheet.dart';
 
 class MainNavigationScreen extends StatefulWidget {
@@ -20,7 +21,6 @@ class MainNavigationScreen extends StatefulWidget {
 }
 
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
-  int _selectedIndex = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   final List<Widget> _screens = [
@@ -31,35 +31,34 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   ];
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    context.read<HomeProvider>().updateTabIndex(index);
   }
 
   @override
   Widget build(BuildContext context) {
+    final selectedIndex = context.watch<HomeProvider>().selectedTabIndex;
     return Scaffold(
       key: _scaffoldKey,
       drawer: const Sidebar(),
       backgroundColor: AppColors.brandDark,
       body: IndexedStack(
-        index: _selectedIndex,
+        index: selectedIndex,
         children: _screens,
       ),
-      floatingActionButton: _buildFAB(),
+      floatingActionButton: _buildFAB(selectedIndex),
       bottomNavigationBar: AppBottomNavigation(
-        selectedIndex: _selectedIndex,
+        selectedIndex: selectedIndex,
         onTap: _onItemTapped,
       ),
     );
   }
 
-  Widget? _buildFAB() {
+  Widget? _buildFAB(int selectedIndex) {
     final isLecturer =
         context.watch<AuthProvider>().currentUser?.role?.toLowerCase() ==
         'lecturer';
 
-    switch (_selectedIndex) {
+    switch (selectedIndex) {
       case 1: // Cases
         return FloatingActionButton(
           onPressed: _openUploadCase,
@@ -68,33 +67,15 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           shape: const CircleBorder(),
           child: const Icon(Icons.add, color: Colors.white, size: 32),
         );
-      case 2: // Quiz
-        if (!isLecturer) return null;
-        return FloatingActionButton(
-          onPressed: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const Quiz1()),
-          ),
-          backgroundColor: const Color(0xFF0D0D0D),
-          shape: const CircleBorder(),
-          child: const Icon(Icons.add, color: Colors.white, size: 30),
-        );
-      case 3: // Courses
-        return FloatingActionButton(
-          backgroundColor: AppColors.brandDark,
-          onPressed: _openCreateCourseSheet,
-          child: const Icon(Icons.add, color: AppColors.brandWhite),
-        );
       default:
         return null;
     }
   }
 
   void _openUploadCase() {
-    // This will be reachable as long as UploadNewCaseScreen exists
-    Navigator.of(context).pushNamed('/upload-case').catchError((_) {
-      // Fallback if routes aren't registered
-      // We can just import and use push
-    });
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const UploadNewCaseScreen()),
+    );
   }
 
   void _openCreateCourseSheet() {

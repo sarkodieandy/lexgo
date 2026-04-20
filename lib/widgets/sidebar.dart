@@ -113,53 +113,51 @@ class Sidebar extends StatelessWidget {
   }
 
   void _navigate(BuildContext context, SidebarItem item) {
+    final nav = context.read<HomeProvider>();
     Navigator.of(context).pop();
-    if (item.label == 'Home') {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const HomeScreen()));
-      return;
-    }
-    if (item.label == 'Cases') {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const CasesScreen()));
-      return;
-    } else if (item.label == 'Quiz') {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const QuizScreen()));
-      return;
-    } else if (item.label == 'Notifications') {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const NotificationsScreen()));
-      return;
-    } else if (item.label == 'Help Center') {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const HelpCenterScreen()));
-      return;
-    } else if (item.label == 'Log Out') {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const LogoutScreen()));
-      return;
-    } else if (item.label == 'Courses') {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const Courses()));
-      return;
-    } else if (item.label == 'Students') {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const StudentsScreen()));
-      return;
-    } else if (item.label == 'Companion') {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const CompanionScreen()));
-      return;
+
+    switch (item.label) {
+      case 'Home':
+        nav.updateTabIndex(0);
+        break;
+      case 'Cases':
+        nav.updateTabIndex(1);
+        break;
+      case 'Quiz':
+        nav.updateTabIndex(2);
+        break;
+      case 'Courses':
+        nav.updateTabIndex(3);
+        break;
+      case 'Notifications':
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+        );
+        break;
+      case 'Help Center':
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const HelpCenterScreen()),
+        );
+        break;
+      case 'Log Out':
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const LogoutScreen()),
+        );
+        break;
+      case 'Students':
+        // If Students was meant to be a tab, it would use updateTabIndex
+        // Currently it's a pushed screen
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const StudentsScreen()),
+        );
+        break;
+      case 'Companion':
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const CompanionScreen()),
+        );
+        break;
+      default:
+        debugPrint('No navigation for ${item.label}');
     }
   }
 }

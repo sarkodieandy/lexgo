@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 
 import '../models/quiz/quiz_model.dart';
+import '../models/quiz/quiz_analysis.dart';
 import '../models/quiz/submission_record.dart';
 import '../models/quiz_item.dart';
 import '../services/quiz_service.dart';
@@ -20,12 +21,14 @@ class QuizProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool _isActionLoading = false;
   String? _error;
+  QuizAnalysis? _analysis;
 
   UnmodifiableListView<QuizItem> get quizItems =>
       UnmodifiableListView(_quizzes.map(QuizItem.fromModel).toList());
 
   List<QuizModel> get quizzes => List.unmodifiable(_quizzes);
   List<SubmissionRecord> get submissions => List.unmodifiable(_submissions);
+  QuizAnalysis? get analysis => _analysis;
   bool get isLoading => _isLoading;
   bool get isActionLoading => _isActionLoading;
   String? get error => _error;
@@ -175,6 +178,28 @@ class QuizProvider extends ChangeNotifier {
         ..addAll(items);
     } catch (err) {
       _error = err.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> loadAnalysis(String quizId) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      final json = await _service.fetchQuizAnalysis(quizId);
+      if (json.isEmpty) {
+        // Fallback to mock data if API returns empty during development
+        _analysis = QuizAnalysis.mock();
+      } else {
+        _analysis = QuizAnalysis.fromJson(json);
+      }
+    } catch (err) {
+      _error = err.toString();
+      // Fallback for demo purposes if desired, but ideally show error
+      _analysis = QuizAnalysis.mock();
     } finally {
       _isLoading = false;
       notifyListeners();

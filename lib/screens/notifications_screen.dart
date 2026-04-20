@@ -28,8 +28,27 @@ class NotificationsScreen extends StatelessWidget {
               child: ListView.builder(
                 physics: const BouncingScrollPhysics(),
                 itemCount: notifications.length,
-                itemBuilder: (_, index) =>
-                    NotificationTile(item: notifications[index]),
+                itemBuilder: (context, index) {
+                  final item = notifications[index];
+                  return Dismissible(
+                    key: Key('${item.title}-${item.time}-$index'),
+                    direction: DismissDirection.startToEnd,
+                    onDismissed: (direction) {
+                      context.read<HomeProvider>().removeNotification(index);
+                    },
+                    background: Container(
+                      alignment: Alignment.centerLeft,
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.redAccent,
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      child: const Icon(Icons.delete, color: Colors.white),
+                    ),
+                    child: NotificationTile(item: item),
+                  );
+                },
               ),
             ),
           ),

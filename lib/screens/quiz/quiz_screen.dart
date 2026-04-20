@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/quiz_item.dart';
-import '../../providers/auth_provider.dart';
+import '../../providers/home_provider.dart';
 import '../../providers/quiz_provider.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/quiz/quiz_card.dart';
@@ -30,8 +30,7 @@ class _QuizScreenState extends State<QuizScreen> {
   @override
   Widget build(BuildContext context) {
     final quizProvider = context.watch<QuizProvider>();
-    final authProvider = context.watch<AuthProvider>();
-    final isLecturer = authProvider.currentUser?.role?.toLowerCase() == 'lecturer';
+    final homeProvider = context.watch<HomeProvider>();
     final quizzes = quizProvider.quizItems;
 
     return Scaffold(
@@ -41,23 +40,34 @@ class _QuizScreenState extends State<QuizScreen> {
           const _Header(),
           Expanded(
             child: Container(
+              width: double.infinity,
               decoration: const BoxDecoration(
-                color: AppColors.surface,
+                color: Colors.white,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(32),
                   topRight: Radius.circular(32),
                 ),
               ),
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-              child: _buildQuizList(quizzes, quizProvider, isLecturer),
+              child: _buildQuizList(quizzes, quizProvider),
             ),
           ),
         ],
       ),
+      drawer: Sidebar(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const Quiz1()),
+          );
+        },
+        backgroundColor: const Color(0xFF0D0D0D),
+        shape: const CircleBorder(),
+        child: const Icon(Icons.add, color: Colors.white, size: 30),
+      ),
     );
   }
 
-  Widget _buildQuizList(List<QuizItem> quizzes, QuizProvider provider, bool isLecturer) {
+  Widget _buildQuizList(List<QuizItem> quizzes, QuizProvider provider) {
     if (provider.isLoading && quizzes.isEmpty) {
       return const Center(
         child: CircularProgressIndicator(color: AppColors.brandDark),
@@ -75,23 +85,14 @@ class _QuizScreenState extends State<QuizScreen> {
     }
 
     return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
       physics: const BouncingScrollPhysics(),
       itemCount: quizzes.length,
       itemBuilder: (_, index) {
         final item = quizzes[index];
         return QuizCard(
           item: item,
-          onTap: () {
-            if (isLecturer) {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => Quiz1(title: item.title, quizId: item.id),
-                ),
-              );
-            } else {
-              _showQuizInfoSheet(item);
-            }
-          },
+          onTap: () => _showQuizInfoSheet(item),
         );
       },
     );
@@ -187,6 +188,7 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final homeProvider = context.watch<HomeProvider>();
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(28, 48, 28, 24),
@@ -205,44 +207,47 @@ class _Header extends StatelessWidget {
           Stack(
             clipBehavior: Clip.none,
             children: [
-              GestureDetector(
-                onTap: () => Scaffold.of(context).openDrawer(),
-                child: Container(
-                  width: 52,
-                  height: 52,
-                  decoration: const BoxDecoration(
-                    color: AppColors.brandWhite,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.menu,
-                    color: Color(0xFF0D0D0D),
-                    size: 24,
-                  ),
-                ),
-              ),
-              Positioned(
-                top: 0,
-                right: 0,
-                child: Container(
-                  width: 18,
-                  height: 18,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFFF3D71),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Center(
-                    child: Text(
-                      '6',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
+              Builder(
+                builder: (context) => GestureDetector(
+                  onTap: () => Scaffold.of(context).openDrawer(),
+                  child: Container(
+                    width: 52,
+                    height: 52,
+                    decoration: const BoxDecoration(
+                      color: AppColors.brandWhite,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.menu,
+                      color: Color(0xFF0D0D0D),
+                      size: 24,
                     ),
                   ),
                 ),
               ),
+              if (homeProvider.notificationCount > 0)
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Container(
+                    width: 18,
+                    height: 18,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFFF3D71),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        '${homeProvider.notificationCount}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ],

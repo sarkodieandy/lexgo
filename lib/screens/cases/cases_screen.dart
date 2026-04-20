@@ -128,7 +128,53 @@ class _CasesScreenState extends State<CasesScreen> {
                         onSubmitted: (value) => casesProvider.search(value),
                         onFilterPressed: _openFilter,
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          const Text(
+                            'All Cases',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF0D0D0D),
+                            ),
+                          ),
+                          const Spacer(),
+                          GestureDetector(
+                            onTap: () => casesProvider.toggleSortOrder(),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF2F4F7),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    casesProvider.activeFilter?.sort == FilterSort.dateOldest
+                                        ? Icons.arrow_upward
+                                        : Icons.arrow_downward,
+                                    size: 14,
+                                    color: AppColors.brandDark,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    casesProvider.activeFilter?.sort == FilterSort.dateOldest
+                                        ? 'Oldest'
+                                        : 'Newest',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.brandDark,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
                       if (casesProvider.isLoading)
                         const Expanded(
                           child: Center(child: CircularProgressIndicator()),
@@ -212,9 +258,11 @@ class _CasesHeader extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              _NotificationBadge(
-                count: homeProvider.notificationCount,
-                onTap: () => Scaffold.of(context).openDrawer(),
+              Builder(
+                builder: (context) => _NotificationBadge(
+                  count: homeProvider.notificationCount,
+                  onTap: () => Scaffold.of(context).openDrawer(),
+                ),
               ),
             ],
           ),

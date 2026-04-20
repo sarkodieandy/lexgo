@@ -10,12 +10,73 @@ import '../models/sidebar/sidebar_item.dart';
 class HomeProvider extends ChangeNotifier {
   final DateTime _today = DateTime.now();
 
+  final List<NotificationItem> _notifications = [
+    const NotificationItem(
+      title: 'New Case Added',
+      message: 'The Republic vs. Agnes Baidoo has been added to cases.',
+      time: '06:00 AM',
+      icon: Icons.book_outlined,
+      iconBackground: Color(0xFFFCECBB),
+    ),
+    const NotificationItem(
+      title: 'New Course Added',
+      message: 'Basic Law Terms has been added to Courses.',
+      time: '06:30 AM',
+      icon: Icons.library_books_outlined,
+      iconBackground: Color(0xFFE7F0FF),
+    ),
+    const NotificationItem(
+      title: 'New Case Added',
+      message: 'Max Trade Ltd vs. Rex Trade Ltd has been added to cases.',
+      time: '06:00 AM',
+      icon: Icons.book_outlined,
+      iconBackground: Color(0xFFFCECBB),
+    ),
+    const NotificationItem(
+      title: 'New Submissions',
+      message: 'Sarah Amoako has submitted her quiz for your review.',
+      time: '06:00 AM',
+      icon: Icons.download_rounded,
+      iconBackground: Color(0xFFFCECBB),
+    ),
+    const NotificationItem(
+      title: 'New Submissions',
+      message: 'John Doe has submitted his quiz for your review.',
+      time: '06:00 AM',
+      icon: Icons.download_rounded,
+      iconBackground: Color(0xFFFCECBB),
+    ),
+    const NotificationItem(
+      title: 'New Submissions',
+      message: 'Kofi Agyemang has submitted his assignment for grading.',
+      time: '06:00 AM',
+      icon: Icons.download_rounded,
+      iconBackground: Color(0xFFFCECBB),
+    ),
+    const NotificationItem(
+      title: 'New Case Added',
+      message: 'Max Trade Ltd vs. Rex Trade Ltd has been added to cases.',
+      time: '06:00 AM',
+      icon: Icons.book_outlined,
+      iconBackground: Color(0xFFFCECBB),
+    ),
+  ];
+
   String _userName = 'Dr.';
   String get userName => _userName;
 
   set userName(String value) {
     if (_userName == value) return;
     _userName = value;
+    notifyListeners();
+  }
+
+  int _selectedTabIndex = 0;
+  int get selectedTabIndex => _selectedTabIndex;
+
+  void updateTabIndex(int index) {
+    if (_selectedTabIndex == index) return;
+    _selectedTabIndex = index;
     notifyListeners();
   }
 
@@ -105,57 +166,13 @@ class HomeProvider extends ChangeNotifier {
     ),
   ];
 
-  List<NotificationItem> get notifications => const [
-    NotificationItem(
-      title: 'New Case Added',
-      message: 'The Republic vs. Agnes Baidoo has been added to cases.',
-      time: '06:00 AM',
-      icon: Icons.book_outlined,
-      iconBackground: Color(0xFFFCECBB),
-    ),
-    NotificationItem(
-      title: 'New Course Added',
-      message: 'Basic Law Terms has been added to Courses.',
-      time: '06:30 AM',
-      icon: Icons.library_books_outlined,
-      iconBackground: Color(0xFFE7F0FF),
-    ),
-    NotificationItem(
-      title: 'New Case Added',
-      message: 'Max Trade Ltd vs. Rex Trade Ltd has been added to cases.',
-      time: '06:00 AM',
-      icon: Icons.book_outlined,
-      iconBackground: Color(0xFFFCECBB),
-    ),
-    NotificationItem(
-      title: 'New Submissions',
-      message: 'Sarah Amoako has submitted her quiz for your review.',
-      time: '06:00 AM',
-      icon: Icons.download_rounded,
-      iconBackground: Color(0xFFFCECBB),
-    ),
-    NotificationItem(
-      title: 'New Submissions',
-      message: 'John Doe has submitted his quiz for your review.',
-      time: '06:00 AM',
-      icon: Icons.download_rounded,
-      iconBackground: Color(0xFFFCECBB),
-    ),
-    NotificationItem(
-      title: 'New Submissions',
-      message: 'Kofi Agyemang has submitted his assignment for grading.',
-      time: '06:00 AM',
-      icon: Icons.download_rounded,
-      iconBackground: Color(0xFFFCECBB),
-    ),
-    NotificationItem(
-      title: 'New Case Added',
-      message: 'Max Trade Ltd vs. Rex Trade Ltd has been added to cases.',
-      time: '06:00 AM',
-      icon: Icons.book_outlined,
-      iconBackground: Color(0xFFFCECBB),
-    ),
-  ];
+  List<NotificationItem> get notifications => List.unmodifiable(_notifications);
+
+  void removeNotification(int index) {
+    if (index < 0 || index >= _notifications.length) return;
+    _notifications.removeAt(index);
+    notifyListeners();
+  }
 
   List<CaseItem> get cases => const [
     CaseItem(
@@ -184,13 +201,33 @@ class HomeProvider extends ChangeNotifier {
     ),
   ];
 
-  List<SidebarItem> get primaryMenu => const [
-    SidebarItem(label: 'Home', icon: Icons.home, selected: true),
-    SidebarItem(label: 'Cases', icon: Icons.work_outline),
-    SidebarItem(label: 'Quiz', icon: Icons.quiz_outlined),
-    SidebarItem(label: 'Courses', icon: Icons.menu_book_outlined),
-    SidebarItem(label: 'Students', icon: Icons.people_outline),
-  ];
+  List<SidebarItem> get primaryMenu => [
+        SidebarItem(
+          label: 'Home',
+          icon: Icons.home,
+          selected: _selectedTabIndex == 0,
+        ),
+        SidebarItem(
+          label: 'Cases',
+          icon: Icons.work_outline,
+          selected: _selectedTabIndex == 1,
+        ),
+        SidebarItem(
+          label: 'Quiz',
+          icon: Icons.quiz_outlined,
+          selected: _selectedTabIndex == 2,
+        ),
+        SidebarItem(
+          label: 'Courses',
+          icon: Icons.menu_book_outlined,
+          selected: _selectedTabIndex == 3,
+        ),
+        SidebarItem(
+          label: 'Students',
+          icon: Icons.people_outline,
+          selected: false,
+        ),
+      ];
 
   List<SidebarItem> get secondaryMenu => const [
     SidebarItem(

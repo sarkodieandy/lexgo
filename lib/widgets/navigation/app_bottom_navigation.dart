@@ -16,7 +16,7 @@ class AppBottomNavigation extends StatelessWidget {
     _NavigationItem(icon: Icons.home_filled, label: 'Home'),
     _NavigationItem(icon: Icons.work_outline, label: 'Cases'),
     _NavigationItem(icon: Icons.access_time, label: 'Quiz'),
-    _NavigationItem(icon: Icons.menu_book_outlined, label: 'courses'),
+    _NavigationItem(icon: Icons.menu_book_outlined, label: 'Courses'),
   ];
 
   @override

@@ -60,6 +60,20 @@ class CasesProvider extends ChangeNotifier {
     await _fetchCases(refresh: true);
   }
 
+  Future<void> toggleSortOrder() async {
+    final currentSort = _activeFilter?.sort ?? FilterSort.dateNewest;
+    final newSort = currentSort == FilterSort.dateNewest
+        ? FilterSort.dateOldest
+        : FilterSort.dateNewest;
+    
+    _activeFilter = FilterSelection(
+      category: _activeFilter?.category ?? 'All Categories',
+      sort: newSort,
+    );
+    _nextCursor = null;
+    await _fetchCases(refresh: true);
+  }
+
   Future<void> createCase({
     required String courseId,
     required String title,

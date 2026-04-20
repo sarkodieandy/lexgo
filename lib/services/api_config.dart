@@ -7,7 +7,7 @@ abstract class ApiConfig {
   static const String _lecturerCasesPath = '/api/v1/LecturerCases';
   static const String _lecturerQuizPath = '/api/v1/LecturerQuiz';
   static const String _studentQuizPath = '/api/StudentQuiz';
-  static const String _coursesPath = '/api/v1/LecturerCourses';
+  static const String _coursesPath = '/api/v1/Courses';
   static const String _subLecturerPath = '/api/SubLecturer';
   static const String _notesPath = '/api/v1/Notes';
   static const String _enrollmentsPath = '/api/v1/Enrollments';

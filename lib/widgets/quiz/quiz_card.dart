@@ -11,27 +11,27 @@ class QuizCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat('MMM dd, yyyy • hh:mma');
+    final dateFormat = DateFormat("LLL d,yyyy • hh:mma");
     final formattedDate = dateFormat.format(item.dueDate);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 20),
+      margin: const EdgeInsets.only(bottom: 24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x08000000),
+            blurRadius: 20,
+            offset: Offset(0, 8),
+          ),
+        ],
+      ),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(20),
-        child: Container(
+        child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-          decoration: BoxDecoration(
-            color: AppColors.brandWhite,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x0A000000),
-                blurRadius: 15,
-                offset: Offset(0, 8),
-              ),
-            ],
-          ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -98,7 +98,7 @@ class QuizCard extends StatelessWidget {
   Widget _buildMetaInfo(IconData icon, String text) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: const Color(0xFF6C757D)),
+        Icon(icon, size: 16, color: const Color(0xFF98A2B3)),
         const SizedBox(width: 8),
         Text(
           text,

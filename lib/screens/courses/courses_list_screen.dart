@@ -7,10 +7,12 @@ import '../../providers/home_provider.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/navigation/app_back_button.dart';
 import '../../widgets/courses/create_course_sheet.dart';
+import '../../widgets/sidebar.dart';
 import 'course_detail_screen.dart';
 
 class Courses extends StatefulWidget {
-  const Courses({super.key});
+  const Courses({super.key, this.autoOpenCreate = false});
+  final bool autoOpenCreate;
 
   @override
   State<Courses> createState() => _CoursesState();
@@ -43,6 +45,9 @@ class _CoursesState extends State<Courses> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<CoursesProvider>().loadCourses();
+      if (widget.autoOpenCreate) {
+        _openCreateCourseSheet();
+      }
     });
   }
 
@@ -303,19 +308,21 @@ class _CoursesState extends State<Courses> {
                 Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    GestureDetector(
-                      onTap: () => Scaffold.of(context).openDrawer(),
-                      child: Container(
-                        width: 52,
-                        height: 52,
-                        decoration: const BoxDecoration(
-                          color: AppColors.brandWhite,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.menu,
-                          color: Color(0xFF0D0D0D),
-                          size: 24,
+                    Builder(
+                      builder: (context) => GestureDetector(
+                        onTap: () => Scaffold.of(context).openDrawer(),
+                        child: Container(
+                          width: 52,
+                          height: 52,
+                          decoration: const BoxDecoration(
+                            color: AppColors.brandWhite,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.menu,
+                            color: Color(0xFF0D0D0D),
+                            size: 24,
+                          ),
                         ),
                       ),
                     ),
@@ -439,6 +446,7 @@ class _CoursesState extends State<Courses> {
           ),
         ],
       ),
+      drawer: Sidebar(),
       floatingActionButton: FloatingActionButton(
         onPressed: _openCreateCourseSheet,
         backgroundColor: const Color(0xFF0D0D0D),

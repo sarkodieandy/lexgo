@@ -16,6 +16,11 @@ class AnalysisTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AnalysisProvider>();
+    
+    if (provider.metrics.isEmpty) {
+      return _buildEmptyState();
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -47,6 +52,49 @@ class AnalysisTab extends StatelessWidget {
     );
   }
 
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.only(top: 80),
+        child: Column(
+          children: [
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF0F2F9),
+                borderRadius: BorderRadius.circular(32),
+              ),
+              child: const Icon(
+                Icons.analytics_outlined,
+                size: 48,
+                color: AppColors.brandDark,
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'No analysis data available yet',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: AppColors.brandDark,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Once students attempt the quiz, performance\ndata will appear here automatically.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.mutedText,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildMetricRow(List<ScoreMetric> metrics) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -65,7 +113,8 @@ class AnalysisTab extends StatelessWidget {
 
   Widget _buildBarChart(List<ScoreDistributionItem> data) {
     const tiers = ['0-50', '51-60', '61-70', '71-80', '81-90', '91-100'];
-    final maxValue = data.map((item) => item.value).reduce(max);
+    if (data.isEmpty) return const SizedBox.shrink();
+    final maxValue = data.map((item) => item.value).fold<int>(1, max);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
