@@ -6,9 +6,8 @@ allprojects {
 }
 
 val newBuildDir: Directory =
-    rootProject.layout.buildDirectory
-        .dir("../../build")
-        .get()
+    rootProject.layout.projectDirectory
+        .dir("C:/temp/lexgo_build")
 rootProject.layout.buildDirectory.value(newBuildDir)
 
 subprojects {

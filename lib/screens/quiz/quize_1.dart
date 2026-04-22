@@ -1034,7 +1034,7 @@ class _Quiz1State extends State<Quiz1> with SingleTickerProviderStateMixin {
   }
 
   Future<void> _pickDocument() async {
-    final result = await FilePicker.platform.pickFiles(
+    final result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowMultiple: false,
       allowedExtensions: ['pdf', 'doc', 'docx'],

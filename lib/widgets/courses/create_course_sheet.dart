@@ -50,7 +50,7 @@ class _CreateCourseSheetState extends State<CreateCourseSheet> {
   }
 
   Future<void> _pickImage() async {
-    final result = await FilePicker.platform.pickFiles(
+    final result = await FilePicker.pickFiles(
       type: FileType.image,
       allowMultiple: false,
       withData: false,  // Ensure path is returned, not bytes
