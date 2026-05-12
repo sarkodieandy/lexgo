@@ -1,374 +1,151 @@
+import 'dart:async';
 import 'dart:convert';
-
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/io_client.dart';
+export 'package:http/http.dart'
+    hide get, post, put, patch, delete, head, read, readBytes;
+import 'package:lexgo/services/auth_api_service.dart';
 
-import 'api_config.dart';
-import 'http_client_factory.dart';
-import 'auth_persistence_service.dart';
+// Provides a drop-in replacement for the global `http` functions
+final _client = ApiClient();
 
-class ApiException implements Exception {
-  ApiException(this.message, {this.statusCode, this.uri});
+Future<http.Response> get(Uri url, {Map<String, String>? headers}) =>
+    _client.get(url, headers: headers);
+Future<http.Response> post(
+  Uri url, {
+  Map<String, String>? headers,
+  Object? body,
+  Encoding? encoding,
+}) => _client.post(url, headers: headers, body: body, encoding: encoding);
+Future<http.Response> put(
+  Uri url, {
+  Map<String, String>? headers,
+  Object? body,
+  Encoding? encoding,
+}) => _client.put(url, headers: headers, body: body, encoding: encoding);
+Future<http.Response> patch(
+  Uri url, {
+  Map<String, String>? headers,
+  Object? body,
+  Encoding? encoding,
+}) => _client.patch(url, headers: headers, body: body, encoding: encoding);
+Future<http.Response> delete(
+  Uri url, {
+  Map<String, String>? headers,
+  Object? body,
+  Encoding? encoding,
+}) => _client.delete(url, headers: headers, body: body, encoding: encoding);
+Future<http.Response> head(Uri url, {Map<String, String>? headers}) =>
+    _client.head(url, headers: headers);
+Future<String> read(Uri url, {Map<String, String>? headers}) =>
+    _client.read(url, headers: headers);
+Future<List<int>> readBytes(Uri url, {Map<String, String>? headers}) =>
+    _client.readBytes(url, headers: headers);
 
-  final String message;
-  final int? statusCode;
-  final Uri? uri;
+/// HTTP client that:
+///   1. Injects `Cookie: accessToken=<token>` (when available) on every request.
+///   2. On 401 responses, silently calls `refresh-token`, updates the stored token,
+///      and retries the original request exactly once.
+///   3. On a failed refresh (session truly expired), passes the 401 up so the
+///      caller / UI can force a logout.
+class ApiClient extends http.BaseClient {
+  final http.Client _inner = _buildClient();
+  final AuthApiService _authService = AuthApiService();
+
+  /// Creates an IOClient backed by a dart:io HttpClient.
+  /// In debug mode, bad certificates are accepted (fixes Render.com / self-signed
+  /// SSL handshake failures on older Android devices).
+  static http.Client _buildClient() {
+    final ioClient = HttpClient()
+      ..connectionTimeout = const Duration(seconds: 30);
+    if (kDebugMode) {
+      // Allow all certificates in debug — avoids handshake failures on
+      // Android devices that don't have the Render.com root CA in their trust store.
+      ioClient.badCertificateCallback = (cert, host, port) => true;
+    }
+    return IOClient(ioClient);
+  }
+
+  bool _isRefreshing = false;
+  Completer<bool>? _refreshCompleter;
 
   @override
-  String toString() => message;
-}
-
-class ApiClient {
-  ApiClient._({http.Client? inner}) : _inner = inner ?? createPlatformHttpClient() {
-    final token = ApiConfig.defaultAuthToken.trim();
-    if (token.isNotEmpty) {
-      _accessToken = token;
-    }
-  }
-
-  static final ApiClient shared = ApiClient._();
-
-  final AuthPersistenceService _persistence = AuthPersistenceService();
-  bool _initialized = false;
-
-  Future<void> init() async {
-    if (_initialized) return;
-    final session = await _persistence.loadSession();
-    if (session['token'] != null) {
-      _accessToken = session['token'] as String;
-    }
-    if (session['cookies'] != null) {
-      _cookies.addAll(session['cookies'] as Map<String, String>);
-    }
-    _initialized = true;
-    debugPrint('[ApiClient] Session initialized from storage.');
-  }
-
-  final ValueNotifier<bool> onSessionExpired = ValueNotifier(false);
-
-  final http.Client _inner;
-  final Map<String, String> _cookies = {};
-  String? _accessToken;
-
-  static const String _acceptHeader = 'Accept';
-  static const String _authorizationHeader = 'Authorization';
-  static const String _contentTypeHeader = 'Content-Type';
-  static const String _cookieHeader = 'Cookie';
-
-  void setAccessToken(String? token) {
-    final normalized = token?.trim();
-    if (normalized == null || normalized.isEmpty) return;
-    _accessToken = normalized;
-    _persistence.saveSession(token: normalized);
-  }
-
-  Map<String, String> get authHeaders {
-    return _accessToken != null ? {_authorizationHeader: 'Bearer $_accessToken'} : {};
-  }
-
-  void clearSession() {
-    _cookies.clear();
-    final token = ApiConfig.defaultAuthToken.trim();
-    _accessToken = token.isNotEmpty ? token : null;
-    _persistence.clearSession();
-    onSessionExpired.value = true;
-  }
-
-  Future<bool> refreshToken() async {
-    final uri = ApiConfig.resolve('/api/v1/Auth/refresh-token');
-    try {
-      final response = await post(
-        uri,
-        headers: const {_contentTypeHeader: 'application/json'},
-        body: jsonEncode(const {}),
-        retryOn401: false,
-      );
-      if (response.statusCode != 200) return false;
-
-      final accessTokenFromBody = _extractAccessTokenFromBody(response.body);
-      if (accessTokenFromBody != null) {
-        _accessToken = accessTokenFromBody;
-      }
-      return true;
-    } catch (_) {
-      return false;
-    }
-  }
-
-  Future<http.Response> get(
-    Uri uri, {
-    Map<String, String>? headers,
-    bool retryOn401 = true,
-  }) async {
-    return _requestWithRefresh(
-      retryOn401: retryOn401,
-      request: () async {
-        final merged = _mergeHeaders(headers);
-        _applyDefaults(merged);
-        return _inner.get(uri, headers: merged);
-      },
-    );
-  }
-
-  Future<http.Response> delete(
-    Uri uri, {
-    Map<String, String>? headers,
-    bool retryOn401 = true,
-  }) async {
-    return _requestWithRefresh(
-      retryOn401: retryOn401,
-      request: () async {
-        final merged = _mergeHeaders(headers);
-        _applyDefaults(merged);
-        return _inner.delete(uri, headers: merged);
-      },
-    );
-  }
-
-  Future<http.Response> post(
-    Uri uri, {
-    Map<String, String>? headers,
-    Object? body,
-    Encoding? encoding,
-    bool retryOn401 = true,
-  }) async {
-    return _requestWithRefresh(
-      retryOn401: retryOn401,
-      request: () async {
-        final merged = _mergeHeaders(headers);
-        _applyDefaults(merged);
-        return _inner.post(
-          uri,
-          headers: merged,
-          body: body,
-          encoding: encoding,
-        );
-      },
-    );
-  }
-
-  Future<http.Response> patch(
-    Uri uri, {
-    Map<String, String>? headers,
-    Object? body,
-    Encoding? encoding,
-    bool retryOn401 = true,
-  }) async {
-    return _requestWithRefresh(
-      retryOn401: retryOn401,
-      request: () async {
-        final merged = _mergeHeaders(headers);
-        _applyDefaults(merged);
-        return _inner.patch(
-          uri,
-          headers: merged,
-          body: body,
-          encoding: encoding,
-        );
-      },
-    );
-  }
-
-  Future<http.Response> sendMultipart(
-    Future<http.MultipartRequest> Function() buildRequest, {
-    bool retryOn401 = true,
-  }) async {
-    return _requestWithRefresh(
-      retryOn401: retryOn401,
-      request: () async {
-        final request = await buildRequest();
-        _applyDefaults(request.headers);
-        final streamed = await _inner.send(request);
-        final response = await http.Response.fromStream(streamed);
-        _storeCookiesFromResponse(response);
-        return response;
-      },
-    );
-  }
-
-  Future<http.Response> _requestWithRefresh({
-    required bool retryOn401,
-    required Future<http.Response> Function() request,
-  }) async {
-    final response = await request();
-    _storeCookiesFromResponse(response);
-
-    if (response.statusCode == 429) {
-      final resetHeader = response.headers['x-ratelimit-reset'];
-      String message = 'Too many requests.';
-      if (resetHeader != null) {
-        final resetTime = int.tryParse(resetHeader);
-        if (resetTime != null) {
-          final waitMinutes = ((resetTime * 1000 - DateTime.now().millisecondsSinceEpoch) / 60000).ceil();
-          if (waitMinutes > 0) {
-            message = 'Too many requests. Please try again in $waitMinutes minutes.';
-          }
-        }
-      }
-      throw ApiException(message, statusCode: 429, uri: response.request?.url);
+  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    // Wait for any concurrent refresh to finish before sending
+    if (_isRefreshing && _refreshCompleter != null) {
+      await _refreshCompleter!.future;
     }
 
-    if (!retryOn401 || response.statusCode != 401) {
+    // Inject the accessToken cookie on every request (if we have one)
+    _injectCookie(request);
+
+    // Clone the request before sending (requests can only be sent once)
+    final clonedRequest = await _copyRequest(request);
+
+    final response = await _inner.send(request);
+
+    // 403 Forbidden = user lacks permission — no point trying a refresh
+    if (response.statusCode == 403) {
       return response;
     }
 
-    final refreshed = await refreshToken();
-    if (!refreshed) {
-      clearSession(); // This will trigger onSessionExpired
-      return response;
-    }
+    // 401 Unauthorized = accessToken expired — try to refresh once
+    if (response.statusCode == 401) {
+      if (!_isRefreshing) {
+        _isRefreshing = true;
+        _refreshCompleter = Completer<bool>();
 
-    final retryResponse = await request();
-    _storeCookiesFromResponse(retryResponse);
-    return retryResponse;
-  }
-
-  Map<String, String> _mergeHeaders(Map<String, String>? headers) {
-    final merged = <String, String>{};
-    if (headers != null) {
-      merged.addAll(headers);
-    }
-    return merged;
-  }
-
-  void _applyDefaults(Map<String, String> headers) {
-    headers.putIfAbsent(_acceptHeader, () => 'application/json');
-
-    final accessToken = _accessToken;
-    if (accessToken != null &&
-        accessToken.isNotEmpty &&
-        !headers.containsKey(_authorizationHeader)) {
-      headers[_authorizationHeader] = 'Bearer $accessToken';
-    }
-
-    if (!kIsWeb && !headers.containsKey(_cookieHeader)) {
-      final cookieHeader = _cookieHeaderValue;
-      if (cookieHeader.isNotEmpty) {
-        headers[_cookieHeader] = cookieHeader;
-      }
-    }
-  }
-
-  String get _cookieHeaderValue {
-    if (_cookies.isEmpty) return '';
-    return _cookies.entries.map((e) => '${e.key}=${e.value}').join('; ');
-  }
-
-  void _storeCookiesFromResponse(http.Response response) {
-    final raw = response.headers['set-cookie'];
-    if (raw == null || raw.isEmpty) return;
-
-    for (final value in _splitSetCookieHeader(raw)) {
-      try {
-        final nameValue = value.split(';').first;
-        final equalsIndex = nameValue.indexOf('=');
-        if (equalsIndex <= 0) continue;
-        final name = nameValue.substring(0, equalsIndex).trim();
-        final cookieValue = nameValue.substring(equalsIndex + 1).trim();
-        if (name.isEmpty) continue;
-
-        if (cookieValue.isEmpty) {
-          _cookies.remove(name);
-        } else {
-          _cookies[name] = cookieValue;
+        try {
+          await _authService.refreshToken();
+          _refreshCompleter!.complete(true);
+        } catch (_) {
+          _refreshCompleter!.complete(false);
+          _isRefreshing = false;
+          // Refresh failed — return 401 so the app can force logout
+          return response;
+        } finally {
+          _isRefreshing = false;
         }
-        if (name == 'accessToken' && cookieValue.isNotEmpty) {
-          _accessToken = cookieValue;
-        }
-      } catch (_) {
-        // Ignore malformed cookie values.
-      }
-    }
-    _persistence.saveSession(token: _accessToken, cookies: _cookies);
-  }
-
-  List<String> _splitSetCookieHeader(String headerValue) {
-    final results = <String>[];
-    var start = 0;
-    var inExpires = false;
-
-    for (var i = 0; i < headerValue.length; i++) {
-      final char = headerValue[i];
-
-      if (!inExpires && _matchesAt(headerValue, i, 'expires=')) {
-        inExpires = true;
-        continue;
+      } else {
+        // Another request already triggered the refresh — wait for it
+        final success = await _refreshCompleter!.future;
+        if (!success) return response;
       }
 
-      if (inExpires && char == ';') {
-        inExpires = false;
-        continue;
-      }
-
-      if (char == ',' && !inExpires) {
-        final part = headerValue.substring(start, i).trim();
-        if (part.isNotEmpty) results.add(part);
-        start = i + 1;
-      }
+      // Retry with updated accessToken
+      _injectCookie(clonedRequest);
+      return _inner.send(clonedRequest);
     }
 
-    final last = headerValue.substring(start).trim();
-    if (last.isNotEmpty) results.add(last);
-    return results;
+    return response;
   }
 
-  bool _matchesAt(String source, int index, String pattern) {
-    if (index + pattern.length > source.length) return false;
-    return source.substring(index, index + pattern.length).toLowerCase() ==
-        pattern.toLowerCase();
-  }
-
-  String? _extractAccessTokenFromBody(String body) {
-    try {
-      final decoded = jsonDecode(body);
-      if (decoded is Map<String, dynamic>) {
-        final direct = decoded['accessToken'];
-        if (direct is String && direct.trim().isNotEmpty) {
-          return direct.trim();
-        }
-        final data = decoded['data'];
-        if (data is Map<String, dynamic>) {
-          final nested = data['accessToken'];
-          if (nested is String && nested.trim().isNotEmpty) {
-            return nested.trim();
-          }
-        }
-      }
-    } catch (_) {}
-    return null;
-  }
-
-  static String extractMessage(http.Response response, {String fallback = 'Request failed'}) {
-    try {
-      final decoded = jsonDecode(response.body);
-      if (decoded is Map<String, dynamic>) {
-        // Common Reference format: { "success": false, "message": "..." }
-        final message = decoded['message'];
-        if (message is String && message.trim().isNotEmpty) {
-          return message.trim();
-        }
-        
-        // Sometimes nested in data
-        final data = decoded['data'];
-        if (data is Map<String, dynamic>) {
-          final nestedMessage = data['message'];
-          if (nestedMessage is String && nestedMessage.trim().isNotEmpty) {
-            return nestedMessage.trim();
-          }
-        }
-      }
-    } catch (_) {}
-
-    // Status code fallbacks
-    switch (response.statusCode) {
-      case 400: return 'Invalid request. Please check your input.';
-      case 401: return 'Session expired. Please login again.';
-      case 403: return 'Access denied. You do not have permission.';
-      case 404: return 'Resource not found.';
-      case 429: return 'Too many requests. Please try again later.';
-      case 500: return 'Server error. Please try again later.';
+  /// Inject `Cookie: accessToken=...` (and refreshToken if present) into [request].
+  void _injectCookie(http.BaseRequest request) {
+    final parts = <String>[];
+    if (AuthApiService.memoryAccessToken  != null) parts.add('accessToken=${AuthApiService.memoryAccessToken}');
+    if (AuthApiService.memoryRefreshToken != null) parts.add('refreshToken=${AuthApiService.memoryRefreshToken}');
+    if (parts.isNotEmpty) {
+      request.headers['Cookie'] = parts.join('; ');
     }
+  }
 
-    return fallback;
+  Future<http.BaseRequest> _copyRequest(http.BaseRequest request) async {
+    if (request is http.Request) {
+      final copy = http.Request(request.method, request.url);
+      copy.headers.addAll(request.headers);
+      copy.encoding = request.encoding;
+      copy.bodyBytes = request.bodyBytes;
+      return copy;
+    } else if (request is http.MultipartRequest) {
+      final copy = http.MultipartRequest(request.method, request.url);
+      copy.headers.addAll(request.headers);
+      copy.fields.addAll(request.fields);
+      copy.files.addAll(request.files);
+      return copy;
+    }
+    return request;
   }
 }
